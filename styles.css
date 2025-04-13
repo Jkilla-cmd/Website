@@ -1,0 +1,47 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  height: 100vh;
+  background: url('https://images.unsplash.com/photo-1607083204071-cb5303ad7d34?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
+  background-size: cover;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.overlay {
+  text-align: center;
+  background-color: rgba(0, 0, 0, 0.4);
+  padding: 2rem 3rem;
+  border-radius: 12px;
+}
+
+.overlay h1 {
+  font-size: 3rem;
+  margin-bottom: 0.5em;
+}
+
+.overlay p {
+  font-size: 1.2rem;
+  color: #ddd;
+}
+
+/* Coffee Icon */
+.bmc-icon {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 10;
+  transition: transform 0.2s ease;
+}
+
+.bmc-icon:hover {
+  transform: scale(1.1);
+}
