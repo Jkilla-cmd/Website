@@ -1,0 +1,46 @@
+/* Reset some default styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  height: 100vh;
+  background: linear-gradient(to right, #2e2e2e, #1e1e1e);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #fefefe;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.overlay {
+  text-align: center;
+}
+
+.overlay h1 {
+  font-size: 3rem;
+  margin-bottom: 0.5em;
+  color: #f8f8f8;
+}
+
+.overlay p {
+  font-size: 1.2rem;
+  color: #d3d3d3;
+}
+
+/* Buy Me a Coffee Button */
+.bmc-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 10;
+  transition: transform 0.2s ease;
+}
+
+.bmc-button:hover {
+  transform: scale(1.05);
+}
