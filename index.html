@@ -161,13 +161,37 @@
 
 <body>
 
-  <video autoplay muted loop class="background-video">
+      {
 
-    <source src="https://cdn.coverr.co/videos/coverr-girl-writing-on-a-notebook-9722/1080p.mp4" type="video/mp4">
+      margin: 0;
 
-    Your browser does not support the video tag.
+      font-family: 'Space Mono', monospace;
 
-  </video>
+      color: var(--text-color);
+
+      background: url('https://media.tenor.com/yheo1GGu3FwAAAAd/lofi-chill.gif') no-repeat center center fixed;
+
+      background-size: cover;
+
+      height: 100vh;
+
+      overflow: hidden;
+
+      display: flex;
+
+      flex-direction: column;
+
+      justify-content: center;
+
+      align-items: center;
+
+      text-align: center;
+
+      backdrop-filter: brightness(0.6);
+
+      transition: background 0.3s, color 0.3s;
+
+    }
 
   <div class="overlay"></div>
 
