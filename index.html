@@ -1,31 +1,373 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>LoFi Vibes</title>
-  <link rel="stylesheet" href="styles.css" />
-</head>
-<body>
-  <!-- Starry Background Overlay -->
-  <div class="stars"></div>
 
-  <!-- Blurred Glass Card -->
-  <div class="overlay glass">
-    <h1>LoFi Vibes</h1>
-    <p>Relax & enjoy the chill tunes 🎧</p>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <title>Lofi Chill Station</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono&display=swap" rel="stylesheet">
+
+  <style>
+
+    :root {
+
+      --bg-color: #1e1e1e;
+
+      --text-color: #ffffff;
+
+      --button-bg: rgba(255, 255, 255, 0.1);
+
+      --hover-bg: rgba(255, 0, 0, 0.7);
+
+    }
+
+    body.light-mode {
+
+      --bg-color: #f4f4f4;
+
+      --text-color: #1e1e1e;
+
+      --button-bg: rgba(0, 0, 0, 0.1);
+
+      --hover-bg: rgba(200, 200, 200, 0.8);
+
+    }
+
+    body {
+
+      margin: 0;
+
+      font-family: 'Space Mono', monospace;
+
+      color: var(--text-color);
+
+      background: url('https://media.tenor.com/yheo1GGu3FwAAAAd/lofi-chill.gif') no-repeat center center fixed;
+
+      background-size: cover;
+
+      height: 100vh;
+
+      overflow: hidden;
+
+      display: flex;
+
+      flex-direction: column;
+
+      justify-content: center;
+
+      align-items: center;
+
+      text-align: center;
+
+      backdrop-filter: brightness(0.6);
+
+      transition: background 0.3s, color 0.3s;
+
+    }
+
+    h1 {
+
+      font-size: 2.5rem;
+
+      margin-bottom: 20px;
+
+      text-shadow: 0 0 10px rgba(0,0,0,0.6);
+
+    }
+
+    .youtube-link {
+
+      display: inline-flex;
+
+      align-items: center;
+
+      text-decoration: none;
+
+      color: var(--text-color);
+
+      font-size: 1.2rem;
+
+      border: 2px solid var(--text-color);
+
+      padding: 12px 24px;
+
+      border-radius: 12px;
+
+      background-color: var(--button-bg);
+
+      transition: all 0.3s ease;
+
+      margin-bottom: 20px;
+
+    }
+
+    .youtube-link:hover {
+
+      background-color: var(--hover-bg);
+
+    }
+
+    img.icon {
+
+      width: 36px;
+
+      height: 36px;
+
+      margin-right: 12px;
+
+    }
+
+    img.sticker {
+
+      position: fixed;
+
+      bottom: 20px;
+
+      right: 20px;
+
+      width: 120px;
+
+      opacity: 0.8;
+
+      transition: transform 0.3s;
+
+    }
+
+    img.sticker:hover {
+
+      transform: scale(1.1);
+
+      opacity: 1;
+
+    }
+
+    .audio-controls {
+
+      background-color: var(--button-bg);
+
+      border: 1px solid var(--text-color);
+
+      padding: 12px 24px;
+
+      border-radius: 12px;
+
+      display: flex;
+
+      align-items: center;
+
+      gap: 10px;
+
+      flex-direction: column;
+
+      margin-bottom: 20px;
+
+    }
+
+    .player-buttons {
+
+      display: flex;
+
+      gap: 10px;
+
+    }
+
+    .audio-controls input[type="range"] {
+
+      width: 120px;
+
+    }
+
+    .toggle-mode {
+
+      position: fixed;
+
+      top: 20px;
+
+      right: 20px;
+
+      padding: 8px 16px;
+
+      background-color: var(--button-bg);
+
+      border: 1px solid var(--text-color);
+
+      border-radius: 8px;
+
+      cursor: pointer;
+
+      color: var(--text-color);
+
+      font-size: 0.9rem;
+
+      transition: background-color 0.3s;
+
+    }
+
+    .toggle-mode:hover {
+
+      background-color: var(--hover-bg);
+
+    }
+
+    .track-title {
+
+      font-size: 1rem;
+
+      margin-bottom: 6px;
+
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <button class="toggle-mode" onclick="toggleMode()">Toggle Dark/Light Mode</button>
+
+  <h1>Lofi Girl – Chill Beats to Relax / Study To</h1>
+
+  <a class="youtube-link" href="https://www.youtube.com/watch?v=jfKfPfyJRdk" target="_blank">
+
+    <img class="icon" src="https://upload.wikimedia.org/wikipedia/commons/7/75/YouTube_social_white_square_(2017).svg" alt="YouTube Logo">
+
+    Watch on YouTube
+
+  </a>
+
+  <div class="audio-controls">
+
+    <div class="track-title" id="track-title">Now Playing: Lofi Study</div>
+
+    <div class="player-buttons">
+
+      <button onclick="prevTrack()">⏮️</button>
+
+      <button onclick="togglePlay()">▶️ / ⏸️</button>
+
+      <button onclick="nextTrack()">⏭️</button>
+
+    </div>
+
+    <input type="range" min="0" max="1" step="0.01" value="0.5" onchange="changeVolume(this.value)">
+
   </div>
 
-  <!-- Audio (autoplay, loop) -->
-  <audio autoplay loop>
-    <source src="your-lofi-track.mp3" type="audio/mpeg">
+  <audio id="lofi-audio" autoplay loop>
+
+    <source src="" type="audio/mpeg">
+
     Your browser does not support the audio element.
+
   </audio>
 
-  <!-- Buy Me a Coffee Icon -->
-  <a href="https://www.buymeacoffee.com/yourusername" target="_blank" class="bmc-icon">
-    <img src="https://cdn.buymeacoffee.com/assets/img/guidelines/logo-mark-1.svg" 
-         alt="Buy Me a Coffee" width="40" height="40" />
-  </a>
+  <img class="sticker" src="https://i.imgur.com/hgM1PRz.png" alt="Lofi Girl Sticker">
+
+  <script>
+
+    const audio = document.getElementById("lofi-audio");
+
+    const title = document.getElementById("track-title");
+
+    const playlist = [
+
+      {
+
+        title: "Lofi Study",
+
+        url: "https://cdn.pixabay.com/download/audio/2022/03/23/audio_f5ce5b99c0.mp3?filename=lofi-study-112191.mp3"
+
+      },
+
+      {
+
+        title: "Dreamy Chillhop",
+
+        url: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_7fc0d2f194.mp3?filename=chillhop-dreamy-11235.mp3"
+
+      },
+
+      {
+
+        title: "Night Rain Vibes",
+
+        url: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_7a244579f2.mp3?filename=lofi-rain-11089.mp3"
+
+      }
+
+    ];
+
+    let currentTrack = 0;
+
+    function loadTrack(index) {
+
+      audio.src = playlist[index].url;
+
+      title.textContent = "Now Playing: " + playlist[index].title;
+
+      audio.play();
+
+    }
+
+    function togglePlay() {
+
+      if (audio.paused) {
+
+        audio.play();
+
+      } else {
+
+        audio.pause();
+
+      }
+
+    }
+
+    function changeVolume(value) {
+
+      audio.volume = value;
+
+    }
+
+    function nextTrack() {
+
+      currentTrack = (currentTrack + 1) % playlist.length;
+
+      loadTrack(currentTrack);
+
+    }
+
+    function prevTrack() {
+
+      currentTrack = (currentTrack - 1 + playlist.length) % playlist.length;
+
+      loadTrack(currentTrack);
+
+    }
+
+    function toggleMode() {
+
+      document.body.classList.toggle("light-mode");
+
+    }
+
+    // Load first track on page load
+
+    window.onload = () => {
+
+      loadTrack(currentTrack);
+
+      audio.volume = 0.5;
+
+    };
+
+  </script>
+
 </body>
+
 </html>
