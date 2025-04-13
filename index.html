@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lofi City Café</title>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Quicksand', sans-serif;
+      background: #0e0e1a;
+      color: #f4f4f4;
+      overflow: hidden;
+    }
+
+    .background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('https://cdn.pixabay.com/photo/2022/10/04/17/22/girl-7498910_1280.png');
+      background-size: cover;
+      background-position: center;
+      z-index: -2;
+      filter: brightness(0.6) blur(1.5px);
+    }
+
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(10, 10, 20, 0.3);
+      z-index: -1;
+    }
+
+    .content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+      opacity: 0.85;
+    }
+
+    .player-box {
+      background: rgba(255, 255, 255, 0.04);
+      padding: 20px;
+      border-radius: 14px;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    }
+
+    .yt-embed {
+      margin-top: 20px;
+      border-radius: 12px;
+      overflow: hidden;
+      max-width: 100%;
+    }
+
+    iframe {
+      width: 100%;
+      height: 315px;
+      border: none;
+    }
+
+    .buy-coffee {
+      display: inline-block;
+      margin-top: 20px;
+    }
+
+    .buy-coffee img {
+      height: 40px;
+      transition: transform 0.2s;
+    }
+
+    .buy-coffee img:hover {
+      transform: scale(1.1);
+    }
+
+    .credits {
+      position: absolute;
+      bottom: 10px;
+      width: 100%;
+      text-align: center;
+      font-size: 0.8rem;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="background"></div>
+  <div class="overlay"></div>
+
+  <div class="content">
+    <div class="player-box">
+      <h1>Lofi City Café</h1>
+      <p>Chill beats to keep you focused and cozy above the city lights.</p>
+
+      <!-- YouTube Embed for Lofi Stream with autoplay and mute -->
+      <div class="yt-embed">
+        <iframe src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&mute=1&controls=0&loop=1&playlist=jfKfPfyJRdk" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+      </div>
+
+      <!-- Buy Me a Coffee -->
+      <div class="buy-coffee">
+        <a href="https://www.buymeacoffee.com/yourusername" target="_blank">
+          <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee">
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="credits">
+    Background image from Pixabay | Music via Lofi Girl
+  </div>
+
+</body>
+</html>
