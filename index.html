@@ -9,7 +9,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <title>Lofi Café - Minimal with Video</title>
+  <title>Lofi Café</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
 
@@ -196,26 +196,3 @@
 
 </html>
 
-"""
-
-# Save to file and zip
-
-video_dir = "/mnt/data/lofi-cafe-video-bg"
-
-video_path = os.path.join(video_dir, "index.html")
-
-os.makedirs(video_dir, exist_ok=True)
-
-with open(video_path, "w") as f:
-
-    f.write(lofi_video_html)
-
-# Create ZIP
-
-zip_video_path = "/mnt/data/lofi-cafe-video-bg.zip"
-
-with ZipFile(zip_video_path, "w") as zipf:
-
-    zipf.write(video_path, arcname="index.html")
-
-zip_video_path
