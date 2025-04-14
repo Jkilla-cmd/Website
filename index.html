@@ -1,0 +1,29 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Task Tracker Login</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="login-container" id="login-screen">
+    <h2>Login</h2>
+    <input type="text" id="username" placeholder="Enter your username" />
+    <button onclick="login()">Login</button>
+  </div>
+
+  <div class="app-container hidden" id="task-app">
+    <h2>Welcome, <span id="user-name"></span>!</h2>
+    <div class="task-input">
+      <input type="text" id="new-task" placeholder="Add a new task" />
+      <button onclick="addTask()">Add</button>
+    </div>
+    <ul id="task-list"></ul>
+    <button onclick="logout()" class="logout-btn">Logout</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
