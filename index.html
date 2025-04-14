@@ -2,25 +2,19 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cloud-Fi</title>
 
-  <!-- Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
-
-  <!-- PWA Meta -->
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#1e1e1e">
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&family=Fredoka:wght@500&display=swap" rel="stylesheet">
 
   <style>
     :root {
       --bg-color: #1e1e1e;
       --text-color: #ffffff;
-      --button-bg: rgba(255, 255, 255, 0.1);
+      --button-bg: rgba(255, 255, 255, 0.08);
       --hover-bg: rgba(255, 255, 255, 0.2);
+      --primary-glow: 0 0 8px rgba(255, 255, 255, 0.2);
     }
 
     body.light-mode {
@@ -47,33 +41,42 @@
     }
 
     h1 {
-      font-size: 2.8rem;
+      font-family: 'Fredoka', cursive;
+      font-size: 3rem;
       margin-bottom: 30px;
-      text-shadow: 0 0 12px rgba(0, 0, 0, 0.6);
+      text-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
     }
 
     .audio-controls {
       background-color: var(--button-bg);
       border: 1px solid var(--text-color);
-      padding: 16px 28px;
-      border-radius: 18px;
+      padding: 20px;
+      border-radius: 16px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 12px;
+      gap: 16px;
       margin-bottom: 30px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      box-shadow: var(--primary-glow);
+    }
+
+    .player-buttons {
+      display: flex;
+      gap: 16px;
     }
 
     .player-buttons button {
-      background: transparent;
+      background-color: rgba(255, 255, 255, 0.15);
       border: none;
-      font-size: 1.6rem;
+      font-size: 1.5rem;
       cursor: pointer;
       color: var(--text-color);
-      transition: transform 0.2s, background 0.3s;
-      border-radius: 8px;
-      padding: 6px;
+      border-radius: 50%;
+      padding: 14px;
+      width: 50px;
+      height: 50px;
+      transition: all 0.2s ease-in-out;
+      backdrop-filter: blur(4px);
     }
 
     .player-buttons button:hover {
@@ -82,7 +85,7 @@
     }
 
     .audio-controls input[type="range"] {
-      width: 140px;
+      width: 160px;
     }
 
     .toggle-mode {
@@ -108,17 +111,21 @@
       font-weight: 600;
     }
 
+    .buy-coffee {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+    }
+
     .buy-coffee a img {
-      width: 160px;
-      height: auto;
-      border-radius: 12px;
-      opacity: 0.85;
-      transition: opacity 0.3s, transform 0.2s;
+      width: 140px;
+      border-radius: 10px;
+      opacity: 0.9;
+      transition: transform 0.2s ease-in-out;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
 
     .buy-coffee a img:hover {
-      opacity: 1;
       transform: scale(1.05);
     }
   </style>
@@ -131,7 +138,7 @@
     <div class="track-title" id="track-title">Now Playing: Lofi Study</div>
     <div class="player-buttons">
       <button onclick="prevTrack()">⏮</button>
-      <button onclick="togglePlay()">▶️ / ⏸️</button>
+      <button onclick="togglePlay()">⏯</button>
       <button onclick="nextTrack()">⏭</button>
     </div>
     <input type="range" min="0" max="1" step="0.01" value="0.5" onchange="changeVolume(this.value)">
@@ -144,7 +151,7 @@
 
   <div class="buy-coffee">
     <a href="https://www.buymeacoffee.com/jac0bb" target="_blank">
-      <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee">
+      <img src="https://cdn.buymeacoffee.com/buttons/v2/default-transparent.png" alt="Buy Me a Coffee">
     </a>
   </div>
 
@@ -176,11 +183,7 @@
     }
 
     function togglePlay() {
-      if (audio.paused) {
-        audio.play();
-      } else {
-        audio.pause();
-      }
+      audio.paused ? audio.play() : audio.pause();
     }
 
     function changeVolume(value) {
@@ -204,10 +207,6 @@
     window.onload = () => {
       loadTrack(currentTrack);
       audio.volume = 0.5;
-
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('service-worker.js');
-      }
     };
   </script>
 </body>
