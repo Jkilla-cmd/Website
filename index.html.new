@@ -46,7 +46,7 @@
 
       color: var(--text-color);
 
-      background: url('https://media.tenor.com/yheo1GGu3FwAAAAd/lofi-chill.gif') no-repeat center center fixed;
+      background: url('https://www.icegif.com/wp-content/uploads/2021/09/icegif-1.gif') no-repeat center center fixed;
 
       background-size: cover;
 
