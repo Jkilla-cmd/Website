@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Clock In/Out</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="toggle-mode">
+    <button onclick="toggleMode()">Toggle Mode</button>
+  </div>
+
+  <div class="container" id="login-container">
+    <h1>Login</h1>
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Password" />
+    <button onclick="login()">Login</button>
+    <p>Don't have an account? <a href="#" onclick="showSignup()">Sign up</a></p>
+  </div>
+
+  <div class="container" id="signup-container" style="display:none;">
+    <h1>Sign Up</h1>
+    <input type="email" id="signup-email" placeholder="Email" />
+    <input type="password" id="signup-password" placeholder="Password" />
+    <button onclick="signup()">Sign Up</button>
+    <p>Already have an account? <a href="#" onclick="showLogin()">Login</a></p>
+  </div>
+
+  <div class="container" id="dashboard" style="display:none;">
+    <h1>Welcome <span id="user-email"></span></h1>
+    <div class="buttons">
+      <button onclick="clockIn()">Clock In</button>
+      <button onclick="clockOut()">Clock Out</button>
+    </div>
+    <div class="log">
+      <h2>Logs</h2>
+      <ul id="log-list"></ul>
+    </div>
+    <button onclick="logout()">Logout</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
