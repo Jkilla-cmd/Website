@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cloud-Fi</title>
+
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- PWA Meta -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1e1e1e">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <style>
+    :root {
+      --bg-color: #1e1e1e;
+      --text-color: #ffffff;
+      --button-bg: rgba(255, 255, 255, 0.1);
+      --hover-bg: rgba(255, 255, 255, 0.2);
+    }
+
+    body.light-mode {
+      --bg-color: #f4f4f4;
+      --text-color: #1e1e1e;
+      --button-bg: rgba(0, 0, 0, 0.05);
+      --hover-bg: rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Quicksand', sans-serif;
+      color: var(--text-color);
+      background: url('https://www.icegif.com/wp-content/uploads/2021/09/icegif-1.gif') no-repeat center center fixed;
+      background-size: cover;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      backdrop-filter: brightness(0.6);
+      transition: background 0.3s, color 0.3s;
+    }
+
+    h1 {
+      font-size: 2.8rem;
+      margin-bottom: 30px;
+      text-shadow: 0 0 12px rgba(0, 0, 0, 0.6);
+    }
+
+    .audio-controls {
+      background-color: var(--button-bg);
+      border: 1px solid var(--text-color);
+      padding: 16px 28px;
+      border-radius: 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .player-buttons button {
+      background: transparent;
+      border: none;
+      font-size: 1.6rem;
+      cursor: pointer;
+      color: var(--text-color);
+      transition: transform 0.2s, background 0.3s;
+      border-radius: 8px;
+      padding: 6px;
+    }
+
+    .player-buttons button:hover {
+      background-color: var(--hover-bg);
+      transform: scale(1.1);
+    }
+
+    .audio-controls input[type="range"] {
+      width: 140px;
+    }
+
+    .toggle-mode {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 10px 20px;
+      background-color: var(--button-bg);
+      border: 1px solid var(--text-color);
+      border-radius: 10px;
+      cursor: pointer;
+      color: var(--text-color);
+      font-size: 0.9rem;
+      transition: background-color 0.3s;
+    }
+
+    .toggle-mode:hover {
+      background-color: var(--hover-bg);
+    }
+
+    .track-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .buy-coffee a img {
+      width: 160px;
+      height: auto;
+      border-radius: 12px;
+      opacity: 0.85;
+      transition: opacity 0.3s, transform 0.2s;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .buy-coffee a img:hover {
+      opacity: 1;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <button class="toggle-mode" onclick="toggleMode()">Toggle Dark/Light Mode</button>
+  <h1>Breathe. Relax. Focus.</h1>
+
+  <div class="audio-controls">
+    <div class="track-title" id="track-title">Now Playing: Lofi Study</div>
+    <div class="player-buttons">
+      <button onclick="prevTrack()">⏮</button>
+      <button onclick="togglePlay()">▶️ / ⏸️</button>
+      <button onclick="nextTrack()">⏭</button>
+    </div>
+    <input type="range" min="0" max="1" step="0.01" value="0.5" onchange="changeVolume(this.value)">
+  </div>
+
+  <audio id="lofi-audio" autoplay loop>
+    <source src="" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+
+  <div class="buy-coffee">
+    <a href="https://www.buymeacoffee.com/jac0bb" target="_blank">
+      <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee">
+    </a>
+  </div>
+
+  <script>
+    const audio = document.getElementById("lofi-audio");
+    const title = document.getElementById("track-title");
+
+    const playlist = [
+      {
+        title: "Advanti - Rainy Day",
+        url: "https://data.freetouse.com/music/tracks/9fab7c51-811b-5a40-ff91-e2224a4ab27e/file/mp3"
+      },
+      {
+        title: "Pufino - Daydreams",
+        url: "https://data.freetouse.com/music/tracks/10c9c51c-9044-cc47-80b7-952ca4ebe41f/file/mp3"
+      },
+      {
+        title: "Night Rain Vibes",
+        url: "https://data.freetouse.com/music/tracks/07ce4507-fa07-341e-4cd3-6acc0d0ff912/file/mp3"
+      }
+    ];
+
+    let currentTrack = 0;
+
+    function loadTrack(index) {
+      audio.src = playlist[index].url;
+      title.textContent = "Now Playing: " + playlist[index].title;
+      audio.play();
+    }
+
+    function togglePlay() {
+      if (audio.paused) {
+        audio.play();
+      } else {
+        audio.pause();
+      }
+    }
+
+    function changeVolume(value) {
+      audio.volume = value;
+    }
+
+    function nextTrack() {
+      currentTrack = (currentTrack + 1) % playlist.length;
+      loadTrack(currentTrack);
+    }
+
+    function prevTrack() {
+      currentTrack = (currentTrack - 1 + playlist.length) % playlist.length;
+      loadTrack(currentTrack);
+    }
+
+    function toggleMode() {
+      document.body.classList.toggle("light-mode");
+    }
+
+    window.onload = () => {
+      loadTrack(currentTrack);
+      audio.volume = 0.5;
+
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('service-worker.js');
+      }
+    };
+  </script>
+</body>
+</html>
