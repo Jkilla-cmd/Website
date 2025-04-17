@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Crypto Tracker</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1f1c2c, #928dab);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    h1 {
+      margin-bottom: 2rem;
+      text-align: center;
+      font-size: 2.5rem;
+    }
+
+    .crypto-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      width: 100%;
+      max-width: 900px;
+    }
+
+    .card {
+      background-color: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+      transform: scale(1.05);
+    }
+
+    .crypto-name {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .price {
+      font-size: 2rem;
+      font-weight: bold;
+    }
+
+    footer {
+      margin-top: auto;
+      padding: 1rem;
+      font-size: 0.9rem;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+  <h1>Crypto Price Tracker</h1>
+  <div class="crypto-container">
+    <div class="card" id="bitcoin">
+      <div class="crypto-name">Bitcoin (BTC)</div>
+      <div class="price" id="btc-price">$...</div>
+    </div>
+    <div class="card" id="ethereum">
+      <div class="crypto-name">Ethereum (ETH)</div>
+      <div class="price" id="eth-price">$...</div>
+    </div>
+    <div class="card" id="litecoin">
+      <div class="crypto-name">Litecoin (LTC)</div>
+      <div class="price" id="ltc-price">$...</div>
+    </div>
+  </div>
+  <footer>Data from CoinGecko API | Updates every 30 seconds</footer>
+
+  <script>
+    const updatePrices = async () => {
+      try {
+        const res = await fetch(
+          'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,litecoin&vs_currencies=usd'
+        );
+        const data = await res.json();
+        document.getElementById('btc-price').textContent = `$${data.bitcoin.usd.toLocaleString()}`;
+        document.getElementById('eth-price').textContent = `$${data.ethereum.usd.toLocaleString()}`;
+        document.getElementById('ltc-price').textContent = `$${data.litecoin.usd.toLocaleString()}`;
+      } catch (error) {
+        console.error('Error fetching prices:', error);
+      }
+    };
+
+    // Initial load and update every 30 seconds
+    updatePrices();
+    setInterval(updatePrices, 30000);
+  </script>
+</body>
+</html>
