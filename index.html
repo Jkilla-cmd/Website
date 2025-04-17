@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Crypto Tracker</title>
+  <title>Random Meme Generator</title>
   <style>
     * {
       box-sizing: border-box;
@@ -11,98 +11,90 @@
 
     body {
       margin: 0;
+      padding: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #1f1c2c, #928dab);
-      color: #fff;
+      background: linear-gradient(to right top, #2a2a72, #009ffd);
       display: flex;
-      flex-direction: column;
       align-items: center;
-      min-height: 100vh;
+      justify-content: center;
+      height: 100vh;
+      color: #fff;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+      max-width: 600px;
+      width: 90%;
       padding: 2rem;
+      text-align: center;
+      animation: fadeIn 0.8s ease-in-out;
     }
 
     h1 {
-      margin-bottom: 2rem;
-      text-align: center;
-      font-size: 2.5rem;
+      margin-bottom: 1.5rem;
+      font-size: 2rem;
     }
 
-    .crypto-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1.5rem;
-      width: 100%;
-      max-width: 900px;
+    img {
+      max-width: 100%;
+      border-radius: 12px;
+      margin-bottom: 1rem;
     }
 
-    .card {
-      background-color: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-      border-radius: 16px;
-      padding: 1.5rem;
-      text-align: center;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-      transition: transform 0.3s ease;
-    }
-
-    .card:hover {
-      transform: scale(1.05);
-    }
-
-    .crypto-name {
-      font-size: 1.5rem;
+    .meme-title {
+      font-weight: bold;
       margin-bottom: 0.5rem;
     }
 
-    .price {
-      font-size: 2rem;
-      font-weight: bold;
+    .loading {
+      font-size: 1rem;
+      opacity: 0.7;
     }
 
-    footer {
-      margin-top: auto;
-      padding: 1rem;
-      font-size: 0.9rem;
-      opacity: 0.7;
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.97);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
     }
   </style>
 </head>
 <body>
-  <h1>Crypto Price Tracker</h1>
-  <div class="crypto-container">
-    <div class="card" id="bitcoin">
-      <div class="crypto-name">Bitcoin (BTC)</div>
-      <div class="price" id="btc-price">$...</div>
-    </div>
-    <div class="card" id="ethereum">
-      <div class="crypto-name">Ethereum (ETH)</div>
-      <div class="price" id="eth-price">$...</div>
-    </div>
-    <div class="card" id="litecoin">
-      <div class="crypto-name">Litecoin (LTC)</div>
-      <div class="price" id="ltc-price">$...</div>
-    </div>
+  <div class="container" id="meme-box">
+    <h1>🤣 Random Meme Generator</h1>
+    <div class="meme-title" id="title">Loading meme...</div>
+    <img id="meme-img" src="" alt="Meme" />
+    <div class="loading" id="loading">Fetching new meme every 10 seconds...</div>
   </div>
-  <footer>Data from CoinGecko API | Updates every 30 seconds</footer>
 
   <script>
-    const updatePrices = async () => {
-      try {
-        const res = await fetch(
-          'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,litecoin&vs_currencies=usd'
-        );
-        const data = await res.json();
-        document.getElementById('btc-price').textContent = `$${data.bitcoin.usd.toLocaleString()}`;
-        document.getElementById('eth-price').textContent = `$${data.ethereum.usd.toLocaleString()}`;
-        document.getElementById('ltc-price').textContent = `$${data.litecoin.usd.toLocaleString()}`;
-      } catch (error) {
-        console.error('Error fetching prices:', error);
-      }
-    };
+    const memeImg = document.getElementById('meme-img');
+    const memeTitle = document.getElementById('title');
 
-    // Initial load and update every 30 seconds
-    updatePrices();
-    setInterval(updatePrices, 30000);
+    async function loadMeme() {
+      try {
+        const res = await fetch('https://meme-api.com/gimme');
+        const data = await res.json();
+        memeImg.src = data.url;
+        memeTitle.textContent = data.title;
+      } catch (err) {
+        memeTitle.textContent = '😅 Oops! Failed to load meme.';
+        memeImg.src = '';
+      }
+    }
+
+    // Load first meme immediately
+    loadMeme();
+
+    // Load a new meme every 10 seconds
+    setInterval(loadMeme, 10000);
   </script>
 </body>
 </html>
