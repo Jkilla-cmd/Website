@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welcome to Jay's Arcade</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Press Start 2P', cursive;
+      background: radial-gradient(circle at center, #1a1a1a 0%, #000000 100%);
+      color: #ffcc00;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-top: 40px;
+      text-shadow: 0 0 5px #ffcc00, 0 0 10px #ffcc00;
+    }
+
+    .game-container {
+      margin-top: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    iframe {
+      border: 5px solid #ffcc00;
+      box-shadow: 0 0 20px #ffcc00;
+      border-radius: 10px;
+      width: 400px;
+      height: 500px;
+    }
+
+    audio {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+  </style>
+</head>
+<body>
+  <h1>Welcome to Jay's Arcade</h1>
+
+  <div class="game-container">
+    <!-- Pac-Man Embed (or you could build a custom one with JS later) -->
+    <iframe src="https://www.retrogames.cc/embed/15497-ms-pac-man.html" frameborder="0" allowfullscreen></iframe>
+  </div>
+
+  <!-- Lofi background music -->
+  <audio autoplay loop controls>
+    <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_9f13c8042e.mp3?filename=lofi-study-112191.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+</body>
+</html>
