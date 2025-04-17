@@ -3,60 +3,160 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Welcome to Jay's Arcade</title>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <title>Futuristic Login</title>
   <style>
-    body {
+    * {
+      box-sizing: border-box;
       margin: 0;
-      font-family: 'Press Start 2P', cursive;
-      background: radial-gradient(circle at center, #1a1a1a 0%, #000000 100%);
-      color: #ffcc00;
-      text-align: center;
-      overflow: hidden;
+      padding: 0;
     }
-
-    h1 {
-      font-size: 2rem;
-      margin-top: 40px;
-      text-shadow: 0 0 5px #ffcc00, 0 0 10px #ffcc00;
-    }
-
-    .game-container {
-      margin-top: 50px;
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom right, #0f0c29, #302b63, #24243e);
+      color: #fff;
       display: flex;
-      justify-content: center;
+      height: 100vh;
       align-items: center;
+      justify-content: center;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 2rem;
+      backdrop-filter: blur(10px);
+      width: 300px;
+    }
+    .card h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    input[type="email"], input[type="password"] {
+      width: 100%;
+      padding: 0.75rem;
+      border: none;
+      margin-bottom: 1rem;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+    button {
+      width: 100%;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 8px;
+      background: #6a0dad;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .signup {
+      margin-top: 1rem;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+    .signup a {
+      color: #9f79ee;
+      text-decoration: underline;
+    }
+    .dashboard {
+      display: none;
       flex-direction: column;
+      align-items: center;
+      padding: 2rem;
     }
-
-    iframe {
-      border: 5px solid #ffcc00;
-      box-shadow: 0 0 20px #ffcc00;
-      border-radius: 10px;
-      width: 400px;
-      height: 500px;
+    .tabs {
+      margin-top: 1rem;
+      display: flex;
+      gap: 1rem;
     }
-
-    audio {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
+    .dropdown {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      cursor: pointer;
+    }
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 8px;
+      padding: 0.5rem;
+      top: 2rem;
+      right: 0;
+    }
+    .dropdown:hover .dropdown-content {
+      display: block;
     }
   </style>
 </head>
 <body>
-  <h1>Welcome to Jay's Arcade</h1>
-
-  <div class="game-container">
-    <!-- Pac-Man Embed (or you could build a custom one with JS later) -->
-    <iframe src="https://www.retrogames.cc/embed/15497-ms-pac-man.html" frameborder="0" allowfullscreen></iframe>
+  <div class="card" id="loginCard">
+    <h2>Login</h2>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+    <div class="signup">Don't have an account? <a href="#">Sign up</a></div>
   </div>
 
-  <!-- Lofi background music -->
-  <audio autoplay loop controls>
-    <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_9f13c8042e.mp3?filename=lofi-study-112191.mp3" type="audio/mpeg">
-    Your browser does not support the audio element.
-  </audio>
+  <div class="dashboard" id="dashboard">
+    <div class="dropdown">
+      <span id="userEmail">User</span>
+      <div class="dropdown-content">
+        <button onclick="logout()">Logout</button>
+      </div>
+    </div>
+    <h2>Dashboard</h2>
+    <div class="tabs">
+      <button onclick="showTab('clock')">Clock</button>
+      <button onclick="showTab('status')">Status</button>
+    </div>
+    <div id="tabContent" style="margin-top: 2rem;">
+      <div id="clockTab">
+        <p id="clockStatus">You are currently Clocked Out</p>
+        <button onclick="toggleClock()" style="margin-top: 1rem;">Clock In</button>
+      </div>
+      <div id="statusTab" style="display:none">
+        <p>Logged in as <strong id="statusEmail"></strong></p>
+        <p>Status: <span id="currentStatus">Clocked Out</span></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let clockedIn = false;
+
+    function login() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      if (email && password) {
+        document.getElementById('loginCard').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'flex';
+        document.getElementById('userEmail').textContent = email;
+        document.getElementById('statusEmail').textContent = email;
+      }
+    }
+
+    function logout() {
+      document.getElementById('loginCard').style.display = 'block';
+      document.getElementById('dashboard').style.display = 'none';
+      document.getElementById('email').value = '';
+      document.getElementById('password').value = '';
+    }
+
+    function toggleClock() {
+      clockedIn = !clockedIn;
+      document.getElementById('clockStatus').textContent =
+        'You are currently ' + (clockedIn ? 'Clocked In' : 'Clocked Out');
+      document.getElementById('currentStatus').textContent =
+        clockedIn ? 'Clocked In' : 'Clocked Out';
+    }
+
+    function showTab(tab) {
+      document.getElementById('clockTab').style.display = tab === 'clock' ? 'block' : 'none';
+      document.getElementById('statusTab').style.display = tab === 'status' ? 'block' : 'none';
+    }
+  </script>
 </body>
 </html>
