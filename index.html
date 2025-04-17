@@ -3,96 +3,29 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Funny AI Faces</title>
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(to right, #141e30, #243b55);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      color: #fff;
-    }
-
-    .container {
-      background: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(12px);
-      border-radius: 20px;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
-      max-width: 600px;
-      width: 90%;
-      padding: 2rem;
-      text-align: center;
-      animation: fadeIn 0.8s ease-in-out;
-    }
-
-    h1 {
-      font-size: 2rem;
-      margin-bottom: 1.5rem;
-    }
-
-    img {
-      max-width: 100%;
-      border-radius: 15px;
-      margin-bottom: 1rem;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-      transition: transform 0.3s ease;
-    }
-
-    img:hover {
-      transform: scale(1.02);
-    }
-
-    .loading {
-      font-size: 0.9rem;
-      opacity: 0.7;
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: scale(0.95);
-      }
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
-    }
-  </style>
+  <title>Micro-Learning Scroller</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="container">
-    <h1>😂 Hilarious AI Faces</h1>
-    <img id="funny-img" src="" alt="Funny AI Face" />
-    <div class="loading">New face every 10 seconds...</div>
+  <div class="app">
+    <h1>🧠 Micro-Learning Scroll</h1>
+
+    <div class="category-selector">
+      <select id="categorySelect">
+        <option value="all">All Topics</option>
+        <option value="psychology">Psychology</option>
+        <option value="religion">Religion</option>
+        <option value="conspiracies">Conspiracies</option>
+        <option value="coding">Coding</option>
+        <option value="programming">Programming</option>
+      </select>
+    </div>
+
+    <div class="fact-box" id="factBox">
+      Click or press space to load a new fact!
+    </div>
   </div>
 
-  <script>
-    const img = document.getElementById('funny-img');
-
-    const funnyAIImages = [
-      "https://api.memegen.link/images/blb/When_AI/Tries_to_be_funny.png",
-      "https://api.memegen.link/images/awkward/AI_face/gets_weirder.png",
-      "https://api.memegen.link/images/doge/AI_is/trying_hard.png",
-      "https://api.memegen.link/images/grumpycat/Not_funny/_AI.png",
-      "https://api.memegen.link/images/disastergirl/AI_made_this/funny_right.png",
-      "https://api.memegen.link/images/fry/Not_sure_if_AI_or/just_weird_face.png"
-    ];
-
-    function loadRandomFace() {
-      const randomIndex = Math.floor(Math.random() * funnyAIImages.length);
-      img.src = funnyAIImages[randomIndex] + "?random=" + Date.now(); // prevent caching
-    }
-
-    // Load immediately and then every 10s
-    loadRandomFace();
-    setInterval(loadRandomFace, 10000);
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
