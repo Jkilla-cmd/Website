@@ -12,38 +12,48 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb') no-repeat center center/cover;
+      background: url('https://i.imgur.com/4M7IWwP.jpg') no-repeat center center/cover;
       overflow: hidden;
       font-family: 'Arial', sans-serif;
     }
     .player {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(12px);
       padding: 2rem;
-      border-radius: 1rem;
+      border-radius: 1.5rem;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 1rem;
       color: white;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
     }
     .stations {
       display: flex;
       gap: 0.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
     }
     button {
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 0.5rem;
-      background: rgba(255, 255, 255, 0.2);
+      padding: 0.4rem 0.8rem;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.1);
       color: white;
       cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.3s, border 0.3s;
     }
     button:hover {
-      background: rgba(255, 255, 255, 0.4);
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.5);
     }
     audio {
       width: 100%;
+      max-width: 300px;
+      border-radius: 1rem;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 0.5rem;
     }
   </style>
 </head>
