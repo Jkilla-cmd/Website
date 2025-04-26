@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lofi Chill</title>
+  <title>Conspiracy Portal</title>
   <style>
     body {
       margin: 0;
@@ -15,75 +15,56 @@
       background: url('https://cdn.theatlantic.com/thumbor/QgdxpmJjTOZ-AWc8uDj-_mBZbUU=/0x0:1600x900/960x540/media/img/mt/2021/08/atlantic_wifi/original.gif') no-repeat center center/cover;
       background-color: #0d0d0d;
       overflow: hidden;
-      font-family: 'Arial', sans-serif;
-      color: #fff;
     }
-    .player {
+    .eye-button {
+      width: 100px;
+      height: 100px;
       background: rgba(0, 0, 0, 0.3);
-      backdrop-filter: blur(12px);
-      padding: 1rem;
-      border-radius: 1rem;
+      backdrop-filter: blur(10px);
+      border-radius: 50%;
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.5rem;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-      width: 220px;
-    }
-    .stations {
-      display: flex;
-      gap: 0.3rem;
-      flex-wrap: wrap;
       justify-content: center;
-    }
-    button {
-      padding: 0.2rem 0.6rem;
-      border: none;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.1);
-      color: #fff;
-      font-size: 0.7rem;
+      align-items: center;
       cursor: pointer;
-      transition: background 0.3s;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+      transition: transform 0.3s, background 0.3s;
     }
-    button:hover {
-      background: rgba(255, 255, 255, 0.2);
+    .eye-button:hover {
+      transform: scale(1.05);
+      background: rgba(255, 255, 255, 0.1);
     }
-    audio {
-      width: 100%;
-      filter: brightness(0.8);
-      border-radius: 0.5rem;
-    }
-    audio::-webkit-media-controls-panel {
-      background: none;
-    }
-    h1 {
-      font-size: 1rem;
-      font-weight: 300;
-      margin: 0;
+    .eye-button img {
+      width: 60%;
+      height: 60%;
+      object-fit: contain;
+      pointer-events: none; /* so the click goes through the image to the div */
     }
   </style>
 </head>
 <body>
 
-  <div class="player">
-    <h1>Lofi Tech 🎶</h1>
-    <audio id="audio" controls autoplay loop>
-      <source src="https://your-stream-link-1.mp3" type="audio/mp3">
-      Your browser does not support the audio element.
-    </audio>
-    <div class="stations">
-      <button onclick="changeStation('https://your-stream-link-1.mp3')">Station 1</button>
-      <button onclick="changeStation('https://your-stream-link-2.mp3')">Station 2</button>
-      <button onclick="changeStation('https://your-stream-link-3.mp3')">Station 3</button>
-    </div>
+  <div class="eye-button" onclick="goToRandomConspiracy()">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/US_one_dollar_bill%2C_reverse%2C-eye.png/600px-US_one_dollar_bill%2C_reverse%2C-eye.png" alt="All Seeing Eye">
   </div>
 
   <script>
-    const audio = document.getElementById('audio');
-    function changeStation(url) {
-      audio.src = url;
-      audio.play();
+    const conspiracyLinks = [
+      "https://en.wikipedia.org/wiki/Conspiracy_theory",
+      "https://allthatsinteresting.com/conspiracy-theories",
+      "https://www.history.com/topics/21st-century/conspiracy-theories",
+      "https://time.com/5168202/conspiracy-theories-belief/",
+      "https://www.britannica.com/topic/conspiracy-theory",
+      "https://skeptoid.com/conspiracies",
+      "https://www.theatlantic.com/magazine/archive/2020/06/why-people-believe-conspiracies/610567/",
+      "https://www.livescience.com/amp/contrails-chemtrails.html",
+      "https://en.wikipedia.org/wiki/Moon_landing_conspiracy_theories",
+      "https://www.bbc.com/future/article/20200812-why-conspiracy-theories-are-so-addictive"
+    ];
+
+    function goToRandomConspiracy() {
+      const randomIndex = Math.floor(Math.random() * conspiracyLinks.length);
+      const randomLink = conspiracyLinks[randomIndex];
+      window.open(randomLink, "_blank"); // Opens in a new tab
     }
   </script>
 
