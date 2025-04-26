@@ -12,21 +12,22 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background: url('https://i.imgur.com/4M7IWwP.jpg') no-repeat center center/cover;
+      background: url('https://images.unsplash.com/photo-1549921296-3a5aefc7ef7e') no-repeat center center/cover;
+      background-color: #0d0d0d;
       overflow: hidden;
       font-family: 'Arial', sans-serif;
+      color: #fff;
     }
     .player {
-      background: rgba(0, 0, 0, 0.4);
-      backdrop-filter: blur(12px);
-      padding: 2rem;
-      border-radius: 1.5rem;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(10px);
+      padding: 1.5rem;
+      border-radius: 1rem;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 1rem;
-      color: white;
-      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 8px 32px 0 rgba(0,0,0,0.37);
     }
     .stations {
       display: flex;
@@ -35,32 +36,39 @@
       justify-content: center;
     }
     button {
-      padding: 0.4rem 0.8rem;
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 0.3rem 0.7rem;
+      border: none;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
+      background: #1f1f1f;
+      color: #fff;
+      font-size: 0.8rem;
       cursor: pointer;
-      font-size: 0.9rem;
-      transition: background 0.3s, border 0.3s;
+      transition: background 0.3s;
     }
     button:hover {
-      background: rgba(255, 255, 255, 0.2);
-      border: 1px solid rgba(255, 255, 255, 0.5);
+      background: #333;
     }
     audio {
       width: 100%;
-      max-width: 300px;
-      border-radius: 1rem;
-      background: rgba(255, 255, 255, 0.1);
-      padding: 0.5rem;
+      max-width: 250px;
+      background: none;
+      outline: none;
+      border: none;
+      filter: brightness(0.8);
+    }
+    audio::-webkit-media-controls-panel {
+      background: none;
+    }
+    h1 {
+      font-size: 1.2rem;
+      font-weight: 400;
     }
   </style>
 </head>
 <body>
 
   <div class="player">
-    <h1>Lofi Chill 🎵</h1>
+    <h1>Lofi Tech 🎶</h1>
     <audio id="audio" controls autoplay loop>
       <source src="https://your-stream-link-1.mp3" type="audio/mp3">
       Your browser does not support the audio element.
