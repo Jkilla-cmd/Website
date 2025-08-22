@@ -1,243 +1,334 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
   <meta charset="UTF-8" />
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-  <title>Lofi Chill Station</title>
-
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono&display=swap" rel="stylesheet">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Instant Audio Reverser</title>
   <style>
-
     :root {
-
-      --bg-color: #1e1e1e;
-
-      --text-color: #ffffff;
-
-      --button-bg: rgba(255, 255, 255, 0.1);
-
-      --hover-bg: rgba(255, 0, 0, 0.7);
-
+      --bg: #0b0f14;
+      --card: #111827;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #60a5fa;
+      --accent-2: #22d3ee;
+      --good: #34d399;
+      --bad: #f87171;
+      --radius: 16px;
     }
-
-    body.light-mode {
-
-      --bg-color: #f4f4f4;
-
-      --text-color: #1e1e1e;
-
-      --button-bg: rgba(0, 0, 0, 0.1);
-
-      --hover-bg: rgba(200, 200, 200, 0.8);
-
-    }
-
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
     body {
+      margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Noto Sans, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: linear-gradient(135deg, #0b0f14 0%, #0f172a 100%);
+      color: var(--text); display: grid; place-items: center; padding: 24px;
+    }
+    .app { width: 100%; max-width: 900px; }
+    .title { font-size: clamp(24px, 4vw, 40px); font-weight: 800; letter-spacing: 0.4px; margin: 0 0 8px; }
+    .subtitle { margin: 0 0 24px; color: var(--muted); }
 
-      margin: 0;
-
-      font-family: 'Space Mono', monospace;
-
-      color: var(--text-color);
-
-      background: url('https://media.tenor.com/yheo1GGu3FwAAAAd/lofi-chill.gif') no-repeat center center fixed;
-
-      background-size: cover;
-
-      height: 100vh;
-
-      overflow: hidden;
-
-      display: flex;
-
-      flex-direction: column;
-
-      justify-content: center;
-
-      align-items: center;
-
-      text-align: center;
-
-      backdrop-filter: brightness(0.6);
-
-      transition: background 0.3s, color 0.3s;
-
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.35);
+      border-radius: var(--radius); padding: 18px; backdrop-filter: blur(8px);
     }
 
-    h1 {
-
-      font-size: 2.5rem;
-
-      margin-bottom: 20px;
-
-      text-shadow: 0 0 10px rgba(0,0,0,0.6);
-
-    }
-
-    .youtube-link {
-
-      display: inline-flex;
-
-      align-items: center;
-
-      text-decoration: none;
-
-      color: var(--text-color);
-
-      font-size: 1.2rem;
-
-      border: 2px solid var(--text-color);
-
-      padding: 12px 24px;
-
-      border-radius: 12px;
-
-      background-color: var(--button-bg);
-
-      transition: all 0.3s ease;
-
-      margin-bottom: 20px;
-
-    }
-
-    .youtube-link:hover {
-
-      background-color: var(--hover-bg);
-
-    }
-
-    img.icon {
-
-      width: 36px;
-
-      height: 36px;
-
-      margin-right: 12px;
-
-    }
-
-    img.sticker {
-
-      position: fixed;
-
-      bottom: 20px;
-
-      right: 20px;
-
-      width: 120px;
-
-      opacity: 0.8;
-
-      transition: transform 0.3s;
-
-    }
-
-    img.sticker:hover {
-
-      transform: scale(1.1);
-
-      opacity: 1;
-
-    }
-
-    .audio-controls {
-
-      background-color: var(--button-bg);
-
-      border: 1px solid var(--text-color);
-
-      padding: 12px 24px;
-
-      border-radius: 12px;
-
-      display: flex;
-
-      align-items: center;
-
-      gap: 10px;
-
-      flex-direction: column;
-
-      margin-bottom: 20px;
-
-    }
-
-    .player-buttons {
-
-      display: flex;
-
-      gap: 10px;
-
-    }
-
-    .audio-controls input[type="range"] {
-
-      width: 120px;
-
-    }
-
-    .toggle-mode {
-
-      position: fixed;
-
-      top: 20px;
-
-      right: 20px;
-
-      padding: 8px 16px;
-
-      background-color: var(--button-bg);
-
-      border: 1px solid var(--text-color);
-
-      border-radius: 8px;
-
+    .drop {
+      border: 2px dashed rgba(255,255,255,0.18);
+      border-radius: calc(var(--radius) - 2px);
+      padding: 26px; text-align: center; transition: all 160ms ease;
+      background: rgba(255,255,255,0.02);
       cursor: pointer;
-
-      color: var(--text-color);
-
-      font-size: 0.9rem;
-
-      transition: background-color 0.3s;
-
     }
+    .drop.hover { border-color: var(--accent); background: rgba(96,165,250,0.08); }
+    .drop input { display: none; }
+    .hint { color: var(--muted); font-size: 14px; }
 
-    .toggle-mode:hover {
+    .row { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    @media (min-width: 700px) { .row { grid-template-columns: 1fr 1fr; } }
 
-      background-color: var(--hover-bg);
-
+    .controls { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .pill { background: #0b1220; border: 1px solid rgba(255,255,255,0.09); padding: 10px 14px; border-radius: 999px; }
+    .btn {
+      border: 0; padding: 12px 16px; border-radius: 12px; cursor: pointer; font-weight: 700; letter-spacing: .3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2)); color: #020617;
+      transition: transform 120ms ease, filter 120ms ease; user-select: none;
     }
+    .btn:active { transform: translateY(1px); }
+    .btn.secondary { background: transparent; color: var(--text); border: 1px solid rgba(255,255,255,0.12); }
 
-    .track-title {
+    .status { font-size: 14px; color: var(--muted); margin-top: 8px; min-height: 22px; }
 
-      font-size: 1rem;
+    .audio-card { display: grid; gap: 10px; }
+    audio { width: 100%; outline: none; border-radius: 12px; background: #0b1220; }
 
-      margin-bottom: 6px;
+    .meta { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; font-size: 13px; color: var(--muted); }
+    .meta div { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); padding: 8px 10px; border-radius: 10px; }
 
-    }
+    .wave { height: 80px; width: 100%; border-radius: 10px; background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02)); border: 1px solid rgba(255,255,255,0.06); position: relative; overflow: hidden; }
+    canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
 
+    .footer { margin-top: 22px; display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+    .small { font-size: 12.5px; color: var(--muted); }
+    .link { color: var(--accent); text-decoration: none; }
   </style>
-
 </head>
-
 <body>
+  <main class="app">
+    <h1 class="title">Instant Audio Reverser</h1>
+    <p class="subtitle">Upload any song or sound, and hear it backwards instantly — all in your browser (no uploads, fully offline).</p>
 
-  <button class="</button>
+    <section class="card" aria-label="Upload">
+      <label class="drop" id="drop">
+        <input id="file" type="file" accept="audio/*" />
+        <div style="font-size:18px; font-weight:700;">Drop an audio file here or click to browse</div>
+        <div class="hint">Supported: MP3, WAV, M4A/AAC, OGG, FLAC (browser support may vary)</div>
+      </label>
+      <div class="status" id="status">No file loaded.</div>
+    </section>
 
-  <h1
+    <div class="row" style="margin-top:16px;">
+      <section class="card audio-card">
+        <div class="wave"><canvas id="waveIn"></canvas></div>
+        <div class="meta" id="metaIn" hidden></div>
+      </section>
+      <section class="card audio-card">
+        <div class="wave"><canvas id="waveOut"></canvas></div>
+        <audio id="player" controls hidden></audio>
+        <div class="controls">
+          <button class="btn" id="play">Play Reversed</button>
+          <button class="btn secondary" id="download" disabled>Download WAV</button>
+          <span class="pill">Speed: <input id="rate" type="range" min="0.5" max="2" step="0.05" value="1" style="vertical-align:middle; width: 160px;"> <span id="rateVal">1.00×</span></span>
+        </div>
+      </section>
+    </div>
+
+    <div class="footer">
+      <span class="small">Processing happens locally using the Web Audio API. Your file never leaves your device.</span>
+      <a class="small link" href="#" id="example">Try a demo beep</a>
+    </div>
+  </main>
 
   <script>
+    // Utilities
+    const $ = (id) => document.getElementById(id);
+    const statusEl = $('status');
+    const fileInput = $('file');
+    const drop = $('drop');
+    const player = $('player');
+    const playBtn = $('play');
+    const dlBtn = $('download');
+    const rate = $('rate');
+    const rateVal = $('rateVal');
+    const waveIn = $('waveIn');
+    const waveOut = $('waveOut');
+    const metaIn = $('metaIn');
 
-    
+    let audioCtx;
+    let reversedWavBlob = null;
+    let reversedUrl = null;
 
+    function setStatus(msg, good=false, bad=false) {
+      statusEl.textContent = msg;
+      statusEl.style.color = bad ? 'var(--bad)' : good ? 'var(--good)' : 'var(--muted)';
+    }
+
+    function formatTime(sec) {
+      const m = Math.floor(sec/60), s = Math.round(sec % 60).toString().padStart(2,'0');
+      return `${m}:${s}`;
+    }
+
+    function drawWave(canvas, audioBuffer) {
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
+      const width = canvas.clientWidth * dpr;
+      const height = canvas.clientHeight * dpr;
+      canvas.width = width; canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0,0,width,height);
+      ctx.lineWidth = 1 * dpr;
+      ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+      ctx.globalAlpha = 1;
+
+      const ch0 = audioBuffer.getChannelData(0);
+      const step = Math.ceil(ch0.length / width);
+      const amp = height / 2;
+      ctx.beginPath();
+      for (let x=0; x<width; x++) {
+        const start = x*step;
+        let min = 1.0, max = -1.0;
+        for (let i=0; i<step && start+i<ch0.length; i++) {
+          const v = ch0[start+i];
+          if (v < min) min = v; if (v > max) max = v;
+        }
+        ctx.moveTo(x, (1+min)*amp);
+        ctx.lineTo(x, (1+max)*amp);
+      }
+      ctx.stroke();
+    }
+
+    function showMeta(container, buffer, name) {
+      container.hidden = false;
+      container.innerHTML = `
+        <div><strong>File</strong><br>${name}</div>
+        <div><strong>Duration</strong><br>${formatTime(buffer.duration)}</div>
+        <div><strong>Sample Rate</strong><br>${buffer.sampleRate} Hz</div>
+        <div><strong>Channels</strong><br>${buffer.numberOfChannels}</div>
+      `;
+    }
+
+    // WAV encoding (16-bit PCM)
+    function encodeWAV(interleaved, sampleRate, numChannels) {
+      const bytesPerSample = 2;
+      const blockAlign = numChannels * bytesPerSample;
+      const buffer = new ArrayBuffer(44 + interleaved.length * bytesPerSample);
+      const view = new DataView(buffer);
+
+      function writeString(offset, str){ for (let i=0;i<str.length;i++) view.setUint8(offset+i, str.charCodeAt(i)); }
+      let offset = 0;
+      writeString(0, 'RIFF');
+      view.setUint32(4, 36 + interleaved.length * bytesPerSample, true);
+      writeString(8, 'WAVE');
+      writeString(12,'fmt ');
+      view.setUint32(16, 16, true); // PCM chunk size
+      view.setUint16(20, 1, true);  // PCM format
+      view.setUint16(22, numChannels, true);
+      view.setUint32(24, sampleRate, true);
+      view.setUint32(28, sampleRate * blockAlign, true);
+      view.setUint16(32, blockAlign, true);
+      view.setUint16(34, 8 * bytesPerSample, true);
+      writeString(36, 'data');
+      view.setUint32(40, interleaved.length * bytesPerSample, true);
+
+      // Write PCM samples
+      offset = 44;
+      for (let i=0; i<interleaved.length; i++, offset+=2) {
+        let s = Math.max(-1, Math.min(1, interleaved[i]));
+        view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+      }
+      return new Blob([view], { type: 'audio/wav' });
+    }
+
+    function interleaveChannels(channels) {
+      const length = channels[0].length;
+      const numChannels = channels.length;
+      if (numChannels === 1) return channels[0];
+      const interleaved = new Float32Array(length * numChannels);
+      let idx = 0;
+      for (let i=0; i<length; i++) {
+        for (let ch=0; ch<numChannels; ch++) {
+          interleaved[idx++] = channels[ch][i];
+        }
+      }
+      return interleaved;
+    }
+
+    async function decodeArrayBuffer(arrayBuffer) {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      // On iOS, must resume after user gesture
+      if (audioCtx.state === 'suspended') { try { await audioCtx.resume(); } catch(_){} }
+      return new Promise((resolve, reject) => {
+        audioCtx.decodeAudioData(arrayBuffer.slice(0), resolve, reject);
+      });
+    }
+
+    function reverseBuffer(original) {
+      const { numberOfChannels, length, sampleRate } = original;
+      const out = new AudioBuffer({ length, numberOfChannels, sampleRate });
+      for (let ch=0; ch<numberOfChannels; ch++) {
+        const inData = original.getChannelData(ch);
+        const copy = new Float32Array(inData); // preserve original
+        copy.reverse();
+        out.copyToChannel(copy, ch);
+      }
+      return out;
+    }
+
+    function bufferToWavBlob(buffer) {
+      const channels = [];
+      for (let ch=0; ch<buffer.numberOfChannels; ch++) {
+        channels.push(buffer.getChannelData(ch));
+      }
+      const interleaved = interleaveChannels(channels);
+      return encodeWAV(interleaved, buffer.sampleRate, buffer.numberOfChannels);
+    }
+
+    function loadBlobIntoPlayer(blob) {
+      if (reversedUrl) URL.revokeObjectURL(reversedUrl);
+      reversedUrl = URL.createObjectURL(blob);
+      player.src = reversedUrl;
+      player.hidden = false;
+      dlBtn.disabled = false;
+    }
+
+    async function handleFile(file) {
+      if (!file) return;
+      setStatus(`Decoding \u201C${file.name}\u201D...`);
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const decoded = await decodeArrayBuffer(arrayBuffer);
+        drawWave(waveIn, decoded);
+        showMeta(metaIn, decoded, file.name);
+
+        setStatus('Reversing audio...');
+        const reversed = reverseBuffer(decoded);
+        drawWave(waveOut, reversed);
+
+        setStatus('Encoding WAV...');
+        reversedWavBlob = bufferToWavBlob(reversed);
+        loadBlobIntoPlayer(reversedWavBlob);
+        setStatus('Ready! Press Play.', true);
+      } catch (err) {
+        console.error(err);
+        setStatus('Failed to process this file. Try a different format.', false, true);
+      }
+    }
+
+    // Drag & drop
+    drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('hover'); });
+    drop.addEventListener('dragleave', () => drop.classList.remove('hover'));
+    drop.addEventListener('drop', (e) => {
+      e.preventDefault(); drop.classList.remove('hover');
+      const file = e.dataTransfer.files?.[0]; if (file) handleFile(file);
+    });
+
+    // Click to browse
+    drop.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', () => handleFile(fileInput.files?.[0]));
+
+    // Controls
+    playBtn.addEventListener('click', async () => {
+      try { await player.play(); } catch(e) { /* ignore */ }
+    });
+    rate.addEventListener('input', () => { player.playbackRate = parseFloat(rate.value); rateVal.textContent = `${parseFloat(rate.value).toFixed(2)}×`; });
+
+    dlBtn.addEventListener('click', () => {
+      if (!reversedWavBlob) return;
+      const a = document.createElement('a');
+      a.href = reversedUrl; a.download = 'reversed.wav';
+      document.body.appendChild(a); a.click(); a.remove();
+    });
+
+    // Demo tone for quick test
+    $('example').addEventListener('click', async (e) => {
+      e.preventDefault();
+      const sr = 44100, dur = 1.5, len = sr * dur;
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const buf = new AudioBuffer({ length: len, numberOfChannels: 1, sampleRate: sr });
+      const ch0 = buf.getChannelData(0);
+      for (let i=0; i<len; i++) { // simple descending chirp
+        const t = i/sr; const freq = 880 - t*660; ch0[i] = Math.sin(2*Math.PI*freq*t) * Math.exp(-2*t);
+      }
+      drawWave(waveIn, buf); showMeta(metaIn, { duration: dur, sampleRate: sr, numberOfChannels: 1 }, 'Demo beep');
+      const reversed = reverseBuffer(buf);
+      drawWave(waveOut, reversed);
+      reversedWavBlob = bufferToWavBlob(reversed);
+      loadBlobIntoPlayer(reversedWavBlob);
+      setStatus('Demo loaded. Press Play.', true);
+    });
+
+    // Auto-pause when page hidden to save power
+    document.addEventListener('visibilitychange', () => { if (document.hidden) player.pause(); });
   </script>
-
 </body>
-
 </html>
