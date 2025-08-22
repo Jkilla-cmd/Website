@@ -3,276 +3,231 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MaTH.io</title>
+  <title>math.io</title>
   <style>
-    :root { --bg:#f6f6f6; --fg:#222; --muted:#888; --card:#fff; --border:#e6e6e6; }
+    :root {
+      --bg: #0a0f1f;
+      --card: #131b2d;
+      --border: #1f2940;
+      --accent: #4db5ff;
+      --accent-hover: #72c9ff;
+      --text: #e6ecff;
+      --muted: #7a86a5;
+    }
     * { box-sizing: border-box; }
     body {
       margin: 0;
       min-height: 100vh;
-      display: grid;
-      place-items: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       background: var(--bg);
-      color: var(--fg);
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+      font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      color: var(--text);
     }
     .wrap {
-      width: min(680px, 92vw);
+      width: min(700px, 92vw);
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.6);
     }
     h1 {
-      margin: 0 0 12px;
-      font-weight: 550;
-      font-size: 22px;
-      letter-spacing: .2px;
+      margin: 0 0 8px;
+      font-weight: 600;
+      font-size: 26px;
+      color: var(--accent);
     }
-    p.hint { margin: 0 0 16px; color: var(--muted); font-size: 14px; }
+    p.hint {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 14px;
+    }
     textarea {
       width: 100%;
       height: 120px;
-      padding: 14px 12px;
+      padding: 14px;
       font: 16px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       border: 1px solid var(--border);
       border-radius: 12px;
       outline: none;
       resize: vertical;
-      background: #fafafa;
+      background: #0d1322;
+      color: var(--text);
     }
-    textarea:focus { border-color: #cfcfcf; }
+    textarea:focus { border-color: var(--accent); }
     .actions {
-      display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+      flex-wrap: wrap;
     }
     button {
       appearance: none;
-      border: 1px solid var(--border);
-      background: #111;
-      color: #fff;
-      padding: 10px 14px;
+      border: none;
+      padding: 10px 16px;
       border-radius: 10px;
       font-size: 15px;
+      font-weight: 500;
       cursor: pointer;
-      transition: transform .02s ease, opacity .2s ease;
+      transition: 0.2s;
     }
+    button.primary {
+      background: var(--accent);
+      color: #000;
+    }
+    button.primary:hover { background: var(--accent-hover); }
     button.secondary {
-      background: #fff; color: #111;
+      background: transparent;
+      border: 1px solid var(--accent);
+      color: var(--accent);
     }
-    button:active { transform: translateY(1px); }
+    button.secondary:hover {
+      background: var(--accent);
+      color: #000;
+    }
     .output, .steps {
-      margin-top: 14px;
-      padding: 14px 12px;
+      margin-top: 18px;
+      padding: 14px;
       border: 1px solid var(--border);
       border-radius: 12px;
-      background: #fff;
+      background: #0d1322;
       font-size: 15px;
       white-space: pre-wrap;
       word-break: break-word;
     }
-    .steps { padding: 12px; }
     .steps h3 {
-      margin: 0 0 8px; font-size: 16px; font-weight: 600;
+      margin: 0 0 8px;
+      font-size: 16px;
+      color: var(--accent);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
     }
     .step {
       padding: 8px 10px;
       border: 1px dashed var(--border);
       border-radius: 8px;
       margin: 6px 0;
-      background: #fcfcfc;
+      background: #131b2d;
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       font-size: 14px;
+      color: var(--text);
     }
-    .muted { color: var(--muted); }
+    .hidden { display: none; }
+    .muted { color: var(--muted); font-size: 13px; }
     .coffee {
       position: fixed;
-      bottom: 14px; right: 14px;
+      bottom: 14px;
+      right: 14px;
       opacity: 0.9;
     }
-    .coffee img { width: 40px; height: 40px; display: block; }
-    .row { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .coffee img { width: 40px; height: 40px; }
   </style>
 </head>
 <body>
 
   <div class="wrap">
-    <h1>Minimal Math Solver</h1>
+    <h1>math.io</h1>
     <p class="hint">Paste any math expression or equation (e.g. <code>(5^2 + 10)/3</code>, <code>sqrt(25)</code>, <code>2x + 4x = 18</code>).</p>
 
     <textarea id="problem" placeholder="Paste your math problem here..."></textarea>
 
     <div class="actions">
-      <button id="solveBtn">Solve</button>
-      <button class="secondary" id="stepsBtn">Show step-by-step</button>
-      <span class="muted" id="status"></span>
+      <button class="primary" id="solveBtn">Solve</button>
+      <button class="secondary" id="stepsBtn">Step-by-step</button>
     </div>
 
     <div class="output" id="answer">Answer will appear here.</div>
-
-    <div class="steps" id="stepsBox" style="display:none;">
-      <div class="row">
-        <h3>Step-by-step</h3>
-        <span class="muted" id="stepsInfo"></span>
-      </div>
+    
+    <div class="steps hidden" id="stepsBox">
+      <h3>
+        Step-by-step 
+        <span id="toggleArrow">▼</span>
+      </h3>
       <div id="steps"></div>
     </div>
   </div>
 
   <!-- Buy Me a Coffee Icon -->
-  <a class="coffee" href="https://www.buymeacoffee.com/YOURUSERNAME" target="_blank" rel="noopener">
+  <a class="coffee" href="https://www.buymeacoffee.com/YOURUSERNAME" target="_blank">
     <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee">
   </a>
 
-  <!-- math.js (numeric evaluation, functions, constants) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js" defer></script>
-  <!-- mathsteps (algebraic step-by-step) -->
-  <script src="https://unpkg.com/mathsteps/dist/mathsteps.min.js" defer></script>
+  <!-- math.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
+  <!-- mathsteps -->
+  <script src="https://unpkg.com/mathsteps/dist/mathsteps.min.js"></script>
 
   <script>
-    window.addEventListener('load', () => {
-      const problemEl = document.getElementById('problem');
-      const answerEl  = document.getElementById('answer');
-      const stepsBox  = document.getElementById('stepsBox');
-      const stepsEl   = document.getElementById('steps');
-      const stepsInfo = document.getElementById('stepsInfo');
-      const statusEl  = document.getElementById('status');
-      const solveBtn  = document.getElementById('solveBtn');
-      const stepsBtn  = document.getElementById('stepsBtn');
+    const problemEl = document.getElementById("problem");
+    const answerEl = document.getElementById("answer");
+    const stepsBox = document.getElementById("stepsBox");
+    const stepsEl = document.getElementById("steps");
+    const stepsBtn = document.getElementById("stepsBtn");
+    const toggleArrow = document.getElementById("toggleArrow");
 
-      function formatNumber(x) {
-        if (typeof x === 'number') {
-          // pretty print: avoid super long decimals
-          return Number.isInteger(x) ? x.toString() : x.toFixed(10).replace(/0+$/,'').replace(/\.$/,'');
-        }
-        return x;
+    let stepsVisible = true;
+
+    function solveExpression(expr) {
+      try {
+        const result = math.evaluate(expr);
+        return "Answer: " + result;
+      } catch (e) {
+        return "Error: Invalid expression";
       }
+    }
 
-      function setStatus(msg) {
-        statusEl.textContent = msg || '';
-        if (msg) setTimeout(() => statusEl.textContent = '', 1500);
-      }
+    function showSteps(expr) {
+      stepsEl.innerHTML = "";
+      stepsBox.classList.remove("hidden");
 
-      function evaluateExpression(expr) {
-        try {
-          // math.js handles many expressions & functions
-          const result = math.evaluate(expr);
-          return { ok: true, result };
-        } catch (e) {
-          return { ok: false, error: e.message || 'Invalid expression' };
-        }
-      }
-
-      function renderAnswer(expr) {
-        const out = evaluateExpression(expr);
-        if (out.ok) {
-          const val = out.result;
-          // If value is a Matrix/Complex/Fraction, try a decent display
-          let display;
-          if (math.typeOf(val) === 'Complex') {
-            display = val.toString();
-          } else if (math.typeOf(val) === 'Fraction') {
-            display = val.n + '/' + val.d + (val.s < 0 ? ' (negative)' : '');
-          } else if (math.typeOf(val) === 'BigNumber') {
-            display = val.toString();
-          } else if (math.typeOf(val) === 'Matrix') {
-            display = val.toString();
-          } else {
-            display = formatNumber(val);
-          }
-          answerEl.textContent = 'Answer: ' + display;
+      let steps = [];
+      try {
+        if (expr.includes("=")) {
+          steps = mathsteps.solveEquation(expr);
         } else {
-          answerEl.textContent = 'Error: ' + out.error;
+          steps = mathsteps.simplifyExpression(expr);
         }
+      } catch (e) {
+        steps = [];
       }
 
-      function trySteps(expr) {
-        stepsEl.innerHTML = '';
-        stepsInfo.textContent = '';
-        stepsBox.style.display = 'block';
-
-        // If mathsteps is missing, let the user know
-        if (!(window.mathsteps && typeof mathsteps.simplifyExpression === 'function')) {
-          const s = document.createElement('div');
-          s.className = 'step';
-          s.textContent = 'Step-by-step engine not available. (mathsteps failed to load)';
-          stepsEl.appendChild(s);
-          return;
-        }
-
-        const isEquation = expr.includes('=');
-        let steps = [];
-        try {
-          if (isEquation && typeof mathsteps.solveEquation === 'function') {
-            steps = mathsteps.solveEquation(expr);
-          } else {
-            steps = mathsteps.simplifyExpression(expr);
-          }
-        } catch (e) {
-          steps = [];
-        }
-
-        if (!steps || steps.length === 0) {
-          stepsInfo.textContent = '(No detailed algebraic steps available for this input.)';
-          // Provide a lightweight eval trace for basic functions as a fallback
-          const out = evaluateExpression(expr);
-          const s = document.createElement('div');
-          s.className = 'step';
-          if (out.ok) {
-            s.textContent = 'Numeric evaluation ⇒ ' + out.result;
-          } else {
-            s.textContent = 'Could not generate steps: ' + out.error;
-          }
-          stepsEl.appendChild(s);
-          return;
-        }
-
-        // Render steps from mathsteps
-        stepsInfo.textContent = isEquation ? '(Equation solving)' : '(Simplification)';
-        steps.forEach((st, i) => {
-          const div = document.createElement('div');
-          div.className = 'step';
-          const before = st.beforeChange || st.oldExpression || '';
-          const after  = st.afterChange  || st.newExpression || '';
-          const change = st.changeType ? ` – ${st.changeType}` : '';
-          div.textContent = `${i+1}. ${before}  →  ${after}${change}`;
-          stepsEl.appendChild(div);
-
-          // render substeps if any
-          if (Array.isArray(st.substeps) && st.substeps.length) {
-            st.substeps.forEach((sub, j) => {
-              const subDiv = document.createElement('div');
-              subDiv.className = 'step';
-              subDiv.style.marginLeft = '14px';
-              const b = sub.beforeChange || '';
-              const a = sub.afterChange  || '';
-              const c = sub.changeType ? ` – ${sub.changeType}` : '';
-              subDiv.textContent = `  ${i+1}.${j+1}  ${b}  →  ${a}${c}`;
-              stepsEl.appendChild(subDiv);
-            });
-          }
-        });
+      if (!steps || steps.length === 0) {
+        stepsEl.innerHTML = "<div class='step'>No detailed steps available for this input.</div>";
+        return;
       }
 
-      // Events
-      solveBtn.addEventListener('click', () => {
-        const expr = problemEl.value.trim();
-        if (!expr) { setStatus('Enter a problem first'); return; }
-        renderAnswer(expr);
+      steps.forEach((s, i) => {
+        const div = document.createElement("div");
+        div.className = "step";
+        div.textContent = `${i+1}. ${s.oldExpression || s.beforeChange} → ${s.newExpression || s.afterChange}`;
+        stepsEl.appendChild(div);
       });
+    }
 
-      stepsBtn.addEventListener('click', () => {
-        const expr = problemEl.value.trim();
-        if (!expr) { setStatus('Enter a problem first'); return; }
-        trySteps(expr);
-      });
+    document.getElementById("solveBtn").addEventListener("click", () => {
+      const expr = problemEl.value.trim();
+      answerEl.textContent = expr ? solveExpression(expr) : "Enter a problem first.";
+    });
 
-      // Convenience: Ctrl+Enter to solve
-      problemEl.addEventListener('keydown', (e) => {
-        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-          renderAnswer(problemEl.value.trim());
-        }
-      });
+    stepsBtn.addEventListener("click", () => {
+      const expr = problemEl.value.trim();
+      if (!expr) {
+        stepsBox.classList.remove("hidden");
+        stepsEl.innerHTML = "<div class='step'>Enter a problem first.</div>";
+        return;
+      }
+      showSteps(expr);
+    });
+
+    // Toggle collapsible panel
+    stepsBox.querySelector("h3").addEventListener("click", () => {
+      stepsVisible = !stepsVisible;
+      stepsEl.style.display = stepsVisible ? "block" : "none";
+      toggleArrow.textContent = stepsVisible ? "▼" : "▲";
     });
   </script>
 </body>
