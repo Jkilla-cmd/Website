@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Web PuTTY — xterm.js + ws</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="https://unpkg.com/xterm/css/xterm.css" />
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; margin:0; height:100vh; display:flex; flex-direction:column; background:#0f1720; color:#cbd5e1; }
+    .top { padding:12px; display:flex; gap:8px; align-items:center; background:rgba(255,255,255,0.02); border-bottom:1px solid rgba(255,255,255,0.03); }
+    input, select { background: rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); color:inherit; padding:6px 8px; border-radius:6px; }
+    button { padding:8px 12px; border-radius:8px; border: none; cursor:pointer; background:#0ea5a4; color:#042; }
+    #terminal { flex:1; }
+    .small { font-size:0.9rem; color:#94a3b8; }
+  </style>
+</head>
+<body>
+  <div class="top">
+    <label class="small">Host: <input id="host" value="localhost"></label>
+    <label class="small">Port: <input id="port" value="22" style="width:70px"></label>
+    <label class="small">User: <input id="username" value=""></label>
+    <label class="small">Auth:
+      <select id="auth">
+        <option value="password">Password</option>
+        <option value="key">Private Key (PEM)</option>
+      </select>
+    </label>
+    <label class="small" id="credsLabel">Password: <input id="password" type="password"></label>
+    <button id="connectBtn">Connect</button>
+    <button id="disconnectBtn" disabled>Disconnect</button>
+    <span style="margin-left:12px;" class="small" id="status">idle</span>
+  </div>
+
+  <div id="terminal"></div>
+
+  <script src="https://unpkg.com/xterm/lib/xterm.js"></script>
+  <script src="client.js"></script>
+</body>
+</html>
