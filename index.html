@@ -197,7 +197,7 @@ th { text-align: left; color: var(--muted); font-weight: 600; background: rgba(3
 td { color: var(--text); }
 tr:hover td { background: rgba(56,189,248,0.04); }
 .action-cell { text-align: center; width: 46px; }
-.trash { cursor: pointer; user-select: none; opacity: 0.9; }
+.trash { cursor: pointer; user-select: none; opacity: 0.9;  color: var(--red); }
 .trash:hover { opacity: 1; }
 
 /* ===== App Shell ===== */
@@ -521,6 +521,13 @@ tr:hover td { background: rgba(56,189,248,0.04); }
 
           <div class="divider"></div>
 
+          <button onclick="exportSoldCSV()">Export Sold (CSV)</button>
+          <div style="height:10px"></div>
+          <button onclick="exportIncomeCSV()">Export Income (CSV)</button>
+          <div class="stat muted" style="margin-top:10px;">Exports download as CSV you can open in Excel/Sheets.</div>
+
+          <div class="divider"></div>
+
           <button class="danger" onclick="clearSold()">Clear Sold Data</button>
           <div class="stat muted" id="soldImportMsg"></div>
         </div>
@@ -541,6 +548,13 @@ tr:hover td { background: rgba(56,189,248,0.04); }
                 <option value="ALL">ALL</option>
               </select>
             </div>
+            <div>
+              <label>Month</label>
+              <select id="soldMonthFilter" onchange="renderSold()">
+                <option value="ALL">ALL</option>
+              </select>
+            </div>
+
           </div>
 
           <div class="divider"></div>
@@ -1338,19 +1352,32 @@ function clearSold() {
 function refreshSoldFilters(data) {
   const yearSel = document.getElementById("soldYearFilter");
   const platSel = document.getElementById("soldPlatformFilter");
-  if (!yearSel || !platSel) return;
+  const monthSel = document.getElementById("soldMonthFilter");
+  if (!yearSel || !platSel || !monthSel) return;
 
   const years = Array.from(new Set(data.map(x => extractYear(x.date)).filter(Boolean))).sort();
   const plats = Array.from(new Set(data.map(x => String(x.platform || "").trim()).filter(Boolean))).sort((a,b)=>a.localeCompare(b));
+  const months = Array.from(new Set(data.map(x => monthKey(x.date)).filter(Boolean))).sort();
 
   const yCur = yearSel.value || "ALL";
   const pCur = platSel.value || "ALL";
+  const mCur = monthSel.value || "ALL";
 
   yearSel.innerHTML = `<option value="ALL">ALL</option>` + years.map(y => `<option value="${y}">${y}</option>`).join("");
   platSel.innerHTML = `<option value="ALL">ALL</option>` + plats.map(p => `<option value="${p}">${p}</option>`).join("");
 
+  const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  monthSel.innerHTML = `<option value="ALL">ALL</option>` + months.map(ym => {
+    const parts = ym.split("-");
+    const y = parts[0];
+    const mi = Math.max(1, Math.min(12, parseInt(parts[1], 10))) - 1;
+    const label = `${monthNames[mi]} ${y}`;
+    return `<option value="${ym}">${label}</option>`;
+  }).join("");
+
   if ([...yearSel.options].some(o => o.value === yCur)) yearSel.value = yCur;
   if ([...platSel.options].some(o => o.value === pCur)) platSel.value = pCur;
+  if ([...monthSel.options].some(o => o.value === mCur)) monthSel.value = mCur;
 }
 
 function monthKey(isoDate) {
@@ -1366,12 +1393,15 @@ function renderSold() {
 
   const y = document.getElementById("soldYearFilter")?.value || "ALL";
   const p = document.getElementById("soldPlatformFilter")?.value || "ALL";
+  const mth = document.getElementById("soldMonthFilter")?.value || "ALL";
 
   const filtered = all.filter(row => {
     const yr = extractYear(row.date);
+    const mk = monthKey(row.date);
     const okY = (y === "ALL") || (yr === y);
     const okP = (p === "ALL") || (String(row.platform || "") === p);
-    return okY && okP;
+    const okM = (mth === "ALL") || (mk === mth);
+    return okY && okP && okM;
   });
 
   const revenue = filtered.reduce((s,x)=>s + (Number(x.sale)||0), 0);
@@ -1522,6 +1552,52 @@ function factoryReset() {
   if (!ok) return;
   localStorage.clear();
   location.reload();
+}
+
+
+/* ========= Export ========= */
+function downloadTextFile(filename, text, mime="text/plain") {
+  const blob = new Blob([text], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+function toCSVRow(values) {
+  return values.map(v => {
+    const s = (v === null || v === undefined) ? "" : String(v);
+    if (/[",\n\r]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+    return s;
+  }).join(",");
+}
+function exportSoldCSV() {
+  const sold = readSold();
+  const header = ["date","item","platform","sale","cost","fees","shipping","profit"];
+  const lines = [toCSVRow(header)];
+  sold.slice().sort((a,b)=>String(a.date).localeCompare(String(b.date))).forEach(r => {
+    lines.push(toCSVRow([
+      r.date || "",
+      r.item || "",
+      r.platform || "",
+      Number(r.sale || 0),
+      Number(r.cost || 0),
+      Number(r.fees || 0),
+      Number(r.ship || 0),
+      Number(r.profit || 0)
+    ]));
+  });
+  downloadTextFile("sold_export.csv", lines.join("\n"), "text/csv");
+}
+function exportIncomeCSV() {
+  const income = JSON.parse(localStorage.getItem("monthlyIncome")) || [];
+  const header = ["month","income"];
+  const lines = [toCSVRow(header)];
+  income.forEach(r => lines.push(toCSVRow([r.label || "", Number(r.income || 0)])));
+  downloadTextFile("income_export.csv", lines.join("\n"), "text/csv");
 }
 
 /* ========= BOOT ========= */
