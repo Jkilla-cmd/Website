@@ -1,6 +1,6 @@
 {
-  "name": "Reseller Dashboard",
-  "short_name": "Reseller",
+  "name": "OffTheShelf",
+  "short_name": "OffTheShelf",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
