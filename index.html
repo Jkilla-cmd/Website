@@ -362,12 +362,23 @@ tr:hover td { background: rgba(56,189,248,0.04); }
 .modal .box .btnRow button { width:auto; }
 
 
-/* Buy Me a Coffee Floating Button */
+/* Buy Me a Coffee Floating Logo */
 .bmc-float {
   position: fixed;
   right: 18px;
   bottom: 18px;
   z-index: 10050;
+}
+.bmc-float img {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.bmc-float img:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 40px rgba(0,0,0,0.45);
 }
 .bmc-float a {
   display: flex;
