@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Reseller Dashboard</title>
+
+<!-- PWA -->
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#38bdf8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Reseller Dashboard">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+:root {
+  --bg: #0a0e14;
+  --panel: #0f141c;
+  --border: #1f2937;
+  --text: #d1d5db;
+  --muted: #6b7280;
+  --accent: #38bdf8;   /* cyan */
+  --green: #22c55e;
+  --yellow: #eab308;
+  --red: #ef4444;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "JetBrains Mono","Fira Code",monospace;
+  background: var(--bg);
+  color: var(--text);
+  padding: 18px;
+}
+
+label { font-size: 12px; color: var(--muted); }
+
+input, select {
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 10px;
+  margin: 6px 0 14px;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+input:focus, select:focus { outline: none; border-color: var(--accent); }
+
+/* ✅ Year dropdown text fix (closed + opened list) */
+select { background-color: var(--panel); color: var(--text); }
+select option { background-color: var(--panel); color: var(--text); }
+
+button {
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  padding: 10px;
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+button:hover { background: rgba(56,189,248,0.08); }
+
+button.danger { border-color: var(--red); color: var(--red); }
+button.danger:hover { background: rgba(239,68,68,0.08); }
+
+button.small { width: auto; padding: 8px 10px; }
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 18px;
+  position: relative;
+}
+
+.panel h3 {
+  margin: 0 0 14px;
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 18px;
+}
+
+.stat { font-size: 14px; margin-top: 6px; }
+.green { color: var(--green); }
+.blue { color: var(--accent); }
+.yellow { color: var(--yellow); }
+.red { color: var(--red); }
+.muted { color: var(--muted); }
+
+.divider { height: 1px; background: var(--border); margin: 12px 0; }
+canvas { width: 100%; height: 220px; }
+
+/* ===== LOGIN OVERLAY ===== */
+#lockScreen {
+  position: fixed;
+  inset: 0;
+  background: rgba(10,14,20,0.96);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  z-index: 9999;
+}
+
+.lockBox {
+  width: 100%;
+  max-width: 520px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 18px;
+}
+
+.lockTitle {
+  color: var(--accent);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-size: 13px;
+  margin: 0 0 10px;
+}
+
+.lockHint {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 0 0 14px;
+  line-height: 1.4;
+}
+
+.lockMsg {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 10px;
+}
+
+/* Collapsible sections */
+.collapse-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  padding: 8px 0;
+}
+.collapse-header span {
+  color: var(--accent);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-size: 13px;
+}
+.caret {
+  transition: transform 0.2s ease;
+  color: var(--muted);
+  font-size: 14px;
+}
+.caret.open { transform: rotate(180deg); }
+.collapse-body { display: none; padding-top: 8px; }
+
+/* ===== CALCULATOR (HALF WIDTH) ===== */
+.calc-half { max-width: 520px; justify-self: start; }
+
+.calc-display {
+  border: 1px solid var(--border);
+  padding: 10px;
+  margin-bottom: 10px;
+  background: transparent;
+  font-size: 16px;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  overflow-x: auto;
+}
+.calc-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.calc-btn {
+  border: 1px solid var(--border);
+  color: var(--text);
+  background: transparent;
+  padding: 10px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+}
+.calc-btn:hover { background: rgba(56,189,248,0.06); border-color: var(--accent); }
+.calc-btn.op { color: var(--accent); border-color: rgba(56,189,248,0.4); }
+.calc-btn.danger { color: var(--red); border-color: rgba(239,68,68,0.5); }
+.calc-btn.eq { color: var(--green); border-color: rgba(34,197,94,0.5); }
+
+/* ===== App Shell (Sidebar Layout) ===== */
+.app {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  gap: 18px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.sidebar {
+  position: sticky;
+  top: 16px;
+  align-self: start;
+  height: calc(100vh - 32px);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 6px;
+}
+.brand .name {
+  color: var(--accent);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-size: 13px;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nav button {
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  color: var(--text);
+  background: transparent;
+}
+
+.nav button:hover {
+  border-color: var(--accent);
+  background: rgba(56,189,248,0.06);
+}
+
+.nav button.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(56,189,248,0.08);
+}
+
+.canvas { min-width: 0; }
+
+.topbar {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 12px 12px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+}
+.topbar .title {
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 13px;
+}
+.hamburger { width: auto; padding: 8px 10px; }
+
+.section { display: none; }
+.section.active { display: block; }
+
+/* Mobile: sidebar becomes overlay drawer */
+@media (max-width: 900px) {
+  body { padding: 14px; }
+  .app { grid-template-columns: 1fr; }
+  .topbar { display: flex; }
+
+  .sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: 78vw;
+    max-width: 320px;
+    height: 100vh;
+    z-index: 9998;
+    transform: translateX(-110%);
+    transition: transform 0.18s ease;
+    border-left: none;
+    top: 0;
+    align-self: unset;
+  }
+
+  .sidebar.open { transform: translateX(0); }
+
+  .drawer-scrim {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 9997;
+  }
+  .drawer-scrim.show { display: block; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN / LOCK SCREEN -->
+<div id="lockScreen">
+  <div class="lockBox">
+    <p class="lockTitle" id="lockTitle">Dashboard Lock</p>
+    <p class="lockHint" id="lockHint"></p>
+
+    <label>Passcode</label>
+    <input id="passInput" type="password" autocomplete="current-password" placeholder="Enter passcode" />
+    <button onclick="unlock()">Unlock</button>
+
+    <div class="divider"></div>
+
+    <div class="collapse-header" onclick="togglePassSettings()">
+      <span>Passcode Settings</span>
+      <span class="caret" id="passCaret">▾</span>
+    </div>
+
+    <div class="collapse-body" id="passSettingsBody">
+      <!-- First-time set only -->
+      <div id="firstSetBlock">
+        <p class="lockHint">No passcode set yet. Create one now (stored locally on this device).</p>
+        <label>New passcode</label>
+        <input id="firstNew1" type="password" placeholder="New passcode" />
+        <label>Confirm new passcode</label>
+        <input id="firstNew2" type="password" placeholder="Confirm passcode" />
+        <button onclick="setPasscodeFirstTime()">Set Passcode</button>
+      </div>
+
+      <!-- Change passcode requires old pass -->
+      <div id="changeBlock" style="display:none;">
+        <p class="lockHint">To change your passcode, enter your current passcode first.</p>
+        <label>Current passcode</label>
+        <input id="oldPass" type="password" placeholder="Current passcode" />
+        <label>New passcode</label>
+        <input id="newPass1" type="password" placeholder="New passcode" />
+        <label>Confirm new passcode</label>
+        <input id="newPass2" type="password" placeholder="Confirm new passcode" />
+        <button onclick="changePasscode()">Change Passcode</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="collapse-header" onclick="toggleMasterReset()">
+        <span>Reset With Master Phrase</span>
+        <span class="caret" id="masterCaret">▾</span>
+      </div>
+
+      <div class="collapse-body" id="masterResetBody">
+        <p class="lockHint">
+          Forgot your passcode? Reset it with your master phrase (set once via console).
+        </p>
+
+        <label>Master Phrase</label>
+        <input id="resetPhrase" type="password" placeholder="Master reset phrase" />
+
+        <label>New Passcode</label>
+        <input id="resetNew1" type="password" placeholder="New passcode" />
+
+        <label>Confirm New Passcode</label>
+        <input id="resetNew2" type="password" placeholder="Confirm new passcode" />
+
+        <button class="danger" onclick="resetWithPhrase()">Reset Passcode</button>
+
+        <div class="stat muted" style="margin-top:10px;">
+          One-time setup (run in console): <span class="blue">setMasterPhraseOnce("your-phrase")</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="lockMsg" id="lockMsg"></p>
+  </div>
+</div>
+
+<div class="app">
+
+  <!-- Mobile top bar -->
+  <div class="topbar">
+    <button class="hamburger" onclick="toggleSidebar()">☰</button>
+    <div class="title" id="topbarTitle">Dashboard</div>
+    <div style="display:flex; gap:10px;">
+      <button class="small" onclick="lockNow()">Lock</button>
+      <button class="small danger" onclick="resetMonthlyIncome()">Reset</button>
+    </div>
+  </div>
+
+  <!-- Overlay scrim (mobile) -->
+  <div class="drawer-scrim" id="drawerScrim" onclick="closeSidebar()"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="name">Reseller</div>
+      <button class="small" onclick="closeSidebar()">✕</button>
+    </div>
+
+    <div class="nav" id="nav">
+      <button class="active" data-target="secDashboard" onclick="showSection('secDashboard')">📊 Dashboard</button>
+      <button data-target="secIncome" onclick="showSection('secIncome')">💰 Income</button>
+      <button data-target="secTools" onclick="showSection('secTools')">🧮 Tools</button>
+      <button data-target="secSettings" onclick="showSection('secSettings')">⚙️ Settings</button>
+    </div>
+
+    <div class="divider"></div>
+
+    <button class="small" onclick="lockNow()">Lock</button>
+    <button class="small danger" onclick="resetMonthlyIncome()">Reset Months</button>
+
+    <div class="stat muted" style="margin-top:auto;">
+      Local-only • No cloud sync
+    </div>
+  </aside>
+
+  <!-- Main Canvas -->
+  <main class="canvas">
+
+    <!-- DASHBOARD -->
+    <section id="secDashboard" class="section active">
+      <div class="grid">
+        <div class="panel">
+          <h3>Current Balance</h3>
+
+          <label>Earnings ($)</label>
+          <input type="number" id="earningsBalance" />
+
+          <label>Inventory Allowance ($)</label>
+          <input type="number" id="inventoryAllowance" />
+
+          <button onclick="saveBalances()">Save</button>
+
+          <div class="divider"></div>
+
+          <div class="stat green" id="earningsStat"></div>
+          <div class="stat blue" id="inventoryStat"></div>
+        </div>
+
+        <div class="panel">
+          <h3>Income Graph</h3>
+
+          <label>Year Filter</label>
+          <select id="yearFilter" onchange="loadChart()">
+            <option value="ALL">ALL</option>
+          </select>
+
+          <canvas id="incomeChart"></canvas>
+
+          <div class="divider"></div>
+
+          <button class="danger" onclick="resetMonthlyIncome()">Reset Month Data</button>
+          <div class="stat muted" id="monthCountStat"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- INCOME -->
+    <section id="secIncome" class="section">
+      <div class="grid">
+        <div class="panel">
+          <h3>Monthly Income</h3>
+
+          <label>Month (e.g. Feb 2025)</label>
+          <input type="text" id="monthLabel" />
+
+          <label>Gross Income ($)</label>
+          <input type="number" id="monthIncome" />
+
+          <button onclick="addMonthlyIncome()">Add Month</button>
+
+          <div class="divider"></div>
+          <div class="stat muted">
+            Tip: Use labels like <span class="blue">Jan 2025</span> so the year filter works.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TOOLS -->
+    <section id="secTools" class="section">
+      <div class="grid">
+        <div class="panel">
+          <h3>Inventory Budget</h3>
+
+          <label>Last Month Gross ($)</label>
+          <input type="number" id="grossSales" />
+
+          <button onclick="calculateBudget()">Calculate</button>
+
+          <div class="divider"></div>
+
+          <div class="stat blue" id="invStat"></div>
+          <div class="stat green" id="profitStat"></div>
+          <div class="stat yellow" id="holdStat"></div>
+        </div>
+
+        <div class="panel">
+          <h3>Minimum Safe Sale Price</h3>
+
+          <label>Item Cost ($)</label>
+          <input type="number" id="itemCost" />
+
+          <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;">
+            <div>
+              <label>Fees (%)</label>
+              <input type="number" id="fees" value="15" />
+            </div>
+            <div>
+              <label>Profit (%)</label>
+              <input type="number" id="profit" value="30" />
+            </div>
+          </div>
+
+          <button onclick="calculateMinPrice()">Calculate</button>
+
+          <div class="divider"></div>
+          <div class="stat blue" id="minPriceStat"></div>
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top:18px;">
+        <div class="panel calc-half">
+          <h3>Calculator</h3>
+
+          <div class="calc-display" id="calcDisplay">0</div>
+
+          <div class="calc-grid">
+            <button class="calc-btn danger" onclick="calcClear()">C</button>
+            <button class="calc-btn danger" onclick="calcBack()">⌫</button>
+            <button class="calc-btn op" onclick="calcPress('(')">(</button>
+            <button class="calc-btn op" onclick="calcPress(')')">)</button>
+
+            <button class="calc-btn" onclick="calcPress('7')">7</button>
+            <button class="calc-btn" onclick="calcPress('8')">8</button>
+            <button class="calc-btn" onclick="calcPress('9')">9</button>
+            <button class="calc-btn op" onclick="calcPress('/')">÷</button>
+
+            <button class="calc-btn" onclick="calcPress('4')">4</button>
+            <button class="calc-btn" onclick="calcPress('5')">5</button>
+            <button class="calc-btn" onclick="calcPress('6')">6</button>
+            <button class="calc-btn op" onclick="calcPress('*')">×</button>
+
+            <button class="calc-btn" onclick="calcPress('1')">1</button>
+            <button class="calc-btn" onclick="calcPress('2')">2</button>
+            <button class="calc-btn" onclick="calcPress('3')">3</button>
+            <button class="calc-btn op" onclick="calcPress('-')">−</button>
+
+            <button class="calc-btn" onclick="calcPress('0')">0</button>
+            <button class="calc-btn" onclick="calcPress('.')">.</button>
+            <button class="calc-btn eq" onclick="calcEquals()">=</button>
+            <button class="calc-btn op" onclick="calcPress('+')">+</button>
+          </div>
+
+          <div class="divider"></div>
+          <div class="stat muted">Supports + − × ÷ and parentheses.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section id="secSettings" class="section">
+      <div class="grid">
+        <div class="panel">
+          <h3>Security & Data</h3>
+          <div class="stat muted">
+            • This dashboard is <span class="blue">local-only</span> (data saved in your browser).<br>
+            • The passcode is a <span class="blue">client-side lock</span> (good for privacy on your device).<br>
+            • If you forget your passcode, use your <span class="blue">master phrase</span> reset in the lock screen.
+          </div>
+
+          <div class="divider"></div>
+
+          <button onclick="lockNow()">Lock Now</button>
+          <div style="height:10px"></div>
+          <button class="danger" onclick="resetMonthlyIncome()">Reset Month Data</button>
+        </div>
+
+        <div class="panel">
+          <h3>PWA Status</h3>
+          <div class="stat muted" id="pwaStat">Checking…</div>
+          <div class="divider"></div>
+          <div class="stat muted">
+            Tip: On iPhone Safari → Share → <span class="blue">Add to Home Screen</span>.
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+/* ========= PWA SERVICE WORKER ========= */
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./service-worker.js").then(() => {
+      const el = document.getElementById("pwaStat");
+      if (el) el.textContent = "Service worker: registered ✅";
+    }).catch(() => {
+      const el = document.getElementById("pwaStat");
+      if (el) el.textContent = "Service worker: not active (needs HTTPS/localhost).";
+    });
+  });
+}
+
+/* ========= NAV / SIDEBAR ========= */
+function setActiveNav(targetId) {
+  const nav = document.getElementById("nav");
+  if (!nav) return;
+  [...nav.querySelectorAll("button[data-target]")].forEach(btn => {
+    btn.classList.toggle("active", btn.getAttribute("data-target") === targetId);
+  });
+}
+
+function showSection(sectionId) {
+  document.querySelectorAll(".section").forEach(sec => {
+    sec.classList.toggle("active", sec.id === sectionId);
+  });
+
+  setActiveNav(sectionId);
+
+  const titleMap = {
+    secDashboard: "Dashboard",
+    secIncome: "Income",
+    secTools: "Tools",
+    secSettings: "Settings"
+  };
+  const t = document.getElementById("topbarTitle");
+  if (t) t.textContent = titleMap[sectionId] || "Reseller Dashboard";
+
+  closeSidebar();
+}
+
+function toggleSidebar() {
+  const sb = document.getElementById("sidebar");
+  const scrim = document.getElementById("drawerScrim");
+  if (!sb || !scrim) return;
+  const open = sb.classList.toggle("open");
+  scrim.classList.toggle("show", open);
+}
+
+function closeSidebar() {
+  const sb = document.getElementById("sidebar");
+  const scrim = document.getElementById("drawerScrim");
+  if (!sb || !scrim) return;
+  sb.classList.remove("open");
+  scrim.classList.remove("show");
+}
+
+window.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closeSidebar();
+});
+
+/* ========= COLLAPSE HELPERS ========= */
+function togglePassSettings(forceOpen = null) {
+  const body = document.getElementById("passSettingsBody");
+  const caret = document.getElementById("passCaret");
+
+  const isOpen = body.style.display === "block";
+  const nextOpen = forceOpen === null ? !isOpen : !!forceOpen;
+
+  body.style.display = nextOpen ? "block" : "none";
+  caret.classList.toggle("open", nextOpen);
+
+  if (!nextOpen) toggleMasterReset(false);
+}
+
+function toggleMasterReset(forceOpen = null) {
+  const body = document.getElementById("masterResetBody");
+  const caret = document.getElementById("masterCaret");
+  if (!body || !caret) return;
+
+  const isOpen = body.style.display === "block";
+  const nextOpen = forceOpen === null ? !isOpen : !!forceOpen;
+
+  body.style.display = nextOpen ? "block" : "none";
+  caret.classList.toggle("open", nextOpen);
+}
+
+/* ========= LOCAL PASSCODE GATE ========= */
+function simpleHash(str) {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return (h >>> 0).toString(16);
+}
+
+function showLockScreen(show) {
+  document.getElementById("lockScreen").style.display = show ? "flex" : "none";
+}
+
+/* Master phrase is set ONCE via console:
+   setMasterPhraseOnce("your-long-phrase")
+*/
+function setMasterPhraseOnce(phrase) {
+  if (localStorage.getItem("masterPhraseHash")) return false;
+  localStorage.setItem("masterPhraseHash", simpleHash(String(phrase || "")));
+  return true;
+}
+
+function resetWithPhrase() {
+  const stored = localStorage.getItem("masterPhraseHash");
+  const msg = document.getElementById("lockMsg");
+
+  if (!stored) {
+    msg.textContent = "No master phrase set on this device yet.";
+    msg.style.color = "var(--red)";
+    return;
+  }
+
+  const phrase = document.getElementById("resetPhrase").value || "";
+  const p1 = document.getElementById("resetNew1").value || "";
+  const p2 = document.getElementById("resetNew2").value || "";
+
+  if (simpleHash(phrase) !== stored) {
+    msg.textContent = "Master phrase incorrect.";
+    msg.style.color = "var(--red)";
+    return;
+  }
+
+  if (p1.length < 4) {
+    msg.textContent = "New passcode must be at least 4 characters.";
+    msg.style.color = "var(--red)";
+    return;
+  }
+
+  if (p1 !== p2) {
+    msg.textContent = "New passcodes do not match.";
+    msg.style.color = "var(--red)";
+    return;
+  }
+
+  localStorage.setItem("dashboardPassHash", simpleHash(p1));
+
+  document.getElementById("resetPhrase").value = "";
+  document.getElementById("resetNew1").value = "";
+  document.getElementById("resetNew2").value = "";
+
+  msg.textContent = "Passcode reset successfully. You can unlock now.";
+  msg.style.color = "var(--green)";
+}
+
+function initLock() {
+  const storedHash = localStorage.getItem("dashboardPassHash");
+  const msg = document.getElementById("lockMsg");
+  msg.textContent = "";
+  msg.style.color = "var(--muted)";
+
+  const firstSetBlock = document.getElementById("firstSetBlock");
+  const changeBlock = document.getElementById("changeBlock");
+  const hint = document.getElementById("lockHint");
+  const title = document.getElementById("lockTitle");
+
+  togglePassSettings(false);
+  toggleMasterReset(false);
+
+  if (!storedHash) {
+    title.textContent = "Set a Passcode";
+    hint.textContent = "Create a passcode once. After that, changing it requires your current passcode.";
+    firstSetBlock.style.display = "block";
+    changeBlock.style.display = "none";
+    togglePassSettings(true);
+    showLockScreen(true);
+  } else {
+    title.textContent = "Dashboard Locked";
+    hint.textContent = "Enter your passcode to unlock. (Master phrase reset is in Passcode Settings.)";
+    firstSetBlock.style.display = "none";
+    changeBlock.style.display = "block";
+    showLockScreen(true);
+  }
+}
+
+function setPasscodeFirstTime() {
+  const storedHash = localStorage.getItem("dashboardPassHash");
+  const msg = document.getElementById("lockMsg");
+
+  if (storedHash) {
+    msg.textContent = "Passcode already set. Use Change Passcode (requires current passcode).";
+    msg.style.color = "var(--yellow)";
+    return;
+  }
+
+  const p1 = document.getElementById("firstNew1").value || "";
+  const p2 = document.getElementById("firstNew2").value || "";
+
+  if (p1.length < 4) {
+    msg.textContent = "Passcode should be at least 4 characters.";
+    msg.style.color = "var(--red)";
+    return;
+  }
+  if (p1 !== p2) {
+    msg.textContent = "Passcodes do not match.";
+    msg.style.color = "var(--red)";
+    return;
+  }
+
+  localStorage.setItem("dashboardPassHash", simpleHash(p1));
+  document.getElementById("firstNew1").value = "";
+  document.getElementById("firstNew2").value = "";
+
+  msg.textContent = "Passcode set. Unlock using the passcode field above.";
+  msg.style.color = "var(--green)";
+}
+
+function changePasscode() {
+  const storedHash = localStorage.getItem("dashboardPassHash");
+  const msg = document.getElementById("lockMsg");
+
+  if (!storedHash) {
+    msg.textContent = "No passcode set yet. Set one first.";
+    msg.style.color = "var(--yellow)";
+    return;
+  }
+
+  const oldP = document.getElementById("oldPass").value || "";
+  const p1 = document.getElementById("newPass1").value || "";
+  const p2 = document.getElementById("newPass2").value || "";
+
+  if (simpleHash(oldP) !== storedHash) {
+    msg.textContent = "Current passcode is incorrect.";
+    msg.style.color = "var(--red)";
+    return;
+  }
+  if (p1.length < 4) {
+    msg.textContent = "New passcode should be at least 4 characters.";
+    msg.style.color = "var(--red)";
+    return;
+  }
+  if (p1 !== p2) {
+    msg.textContent = "New passcodes do not match.";
+    msg.style.color = "var(--red)";
+    return;
+  }
+
+  localStorage.setItem("dashboardPassHash", simpleHash(p1));
+  document.getElementById("oldPass").value = "";
+  document.getElementById("newPass1").value = "";
+  document.getElementById("newPass2").value = "";
+
+  msg.textContent = "Passcode changed successfully.";
+  msg.style.color = "var(--green)";
+}
+
+function unlock() {
+  const storedHash = localStorage.getItem("dashboardPassHash");
+  const input = document.getElementById("passInput").value || "";
+  const msg = document.getElementById("lockMsg");
+
+  if (!storedHash) {
+    msg.textContent = "No passcode exists yet. Set one in Passcode Settings.";
+    msg.style.color = "var(--yellow)";
+    return;
+  }
+
+  if (simpleHash(input) === storedHash) {
+    document.getElementById("passInput").value = "";
+    showLockScreen(false);
+    togglePassSettings(false);
+    toggleMasterReset(false);
+  } else {
+    msg.textContent = "Incorrect passcode.";
+    msg.style.color = "var(--red)";
+  }
+}
+
+function lockNow() { initLock(); }
+
+window.addEventListener("keydown", (e) => {
+  if (document.getElementById("lockScreen").style.display === "flex") {
+    if (e.key === "Enter") unlock();
+    if (e.key === "Escape") {
+      toggleMasterReset(false);
+      togglePassSettings(false);
+    }
+  }
+});
+
+/* ========= DASHBOARD LOGIC ========= */
+let chart;
+
+function saveBalances() {
+  localStorage.setItem("earningsBalance", earningsBalance.value || 0);
+  localStorage.setItem("inventoryAllowance", inventoryAllowance.value || 0);
+  updateBalanceStats();
+}
+
+function updateBalanceStats() {
+  const e = (+earningsBalance.value || 0);
+  const i = (+inventoryAllowance.value || 0);
+  earningsStat.textContent = `EARNINGS: $${e.toFixed(2)}`;
+  inventoryStat.textContent = `INVENTORY ALLOWANCE: $${i.toFixed(2)}`;
+}
+
+function addMonthlyIncome() {
+  const label = monthLabel.value.trim();
+  const income = parseFloat(monthIncome.value);
+  if (!label || isNaN(income)) return;
+
+  const data = JSON.parse(localStorage.getItem("monthlyIncome")) || [];
+  data.push({ label, income });
+  localStorage.setItem("monthlyIncome", JSON.stringify(data));
+
+  monthLabel.value = "";
+  monthIncome.value = "";
+  loadChart();
+}
+
+function resetMonthlyIncome() {
+  localStorage.removeItem("monthlyIncome");
+  loadChart();
+}
+
+/* ========= CHART: Year filter + $ axis + year separators ========= */
+function extractYear(label) {
+  const m = String(label).match(/(19|20)\d{2}/);
+  return m ? m[0] : null;
+}
+
+function refreshYearFilter(data) {
+  const select = document.getElementById("yearFilter");
+  if (!select) return;
+
+  const current = select.value || "ALL";
+  const years = Array.from(new Set(
+    data.map(d => extractYear(d.label)).filter(Boolean)
+  )).sort();
+
+  select.innerHTML =
+    `<option value="ALL">ALL</option>` +
+    years.map(y => `<option value="${y}">${y}</option>`).join("");
+
+  const stillExists = [...select.options].some(o => o.value === current);
+  select.value = stillExists ? current : "ALL";
+}
+
+function formatDollars(v) {
+  const n = Number(v);
+  if (!isFinite(n)) return String(v);
+  return "$" + n.toLocaleString(undefined, { maximumFractionDigits: 0 });
+}
+
+const yearSeparatorPlugin = {
+  id: "yearSeparatorPlugin",
+  afterDraw(chart) {
+    const { ctx, chartArea, scales } = chart;
+    const x = scales.x;
+    if (!x || !chartArea) return;
+
+    const labels = chart.data.labels || [];
+    if (labels.length < 2) return;
+
+    ctx.save();
+    ctx.font = '12px "JetBrains Mono","Fira Code",monospace';
+    ctx.fillStyle = "#38bdf8";
+    ctx.strokeStyle = "rgba(56,189,248,0.18)";
+    ctx.lineWidth = 1;
+
+    for (let i = 1; i < labels.length; i++) {
+      const prevY = extractYear(labels[i - 1]);
+      const curY = extractYear(labels[i]);
+
+      if (curY && prevY && curY !== prevY) {
+        const xPos = x.getPixelForTick(i);
+
+        ctx.beginPath();
+        ctx.moveTo(xPos, chartArea.top);
+        ctx.lineTo(xPos, chartArea.bottom);
+        ctx.stroke();
+
+        ctx.fillText(curY, xPos + 6, chartArea.top + 14);
+      }
+    }
+
+    ctx.restore();
+  }
+};
+
+function loadChart() {
+  const raw = JSON.parse(localStorage.getItem("monthlyIncome")) || [];
+  monthCountStat.textContent = `MONTHS STORED: ${raw.length}`;
+
+  refreshYearFilter(raw);
+
+  const selectedYear = document.getElementById("yearFilter")?.value || "ALL";
+  const data = selectedYear === "ALL"
+    ? raw
+    : raw.filter(d => extractYear(d.label) === selectedYear);
+
+  if (chart) chart.destroy();
+
+  chart = new Chart(incomeChart, {
+    type: "line",
+    data: {
+      labels: data.map(d => d.label),
+      datasets: [{
+        data: data.map(d => d.income),
+        borderColor: "#38bdf8",
+        borderWidth: 2,
+        tension: 0.35,
+        pointRadius: 3,
+        pointHoverRadius: 5
+      }]
+    },
+    plugins: [yearSeparatorPlugin],
+    options: {
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: (ctx) => ` ${formatDollars(ctx.parsed.y)}` } }
+      },
+      scales: {
+        x: { ticks: { color: "#6b7280" }, grid: { color: "rgba(31,41,55,0.55)" } },
+        y: {
+          beginAtZero: true,
+          ticks: { color: "#6b7280", callback: (value) => formatDollars(value) },
+          grid: { color: "rgba(31,41,55,0.55)" }
+        }
+      }
+    }
+  });
+}
+
+function calculateBudget() {
+  const g = parseFloat(grossSales.value);
+  if (isNaN(g)) return;
+
+  invStat.textContent = `INVENTORY: $${(g * 0.65).toFixed(2)}`;
+  profitStat.textContent = `PROFIT BUFFER: $${(g * 0.20).toFixed(2)}`;
+  holdStat.textContent = `HOLDS: $${(g * 0.15).toFixed(2)}`;
+}
+
+function calculateMinPrice() {
+  const cost = parseFloat(itemCost.value);
+  const f = (parseFloat(fees.value) || 0) / 100;
+  const p = (parseFloat(profit.value) || 0) / 100;
+
+  if (isNaN(cost)) return;
+
+  if (f + p >= 1) {
+    minPriceStat.textContent = "ERROR: fees + profit must be under 100%";
+    minPriceStat.className = "stat red";
+    return;
+  }
+
+  const min = cost / (1 - f - p);
+  minPriceStat.textContent = `MIN SAFE PRICE: $${min.toFixed(2)}`;
+  minPriceStat.className = "stat blue";
+}
+
+/* ========= CALCULATOR ========= */
+let calcExpr = "";
+
+function renderCalc() { calcDisplay.textContent = calcExpr.length ? calcExpr : "0"; }
+
+function calcPress(ch) {
+  const ok = "0123456789.+-*/()";
+  if (!ok.includes(ch)) return;
+  if (calcExpr === "ERR") calcExpr = "";
+  calcExpr += ch;
+  renderCalc();
+}
+
+function calcClear() { calcExpr = ""; renderCalc(); }
+function calcBack() { calcExpr = calcExpr === "ERR" ? "" : calcExpr.slice(0, -1); renderCalc(); }
+
+function calcEquals() {
+  try {
+    if (!calcExpr.trim() || calcExpr === "ERR") return;
+    const val = Function(`"use strict"; return (${calcExpr});`)();
+    calcExpr = String(Number(val.toFixed(10)));
+    renderCalc();
+  } catch {
+    calcExpr = "ERR";
+    renderCalc();
+  }
+}
+
+renderCalc();
+
+/* ========= BOOT ========= */
+window.onload = () => {
+  initLock();
+
+  earningsBalance.value = localStorage.getItem("earningsBalance") || "";
+  inventoryAllowance.value = localStorage.getItem("inventoryAllowance") || "";
+
+  updateBalanceStats();
+  loadChart();
+  showSection('secDashboard');
+};
+</script>
+
+</body>
+</html>
