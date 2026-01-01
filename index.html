@@ -392,12 +392,25 @@ tr:hover td { background: rgba(56,189,248,0.04); }
 .modal .box .btnRow button { width:auto; }
 
 
-/* Buy Me a Coffee Floating Logo */
+
+/* Buy Me a Coffee – custom logo */
 .bmc-float {
   position: fixed;
   right: 18px;
   bottom: 18px;
   z-index: 10050;
+}
+.bmc-float img {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: rgba(0,0,0,0.35);
+  box-shadow: 0 14px 40px rgba(0,0,0,0.45);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.bmc-float img:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 18px 55px rgba(0,0,0,0.6);
 }
 .bmc-float a { display:block; }
 .bmc-float img {
