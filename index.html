@@ -22,7 +22,7 @@
   --border: #1f2937;
   --text: #d1d5db;
   --muted: #6b7280;
-  --accent: #38bdf8;   /* cyan */
+  --accent: #38bdf8;
   --green: #22c55e;
   --yellow: #eab308;
   --red: #ef4444;
@@ -35,25 +35,26 @@ body {
   font-family: "JetBrains Mono","Fira Code",monospace;
   background: var(--bg);
   color: var(--text);
-  padding: 18px;
+  padding: 16px;
 }
 
 label { font-size: 12px; color: var(--muted); }
 
-input, select {
+input, select, textarea {
   width: 100%;
   background: transparent;
   border: 1px solid var(--border);
   color: var(--text);
-  padding: 8px 10px;
+  padding: 9px 10px;
   margin: 6px 0 14px;
   font-family: inherit;
   font-size: 14px;
+  border-radius: 10px;
 }
 
-input:focus, select:focus { outline: none; border-color: var(--accent); }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
 
-/* ✅ Year dropdown text fix (closed + opened list) */
+/* Year dropdown text fix */
 select { background-color: var(--panel); color: var(--text); }
 select option { background-color: var(--panel); color: var(--text); }
 
@@ -63,27 +64,26 @@ button {
   border: 1px solid var(--accent);
   color: var(--accent);
   padding: 10px;
+  border-radius: 12px;
   font-family: inherit;
   font-size: 14px;
   cursor: pointer;
 }
 
 button:hover { background: rgba(56,189,248,0.08); }
-
 button.danger { border-color: var(--red); color: var(--red); }
 button.danger:hover { background: rgba(239,68,68,0.08); }
-
-button.small { width: auto; padding: 8px 10px; }
+button.small { width: auto; padding: 8px 10px; border-radius: 10px; }
 
 .panel {
   background: var(--panel);
   border: 1px solid var(--border);
-  padding: 18px;
-  position: relative;
+  padding: 16px;
+  border-radius: 16px;
 }
 
 .panel h3 {
-  margin: 0 0 14px;
+  margin: 0 0 12px;
   font-size: 13px;
   letter-spacing: 1px;
   color: var(--accent);
@@ -92,8 +92,8 @@ button.small { width: auto; padding: 8px 10px; }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
 }
 
 .stat { font-size: 14px; margin-top: 6px; }
@@ -104,7 +104,17 @@ button.small { width: auto; padding: 8px 10px; }
 .muted { color: var(--muted); }
 
 .divider { height: 1px; background: var(--border); margin: 12px 0; }
-canvas { width: 100%; height: 220px; }
+
+/* Charts */
+.chart-wrap {
+  width: 100%;
+  height: 260px;
+  position: relative;
+}
+.chart-wrap canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
 
 /* ===== LOGIN OVERLAY ===== */
 #lockScreen {
@@ -114,7 +124,7 @@ canvas { width: 100%; height: 220px; }
   display: none;
   align-items: center;
   justify-content: center;
-  padding: 18px;
+  padding: 16px;
   z-index: 9999;
 }
 
@@ -123,7 +133,8 @@ canvas { width: 100%; height: 220px; }
   max-width: 520px;
   background: var(--panel);
   border: 1px solid var(--border);
-  padding: 18px;
+  padding: 16px;
+  border-radius: 18px;
 }
 
 .lockTitle {
@@ -147,7 +158,7 @@ canvas { width: 100%; height: 220px; }
   margin-top: 10px;
 }
 
-/* Collapsible sections */
+/* Collapsible */
 .collapse-header {
   display: flex;
   align-items: center;
@@ -170,9 +181,8 @@ canvas { width: 100%; height: 220px; }
 .caret.open { transform: rotate(180deg); }
 .collapse-body { display: none; padding-top: 8px; }
 
-/* ===== CALCULATOR (HALF WIDTH) ===== */
-.calc-half { max-width: 520px; justify-self: start; }
-
+/* ===== CALCULATOR ===== */
+.calc-half { max-width: 560px; justify-self: start; }
 .calc-display {
   border: 1px solid var(--border);
   padding: 10px;
@@ -184,12 +194,9 @@ canvas { width: 100%; height: 220px; }
   align-items: center;
   justify-content: flex-end;
   overflow-x: auto;
+  border-radius: 12px;
 }
-.calc-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-}
+.calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 .calc-btn {
   border: 1px solid var(--border);
   color: var(--text);
@@ -198,32 +205,42 @@ canvas { width: 100%; height: 220px; }
   cursor: pointer;
   font-family: inherit;
   font-size: 14px;
+  border-radius: 12px;
 }
 .calc-btn:hover { background: rgba(56,189,248,0.06); border-color: var(--accent); }
 .calc-btn.op { color: var(--accent); border-color: rgba(56,189,248,0.4); }
 .calc-btn.danger { color: var(--red); border-color: rgba(239,68,68,0.5); }
 .calc-btn.eq { color: var(--green); border-color: rgba(34,197,94,0.5); }
 
-/* ===== App Shell (Sidebar Layout) ===== */
+/* ===== Tables ===== */
+.table-wrap { overflow: auto; border: 1px solid var(--border); border-radius: 14px; }
+table { width: 100%; border-collapse: collapse; min-width: 720px; }
+th, td { padding: 10px 10px; border-bottom: 1px solid rgba(31,41,55,0.65); font-size: 13px; }
+th { text-align: left; color: var(--muted); font-weight: 600; background: rgba(31,41,55,0.18); position: sticky; top: 0; }
+td { color: var(--text); }
+tr:hover td { background: rgba(56,189,248,0.04); }
+
+/* ===== App Shell ===== */
 .app {
   display: grid;
-  grid-template-columns: 250px 1fr;
-  gap: 18px;
+  grid-template-columns: 260px 1fr;
+  gap: 16px;
   max-width: 1280px;
   margin: 0 auto;
 }
 
 .sidebar {
   position: sticky;
-  top: 16px;
+  top: 12px;
   align-self: start;
-  height: calc(100vh - 32px);
+  height: calc(100vh - 24px);
   background: var(--panel);
   border: 1px solid var(--border);
   padding: 14px;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  border-radius: 16px;
 }
 
 .brand {
@@ -241,12 +258,7 @@ canvas { width: 100%; height: 220px; }
   font-size: 13px;
 }
 
-.nav {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
+.nav { display: flex; flex-direction: column; gap: 8px; }
 .nav button {
   width: 100%;
   text-align: left;
@@ -254,18 +266,10 @@ canvas { width: 100%; height: 220px; }
   border: 1px solid var(--border);
   color: var(--text);
   background: transparent;
+  border-radius: 12px;
 }
-
-.nav button:hover {
-  border-color: var(--accent);
-  background: rgba(56,189,248,0.06);
-}
-
-.nav button.active {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: rgba(56,189,248,0.08);
-}
+.nav button:hover { border-color: var(--accent); background: rgba(56,189,248,0.06); }
+.nav button.active { border-color: var(--accent); color: var(--accent); background: rgba(56,189,248,0.08); }
 
 .canvas { min-width: 0; }
 
@@ -278,6 +282,10 @@ canvas { width: 100%; height: 220px; }
   padding: 12px 12px;
   background: var(--panel);
   border: 1px solid var(--border);
+  border-radius: 16px;
+  position: sticky;
+  top: 12px;
+  z-index: 30;
 }
 .topbar .title {
   color: var(--accent);
@@ -290,17 +298,17 @@ canvas { width: 100%; height: 220px; }
 .section { display: none; }
 .section.active { display: block; }
 
-/* Mobile: sidebar becomes overlay drawer */
+/* Mobile */
 @media (max-width: 900px) {
-  body { padding: 14px; }
+  body { padding: 12px; }
   .app { grid-template-columns: 1fr; }
   .topbar { display: flex; }
 
   .sidebar {
     position: fixed;
     inset: 0 auto 0 0;
-    width: 78vw;
-    max-width: 320px;
+    width: 82vw;
+    max-width: 340px;
     height: 100vh;
     z-index: 9998;
     transform: translateX(-110%);
@@ -308,8 +316,8 @@ canvas { width: 100%; height: 220px; }
     border-left: none;
     top: 0;
     align-self: unset;
+    border-radius: 0 16px 16px 0;
   }
-
   .sidebar.open { transform: translateX(0); }
 
   .drawer-scrim {
@@ -320,6 +328,9 @@ canvas { width: 100%; height: 220px; }
     z-index: 9997;
   }
   .drawer-scrim.show { display: block; }
+
+  .chart-wrap { height: 240px; }
+  table { min-width: 860px; } /* horizontal scroll is OK on mobile */
 }
 </style>
 </head>
@@ -344,7 +355,6 @@ canvas { width: 100%; height: 220px; }
     </div>
 
     <div class="collapse-body" id="passSettingsBody">
-      <!-- First-time set only -->
       <div id="firstSetBlock">
         <p class="lockHint">No passcode set yet. Create one now (stored locally on this device).</p>
         <label>New passcode</label>
@@ -354,7 +364,6 @@ canvas { width: 100%; height: 220px; }
         <button onclick="setPasscodeFirstTime()">Set Passcode</button>
       </div>
 
-      <!-- Change passcode requires old pass -->
       <div id="changeBlock" style="display:none;">
         <p class="lockHint">To change your passcode, enter your current passcode first.</p>
         <label>Current passcode</label>
@@ -407,7 +416,7 @@ canvas { width: 100%; height: 220px; }
     <div class="title" id="topbarTitle">Dashboard</div>
     <div style="display:flex; gap:10px;">
       <button class="small" onclick="lockNow()">Lock</button>
-      <button class="small danger" onclick="resetMonthlyIncome()">Reset</button>
+      <button class="small danger" onclick="factoryReset()">Reset</button>
     </div>
   </div>
 
@@ -424,6 +433,7 @@ canvas { width: 100%; height: 220px; }
     <div class="nav" id="nav">
       <button class="active" data-target="secDashboard" onclick="showSection('secDashboard')">📊 Dashboard</button>
       <button data-target="secIncome" onclick="showSection('secIncome')">💰 Income</button>
+      <button data-target="secSold" onclick="showSection('secSold')">📦 Sold</button>
       <button data-target="secTools" onclick="showSection('secTools')">🧮 Tools</button>
       <button data-target="secSettings" onclick="showSection('secSettings')">⚙️ Settings</button>
     </div>
@@ -432,6 +442,7 @@ canvas { width: 100%; height: 220px; }
 
     <button class="small" onclick="lockNow()">Lock</button>
     <button class="small danger" onclick="resetMonthlyIncome()">Reset Months</button>
+    <button class="small danger" onclick="clearSold()">Clear Sold</button>
 
     <div class="stat muted" style="margin-top:auto;">
       Local-only • No cloud sync
@@ -465,11 +476,13 @@ canvas { width: 100%; height: 220px; }
           <h3>Income Graph</h3>
 
           <label>Year Filter</label>
-          <select id="yearFilter" onchange="loadChart()">
+          <select id="yearFilter" onchange="loadIncomeChart()">
             <option value="ALL">ALL</option>
           </select>
 
-          <canvas id="incomeChart"></canvas>
+          <div class="chart-wrap">
+            <canvas id="incomeChart"></canvas>
+          </div>
 
           <div class="divider"></div>
 
@@ -497,6 +510,104 @@ canvas { width: 100%; height: 220px; }
           <div class="stat muted">
             Tip: Use labels like <span class="blue">Jan 2025</span> so the year filter works.
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SOLD -->
+    <section id="secSold" class="section">
+      <div class="grid">
+        <div class="panel">
+          <h3>Import Sold Spreadsheet (CSV)</h3>
+
+          <div class="stat muted" style="line-height:1.5">
+            Export your spreadsheet as <span class="blue">CSV</span> and import it here.<br>
+            Required columns (header names can vary):<br>
+            <span class="blue">date, item, platform, sale</span><br>
+            Optional: <span class="blue">cost, fees, shipping</span><br>
+            If optional fields are missing, profit will be estimated (sale - fees - shipping - cost).
+          </div>
+
+          <div class="divider"></div>
+
+          <label>CSV File</label>
+          <input type="file" id="soldFile" accept=".csv,text/csv" />
+
+          <button onclick="importSoldCSV()">Import CSV</button>
+
+          <div class="divider"></div>
+
+          <button class="danger" onclick="clearSold()">Clear Sold Data</button>
+          <div class="stat muted" id="soldImportMsg"></div>
+        </div>
+
+        <div class="panel">
+          <h3>Sold Summary</h3>
+
+          <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">
+            <div>
+              <label>Year</label>
+              <select id="soldYearFilter" onchange="renderSold()">
+                <option value="ALL">ALL</option>
+              </select>
+            </div>
+            <div>
+              <label>Platform</label>
+              <select id="soldPlatformFilter" onchange="renderSold()">
+                <option value="ALL">ALL</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="stat blue" id="soldRevenueStat"></div>
+          <div class="stat green" id="soldProfitStat"></div>
+          <div class="stat yellow" id="soldItemsStat"></div>
+          <div class="stat muted" id="soldAvgStat"></div>
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top:16px;">
+        <div class="panel">
+          <h3>Sold Graphs</h3>
+          <div class="chart-wrap" style="height:280px;">
+            <canvas id="soldProfitChart"></canvas>
+          </div>
+          <div class="divider"></div>
+          <div class="chart-wrap" style="height:280px;">
+            <canvas id="soldItemsChart"></canvas>
+          </div>
+          <div class="divider"></div>
+          <div class="stat muted">Charts are monthly totals based on the sale date.</div>
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top:16px;">
+        <div class="panel">
+          <h3>Sold Items</h3>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Item</th>
+                  <th>Platform</th>
+                  <th>Sale</th>
+                  <th>Cost</th>
+                  <th>Fees</th>
+                  <th>Ship</th>
+                  <th>Profit</th>
+                </tr>
+              </thead>
+              <tbody id="soldTableBody"></tbody>
+            </table>
+          </div>
+
+          <div class="divider"></div>
+          <button class="danger" onclick="removeLastSold()">Remove Last Imported Row</button>
+          <div class="stat muted" id="soldRowCount"></div>
         </div>
       </div>
     </section>
@@ -543,7 +654,7 @@ canvas { width: 100%; height: 220px; }
         </div>
       </div>
 
-      <div class="grid" style="margin-top:18px;">
+      <div class="grid" style="margin-top:16px;">
         <div class="panel calc-half">
           <h3>Calculator</h3>
 
@@ -597,7 +708,10 @@ canvas { width: 100%; height: 220px; }
 
           <button onclick="lockNow()">Lock Now</button>
           <div style="height:10px"></div>
-          <button class="danger" onclick="resetMonthlyIncome()">Reset Month Data</button>
+          <button class="danger" onclick="factoryReset()">Factory Reset (All Data)</button>
+          <div class="stat muted" style="margin-top:10px;">
+            This clears: balances, monthly income, sold data, and passcode on this device.
+          </div>
         </div>
 
         <div class="panel">
@@ -647,6 +761,7 @@ function showSection(sectionId) {
   const titleMap = {
     secDashboard: "Dashboard",
     secIncome: "Income",
+    secSold: "Sold",
     secTools: "Tools",
     secSettings: "Settings"
   };
@@ -654,6 +769,12 @@ function showSection(sectionId) {
   if (t) t.textContent = titleMap[sectionId] || "Reseller Dashboard";
 
   closeSidebar();
+  // Ensure charts resize correctly after switching sections
+  setTimeout(() => {
+    if (incomeChartObj) incomeChartObj.resize();
+    if (soldProfitChartObj) soldProfitChartObj.resize();
+    if (soldItemsChartObj) soldItemsChartObj.resize();
+  }, 50);
 }
 
 function toggleSidebar() {
@@ -663,7 +784,6 @@ function toggleSidebar() {
   const open = sb.classList.toggle("open");
   scrim.classList.toggle("show", open);
 }
-
 function closeSidebar() {
   const sb = document.getElementById("sidebar");
   const scrim = document.getElementById("drawerScrim");
@@ -671,33 +791,24 @@ function closeSidebar() {
   sb.classList.remove("open");
   scrim.classList.remove("show");
 }
-
-window.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") closeSidebar();
-});
+window.addEventListener("keydown", (e) => { if (e.key === "Escape") closeSidebar(); });
 
 /* ========= COLLAPSE HELPERS ========= */
 function togglePassSettings(forceOpen = null) {
   const body = document.getElementById("passSettingsBody");
   const caret = document.getElementById("passCaret");
-
   const isOpen = body.style.display === "block";
   const nextOpen = forceOpen === null ? !isOpen : !!forceOpen;
-
   body.style.display = nextOpen ? "block" : "none";
   caret.classList.toggle("open", nextOpen);
-
   if (!nextOpen) toggleMasterReset(false);
 }
-
 function toggleMasterReset(forceOpen = null) {
   const body = document.getElementById("masterResetBody");
   const caret = document.getElementById("masterCaret");
   if (!body || !caret) return;
-
   const isOpen = body.style.display === "block";
   const nextOpen = forceOpen === null ? !isOpen : !!forceOpen;
-
   body.style.display = nextOpen ? "block" : "none";
   caret.classList.toggle("open", nextOpen);
 }
@@ -712,13 +823,8 @@ function simpleHash(str) {
   return (h >>> 0).toString(16);
 }
 
-function showLockScreen(show) {
-  document.getElementById("lockScreen").style.display = show ? "flex" : "none";
-}
+function showLockScreen(show) { document.getElementById("lockScreen").style.display = show ? "flex" : "none"; }
 
-/* Master phrase is set ONCE via console:
-   setMasterPhraseOnce("your-long-phrase")
-*/
 function setMasterPhraseOnce(phrase) {
   if (localStorage.getItem("masterPhraseHash")) return false;
   localStorage.setItem("masterPhraseHash", simpleHash(String(phrase || "")));
@@ -729,33 +835,15 @@ function resetWithPhrase() {
   const stored = localStorage.getItem("masterPhraseHash");
   const msg = document.getElementById("lockMsg");
 
-  if (!stored) {
-    msg.textContent = "No master phrase set on this device yet.";
-    msg.style.color = "var(--red)";
-    return;
-  }
+  if (!stored) { msg.textContent = "No master phrase set on this device yet."; msg.style.color = "var(--red)"; return; }
 
   const phrase = document.getElementById("resetPhrase").value || "";
   const p1 = document.getElementById("resetNew1").value || "";
   const p2 = document.getElementById("resetNew2").value || "";
 
-  if (simpleHash(phrase) !== stored) {
-    msg.textContent = "Master phrase incorrect.";
-    msg.style.color = "var(--red)";
-    return;
-  }
-
-  if (p1.length < 4) {
-    msg.textContent = "New passcode must be at least 4 characters.";
-    msg.style.color = "var(--red)";
-    return;
-  }
-
-  if (p1 !== p2) {
-    msg.textContent = "New passcodes do not match.";
-    msg.style.color = "var(--red)";
-    return;
-  }
+  if (simpleHash(phrase) !== stored) { msg.textContent = "Master phrase incorrect."; msg.style.color = "var(--red)"; return; }
+  if (p1.length < 4) { msg.textContent = "New passcode must be at least 4 characters."; msg.style.color = "var(--red)"; return; }
+  if (p1 !== p2) { msg.textContent = "New passcodes do not match."; msg.style.color = "var(--red)"; return; }
 
   localStorage.setItem("dashboardPassHash", simpleHash(p1));
 
@@ -801,25 +889,13 @@ function setPasscodeFirstTime() {
   const storedHash = localStorage.getItem("dashboardPassHash");
   const msg = document.getElementById("lockMsg");
 
-  if (storedHash) {
-    msg.textContent = "Passcode already set. Use Change Passcode (requires current passcode).";
-    msg.style.color = "var(--yellow)";
-    return;
-  }
+  if (storedHash) { msg.textContent = "Passcode already set. Use Change Passcode (requires current passcode)."; msg.style.color = "var(--yellow)"; return; }
 
   const p1 = document.getElementById("firstNew1").value || "";
   const p2 = document.getElementById("firstNew2").value || "";
 
-  if (p1.length < 4) {
-    msg.textContent = "Passcode should be at least 4 characters.";
-    msg.style.color = "var(--red)";
-    return;
-  }
-  if (p1 !== p2) {
-    msg.textContent = "Passcodes do not match.";
-    msg.style.color = "var(--red)";
-    return;
-  }
+  if (p1.length < 4) { msg.textContent = "Passcode should be at least 4 characters."; msg.style.color = "var(--red)"; return; }
+  if (p1 !== p2) { msg.textContent = "Passcodes do not match."; msg.style.color = "var(--red)"; return; }
 
   localStorage.setItem("dashboardPassHash", simpleHash(p1));
   document.getElementById("firstNew1").value = "";
@@ -833,31 +909,15 @@ function changePasscode() {
   const storedHash = localStorage.getItem("dashboardPassHash");
   const msg = document.getElementById("lockMsg");
 
-  if (!storedHash) {
-    msg.textContent = "No passcode set yet. Set one first.";
-    msg.style.color = "var(--yellow)";
-    return;
-  }
+  if (!storedHash) { msg.textContent = "No passcode set yet. Set one first."; msg.style.color = "var(--yellow)"; return; }
 
   const oldP = document.getElementById("oldPass").value || "";
   const p1 = document.getElementById("newPass1").value || "";
   const p2 = document.getElementById("newPass2").value || "";
 
-  if (simpleHash(oldP) !== storedHash) {
-    msg.textContent = "Current passcode is incorrect.";
-    msg.style.color = "var(--red)";
-    return;
-  }
-  if (p1.length < 4) {
-    msg.textContent = "New passcode should be at least 4 characters.";
-    msg.style.color = "var(--red)";
-    return;
-  }
-  if (p1 !== p2) {
-    msg.textContent = "New passcodes do not match.";
-    msg.style.color = "var(--red)";
-    return;
-  }
+  if (simpleHash(oldP) !== storedHash) { msg.textContent = "Current passcode is incorrect."; msg.style.color = "var(--red)"; return; }
+  if (p1.length < 4) { msg.textContent = "New passcode should be at least 4 characters."; msg.style.color = "var(--red)"; return; }
+  if (p1 !== p2) { msg.textContent = "New passcodes do not match."; msg.style.color = "var(--red)"; return; }
 
   localStorage.setItem("dashboardPassHash", simpleHash(p1));
   document.getElementById("oldPass").value = "";
@@ -873,11 +933,7 @@ function unlock() {
   const input = document.getElementById("passInput").value || "";
   const msg = document.getElementById("lockMsg");
 
-  if (!storedHash) {
-    msg.textContent = "No passcode exists yet. Set one in Passcode Settings.";
-    msg.style.color = "var(--yellow)";
-    return;
-  }
+  if (!storedHash) { msg.textContent = "No passcode exists yet. Set one in Passcode Settings."; msg.style.color = "var(--yellow)"; return; }
 
   if (simpleHash(input) === storedHash) {
     document.getElementById("passInput").value = "";
@@ -889,33 +945,45 @@ function unlock() {
     msg.style.color = "var(--red)";
   }
 }
-
 function lockNow() { initLock(); }
 
 window.addEventListener("keydown", (e) => {
   if (document.getElementById("lockScreen").style.display === "flex") {
     if (e.key === "Enter") unlock();
-    if (e.key === "Escape") {
-      toggleMasterReset(false);
-      togglePassSettings(false);
-    }
+    if (e.key === "Escape") { toggleMasterReset(false); togglePassSettings(false); }
   }
 });
 
+/* ========= COMMON HELPERS ========= */
+function formatDollars(v) {
+  const n = Number(v);
+  if (!isFinite(n)) return String(v);
+  return "$" + n.toLocaleString(undefined, { maximumFractionDigits: 2 });
+}
+function extractYear(label) {
+  const m = String(label).match(/(19|20)\d{2}/);
+  return m ? m[0] : null;
+}
+function parseMoney(x) {
+  if (x === null || x === undefined) return 0;
+  const s = String(x).replace(/[$,]/g, "").trim();
+  const n = parseFloat(s);
+  return isFinite(n) ? n : 0;
+}
+
 /* ========= DASHBOARD LOGIC ========= */
-let chart;
+let incomeChartObj;
 
 function saveBalances() {
   localStorage.setItem("earningsBalance", earningsBalance.value || 0);
   localStorage.setItem("inventoryAllowance", inventoryAllowance.value || 0);
   updateBalanceStats();
 }
-
 function updateBalanceStats() {
   const e = (+earningsBalance.value || 0);
   const i = (+inventoryAllowance.value || 0);
-  earningsStat.textContent = `EARNINGS: $${e.toFixed(2)}`;
-  inventoryStat.textContent = `INVENTORY ALLOWANCE: $${i.toFixed(2)}`;
+  earningsStat.textContent = `EARNINGS: ${formatDollars(e)}`;
+  inventoryStat.textContent = `INVENTORY ALLOWANCE: ${formatDollars(i)}`;
 }
 
 function addMonthlyIncome() {
@@ -929,19 +997,9 @@ function addMonthlyIncome() {
 
   monthLabel.value = "";
   monthIncome.value = "";
-  loadChart();
+  loadIncomeChart();
 }
-
-function resetMonthlyIncome() {
-  localStorage.removeItem("monthlyIncome");
-  loadChart();
-}
-
-/* ========= CHART: Year filter + $ axis + year separators ========= */
-function extractYear(label) {
-  const m = String(label).match(/(19|20)\d{2}/);
-  return m ? m[0] : null;
-}
+function resetMonthlyIncome() { localStorage.removeItem("monthlyIncome"); loadIncomeChart(); }
 
 function refreshYearFilter(data) {
   const select = document.getElementById("yearFilter");
@@ -958,12 +1016,6 @@ function refreshYearFilter(data) {
 
   const stillExists = [...select.options].some(o => o.value === current);
   select.value = stillExists ? current : "ALL";
-}
-
-function formatDollars(v) {
-  const n = Number(v);
-  if (!isFinite(n)) return String(v);
-  return "$" + n.toLocaleString(undefined, { maximumFractionDigits: 0 });
 }
 
 const yearSeparatorPlugin = {
@@ -985,24 +1037,20 @@ const yearSeparatorPlugin = {
     for (let i = 1; i < labels.length; i++) {
       const prevY = extractYear(labels[i - 1]);
       const curY = extractYear(labels[i]);
-
       if (curY && prevY && curY !== prevY) {
         const xPos = x.getPixelForTick(i);
-
         ctx.beginPath();
         ctx.moveTo(xPos, chartArea.top);
         ctx.lineTo(xPos, chartArea.bottom);
         ctx.stroke();
-
         ctx.fillText(curY, xPos + 6, chartArea.top + 14);
       }
     }
-
     ctx.restore();
   }
 };
 
-function loadChart() {
+function loadIncomeChart() {
   const raw = JSON.parse(localStorage.getItem("monthlyIncome")) || [];
   monthCountStat.textContent = `MONTHS STORED: ${raw.length}`;
 
@@ -1013,9 +1061,9 @@ function loadChart() {
     ? raw
     : raw.filter(d => extractYear(d.label) === selectedYear);
 
-  if (chart) chart.destroy();
+  if (incomeChartObj) incomeChartObj.destroy();
 
-  chart = new Chart(incomeChart, {
+  incomeChartObj = new Chart(incomeChart, {
     type: "line",
     data: {
       labels: data.map(d => d.label),
@@ -1030,6 +1078,7 @@ function loadChart() {
     },
     plugins: [yearSeparatorPlugin],
     options: {
+      maintainAspectRatio: false,
       plugins: {
         legend: { display: false },
         tooltip: { callbacks: { label: (ctx) => ` ${formatDollars(ctx.parsed.y)}` } }
@@ -1046,13 +1095,332 @@ function loadChart() {
   });
 }
 
+/* ========= SOLD DATA (CSV IMPORT + TABLE + CHARTS) ========= */
+const SOLD_KEY = "soldInventory";
+let soldProfitChartObj, soldItemsChartObj;
+
+// Robust CSV parser (handles quotes/commas)
+function parseCSV(text) {
+  const rows = [];
+  let i = 0, field = "", row = [], inQuotes = false;
+
+  while (i < text.length) {
+    const c = text[i];
+
+    if (c === '"') {
+      if (inQuotes && text[i + 1] === '"') { field += '"'; i += 2; continue; }
+      inQuotes = !inQuotes; i++; continue;
+    }
+
+    if (!inQuotes && (c === ",")) { row.push(field); field = ""; i++; continue; }
+    if (!inQuotes && (c === "\n" || c === "\r")) {
+      if (c === "\r" && text[i + 1] === "\n") i++;
+      row.push(field); field = "";
+      // skip empty trailing rows
+      if (row.some(x => String(x).trim().length)) rows.push(row);
+      row = [];
+      i++; continue;
+    }
+
+    field += c; i++;
+  }
+
+  row.push(field);
+  if (row.some(x => String(x).trim().length)) rows.push(row);
+
+  return rows;
+}
+
+function normalizeKey(s) {
+  return String(s || "").trim().toLowerCase()
+    .replace(/\s+/g, "")
+    .replace(/[^a-z0-9]/g, "");
+}
+
+function readSold() { return JSON.parse(localStorage.getItem(SOLD_KEY)) || []; }
+function writeSold(arr) { localStorage.setItem(SOLD_KEY, JSON.stringify(arr)); }
+
+function parseDateAny(v) {
+  const s = String(v || "").trim();
+  if (!s) return null;
+
+  // Try native Date parse
+  const d = new Date(s);
+  if (!isNaN(d.getTime())) return d;
+
+  // Try MM/DD/YYYY
+  const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+  if (m) {
+    const mm = parseInt(m[1], 10);
+    const dd = parseInt(m[2], 10);
+    let yy = parseInt(m[3], 10);
+    if (yy < 100) yy += 2000;
+    const d2 = new Date(yy, mm - 1, dd);
+    if (!isNaN(d2.getTime())) return d2;
+  }
+  return null;
+}
+
+function formatDate(d) {
+  if (!(d instanceof Date) || isNaN(d.getTime())) return "";
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function importSoldCSV() {
+  const f = document.getElementById("soldFile").files[0];
+  const msg = document.getElementById("soldImportMsg");
+  if (!f) { msg.textContent = "Choose a CSV first."; return; }
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const text = String(reader.result || "");
+      const parsed = parseCSV(text);
+      if (!parsed.length) { msg.textContent = "CSV looks empty."; return; }
+
+      const header = parsed[0].map(h => normalizeKey(h));
+      const idx = (names) => {
+        for (const n of names) {
+          const k = normalizeKey(n);
+          const i = header.indexOf(k);
+          if (i !== -1) return i;
+        }
+        return -1;
+      };
+
+      // flexible headers
+      const iDate = idx(["date","solddate","orderdate","saldate","transactiondate"]);
+      const iItem = idx(["item","title","name","listing","description"]);
+      const iPlatform = idx(["platform","market","marketplace","site"]);
+      const iSale = idx(["sale","saleprice","sold","soldprice","price","gross","revenue"]);
+      const iCost = idx(["cost","itemcost","cogs","purchase","buycost"]);
+      const iFees = idx(["fees","fee","platformfees"]);
+      const iShip = idx(["shipping","ship","shipcost","shippingcost"]);
+
+      if (iDate === -1 || iItem === -1 || iPlatform === -1 || iSale === -1) {
+        msg.textContent = "Missing required columns. Needs: date, item, platform, sale (names can vary).";
+        msg.style.color = "var(--red)";
+        return;
+      }
+
+      const existing = readSold();
+      let added = 0;
+
+      for (let r = 1; r < parsed.length; r++) {
+        const row = parsed[r];
+        const date = parseDateAny(row[iDate]);
+        if (!date) continue;
+
+        const item = String(row[iItem] || "").trim();
+        const platform = String(row[iPlatform] || "").trim() || "Unknown";
+        const sale = parseMoney(row[iSale]);
+        const cost = iCost !== -1 ? parseMoney(row[iCost]) : 0;
+        const fees = iFees !== -1 ? parseMoney(row[iFees]) : 0;
+        const ship = iShip !== -1 ? parseMoney(row[iShip]) : 0;
+
+        // Profit estimate (if missing optional fields they stay 0)
+        const profit = sale - cost - fees - ship;
+
+        if (!item || !isFinite(sale)) continue;
+
+        existing.push({
+          date: formatDate(date),
+          item,
+          platform,
+          sale,
+          cost,
+          fees,
+          ship,
+          profit
+        });
+        added++;
+      }
+
+      writeSold(existing);
+      msg.textContent = `Imported ${added} rows ✅`;
+      msg.style.color = "var(--green)";
+      renderSold();
+    } catch (e) {
+      msg.textContent = "Import failed. Try exporting CSV again.";
+      msg.style.color = "var(--red)";
+    }
+  };
+  reader.readAsText(f);
+}
+
+function removeLastSold() {
+  const data = readSold();
+  data.pop();
+  writeSold(data);
+  renderSold();
+}
+
+function clearSold() {
+  localStorage.removeItem(SOLD_KEY);
+  renderSold();
+  const msg = document.getElementById("soldImportMsg");
+  if (msg) { msg.textContent = "Sold data cleared."; msg.style.color = "var(--yellow)"; }
+}
+
+function refreshSoldFilters(data) {
+  const yearSel = document.getElementById("soldYearFilter");
+  const platSel = document.getElementById("soldPlatformFilter");
+  if (!yearSel || !platSel) return;
+
+  const years = Array.from(new Set(data.map(x => extractYear(x.date)).filter(Boolean))).sort();
+  const plats = Array.from(new Set(data.map(x => String(x.platform || "").trim()).filter(Boolean))).sort((a,b)=>a.localeCompare(b));
+
+  const yCur = yearSel.value || "ALL";
+  const pCur = platSel.value || "ALL";
+
+  yearSel.innerHTML = `<option value="ALL">ALL</option>` + years.map(y => `<option value="${y}">${y}</option>`).join("");
+  platSel.innerHTML = `<option value="ALL">ALL</option>` + plats.map(p => `<option value="${p}">${p}</option>`).join("");
+
+  if ([...yearSel.options].some(o => o.value === yCur)) yearSel.value = yCur;
+  if ([...platSel.options].some(o => o.value === pCur)) platSel.value = pCur;
+}
+
+function monthKey(isoDate) {
+  // isoDate expected yyyy-mm-dd
+  const s = String(isoDate || "");
+  const m = s.match(/^(\d{4})-(\d{2})/);
+  if (!m) return null;
+  return `${m[1]}-${m[2]}`;
+}
+
+function renderSold() {
+  const all = readSold();
+
+  refreshSoldFilters(all);
+
+  const y = document.getElementById("soldYearFilter")?.value || "ALL";
+  const p = document.getElementById("soldPlatformFilter")?.value || "ALL";
+
+  const filtered = all.filter(row => {
+    const yr = extractYear(row.date);
+    const okY = (y === "ALL") || (yr === y);
+    const okP = (p === "ALL") || (String(row.platform || "") === p);
+    return okY && okP;
+  });
+
+  // Stats
+  const revenue = filtered.reduce((s,x)=>s + (Number(x.sale)||0), 0);
+  const profit = filtered.reduce((s,x)=>s + (Number(x.profit)||0), 0);
+  const items = filtered.length;
+  const avg = items ? revenue / items : 0;
+
+  soldRevenueStat.textContent = `REVENUE: ${formatDollars(revenue)}`;
+  soldProfitStat.textContent  = `PROFIT: ${formatDollars(profit)}`;
+  soldItemsStat.textContent   = `ITEMS SOLD: ${items}`;
+  soldAvgStat.textContent     = `AVG SALE: ${formatDollars(avg)}`;
+
+  // Table
+  const tbody = document.getElementById("soldTableBody");
+  tbody.innerHTML = "";
+
+  const sorted = [...filtered].sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+
+  for (const r of sorted) {
+    const tr = document.createElement("tr");
+    const cells = [
+      r.date,
+      r.item,
+      r.platform,
+      formatDollars(r.sale),
+      formatDollars(r.cost),
+      formatDollars(r.fees),
+      formatDollars(r.ship),
+      formatDollars(r.profit)
+    ];
+    cells.forEach((c, idx) => {
+      const td = document.createElement("td");
+      td.textContent = c;
+      if (idx === 7) td.style.color = (r.profit >= 0 ? "var(--green)" : "var(--red)");
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  }
+
+  const rowCount = document.getElementById("soldRowCount");
+  if (rowCount) rowCount.textContent = `ROWS: ${filtered.length} (showing newest first)`;
+
+  // Build monthly totals
+  const buckets = new Map(); // key -> {profit, revenue, items}
+  for (const r of filtered) {
+    const k = monthKey(r.date);
+    if (!k) continue;
+    if (!buckets.has(k)) buckets.set(k, { profit: 0, items: 0 });
+    const b = buckets.get(k);
+    b.profit += Number(r.profit) || 0;
+    b.items += 1;
+  }
+
+  const labels = [...buckets.keys()].sort();
+  const profitVals = labels.map(k => buckets.get(k).profit);
+  const itemVals = labels.map(k => buckets.get(k).items);
+
+  // Profit chart
+  if (soldProfitChartObj) soldProfitChartObj.destroy();
+  soldProfitChartObj = new Chart(soldProfitChart, {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [{
+        data: profitVals,
+        borderColor: "#38bdf8",
+        backgroundColor: "rgba(56,189,248,0.20)",
+        borderWidth: 1
+      }]
+    },
+    options: {
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: (ctx) => ` ${formatDollars(ctx.parsed.y)}` } }
+      },
+      scales: {
+        x: { ticks: { color: "#6b7280" }, grid: { color: "rgba(31,41,55,0.55)" } },
+        y: { ticks: { color: "#6b7280", callback: (v)=>formatDollars(v) }, grid: { color: "rgba(31,41,55,0.55)" } }
+      }
+    }
+  });
+
+  // Items chart
+  if (soldItemsChartObj) soldItemsChartObj.destroy();
+  soldItemsChartObj = new Chart(soldItemsChart, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [{
+        data: itemVals,
+        borderColor: "#22c55e",
+        borderWidth: 2,
+        tension: 0.35,
+        pointRadius: 3,
+        pointHoverRadius: 5
+      }]
+    },
+    options: {
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: "#6b7280" }, grid: { color: "rgba(31,41,55,0.55)" } },
+        y: { beginAtZero: true, ticks: { color: "#6b7280" }, grid: { color: "rgba(31,41,55,0.55)" } }
+      }
+    }
+  });
+}
+
+/* ========= Tools ========= */
 function calculateBudget() {
   const g = parseFloat(grossSales.value);
   if (isNaN(g)) return;
-
-  invStat.textContent = `INVENTORY: $${(g * 0.65).toFixed(2)}`;
-  profitStat.textContent = `PROFIT BUFFER: $${(g * 0.20).toFixed(2)}`;
-  holdStat.textContent = `HOLDS: $${(g * 0.15).toFixed(2)}`;
+  invStat.textContent = `INVENTORY: ${formatDollars(g * 0.65)}`;
+  profitStat.textContent = `PROFIT BUFFER: ${formatDollars(g * 0.20)}`;
+  holdStat.textContent = `HOLDS: ${formatDollars(g * 0.15)}`;
 }
 
 function calculateMinPrice() {
@@ -1069,15 +1437,13 @@ function calculateMinPrice() {
   }
 
   const min = cost / (1 - f - p);
-  minPriceStat.textContent = `MIN SAFE PRICE: $${min.toFixed(2)}`;
+  minPriceStat.textContent = `MIN SAFE PRICE: ${formatDollars(min)}`;
   minPriceStat.className = "stat blue";
 }
 
 /* ========= CALCULATOR ========= */
 let calcExpr = "";
-
 function renderCalc() { calcDisplay.textContent = calcExpr.length ? calcExpr : "0"; }
-
 function calcPress(ch) {
   const ok = "0123456789.+-*/()";
   if (!ok.includes(ch)) return;
@@ -1085,23 +1451,25 @@ function calcPress(ch) {
   calcExpr += ch;
   renderCalc();
 }
-
 function calcClear() { calcExpr = ""; renderCalc(); }
 function calcBack() { calcExpr = calcExpr === "ERR" ? "" : calcExpr.slice(0, -1); renderCalc(); }
-
 function calcEquals() {
   try {
     if (!calcExpr.trim() || calcExpr === "ERR") return;
     const val = Function(`"use strict"; return (${calcExpr});`)();
     calcExpr = String(Number(val.toFixed(10)));
     renderCalc();
-  } catch {
-    calcExpr = "ERR";
-    renderCalc();
-  }
+  } catch { calcExpr = "ERR"; renderCalc(); }
 }
-
 renderCalc();
+
+/* ========= Reset ========= */
+function factoryReset() {
+  const ok = confirm("Factory Reset: This will clear ALL local data on this device. Continue?");
+  if (!ok) return;
+  localStorage.clear();
+  location.reload();
+}
 
 /* ========= BOOT ========= */
 window.onload = () => {
@@ -1111,7 +1479,8 @@ window.onload = () => {
   inventoryAllowance.value = localStorage.getItem("inventoryAllowance") || "";
 
   updateBalanceStats();
-  loadChart();
+  loadIncomeChart();
+  renderSold();
   showSection('secDashboard');
 };
 </script>
