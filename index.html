@@ -3,29 +3,33 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Reseller Dashboard</title>
+<title>OffTheShelf — OffTheShelf</title>
+<link rel="icon" href="./favicon.png">
 
 <!-- PWA -->
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#38bdf8">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Reseller Dashboard">
+<meta name="apple-mobile-web-app-title" content="OffTheShelf">
 <link rel="apple-touch-icon" href="./icons/icon-192.png">
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 :root {
-  --bg: #0a0e14;
-  --panel: #0f141c;
-  --border: #1f2937;
-  --text: #d1d5db;
-  --muted: #6b7280;
-  --accent: #38bdf8;
+  --bg: #0f0f10;
+  --panel: #151518;
+  --border: #26262b;
+  --text: #f5f5f5;
+  --muted: #9ca3af;
+
+  /* OffTheShelf Brand */
+  --accent: #fbbf24;   /* yellow */
+  --accent-2: #f59e0b; /* darker yellow */
   --green: #22c55e;
-  --yellow: #eab308;
   --red: #ef4444;
+  --blue: #38bdf8;
 }
 
 * { box-sizing: border-box; }
@@ -549,7 +553,7 @@ tr:hover td { background: rgba(56,189,248,0.04); }
 
 <div class="topbar">
   <button class="hamburger" onclick="toggleSidebar()">☰</button>
-  <div class="title" id="topbarTitle">Dashboard</div>
+  <div class="title" id="topbarTitle">OffTheShelf</div>
   <div style="display:flex; gap:10px; flex-wrap:wrap;">
     <button class="small" onclick="lockNow()">Lock</button>
     <button class="small danger" onclick="factoryReset()">Reset</button>
@@ -564,7 +568,10 @@ tr:hover td { background: rgba(56,189,248,0.04); }
   <!-- Sidebar -->
   <aside class="sidebar" id="sidebar">
     <div class="brand">
-      <div class="name">Reseller</div>
+      <div>
+        <div class="name">OffTheShelf</div>
+        <div class="muted" style="font-size:12px;margin-top:4px;">Inventory → Sold → Profit</div>
+      </div>
       <button class="small" onclick="closeSidebar()">✕</button>
     </div>
 
@@ -1059,7 +1066,7 @@ function showSection(sectionId) {
 
   const titleMap = { secDashboard:"Dashboard", secInventory:"Inventory", secSold:"Sold", secTools:"Tools", secSettings:"Settings" };
   const t = document.getElementById("topbarTitle");
-  if (t) t.textContent = titleMap[sectionId] || "Reseller Dashboard";
+  if (t) t.textContent = titleMap[sectionId] || "OffTheShelf";
 
   if (isMobile()) closeSidebar();
 
