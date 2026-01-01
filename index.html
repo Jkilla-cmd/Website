@@ -369,12 +369,14 @@ tr:hover td { background: rgba(56,189,248,0.04); }
   bottom: 18px;
   z-index: 10050;
 }
+.bmc-float a { display:block; }
 .bmc-float img {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
+  width: 64px;
+  height: 64px;
+  border-radius: 999px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.35);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
+  display:block;
 }
 .bmc-float img:hover {
   transform: translateY(-2px);
@@ -683,6 +685,7 @@ tr:hover td { background: rgba(56,189,248,0.04); }
           <div class="divider"></div>
           <div class="stat blue" id="activeCountStat"></div>
           <div class="stat green" id="activeCostStat"></div>
+          <div class="stat blue" id="activeListStat"></div>
           <div class="stat muted" id="activeAvgCostStat"></div>
         </div>
       </div>
@@ -2057,13 +2060,16 @@ function renderActive() {
 
   const count = filtered.reduce((s,x)=>s + (Number(x.qty)||1), 0);
   const totalCost = filtered.reduce((s,x)=>s + (Number(x.cost)||0) * (Number(x.qty)||1), 0);
+  const totalList = filtered.reduce((s,x)=>s + (Number(x.list)||0) * (Number(x.qty)||1), 0);
   const avgCost = count ? totalCost / count : 0;
 
   const cEl = document.getElementById("activeCountStat");
   const tEl = document.getElementById("activeCostStat");
+  const lEl = document.getElementById("activeListStat");
   const aEl = document.getElementById("activeAvgCostStat");
   if (cEl) cEl.textContent = `ITEMS (QTY): ${count}`;
   if (tEl) tEl.textContent = `TOTAL COST: ${formatDollars(totalCost)}`;
+  if (lEl) lEl.textContent = `TOTAL LIST: ${formatDollars(totalList)}`;
   if (aEl) aEl.textContent = `AVG COST: ${formatDollars(avgCost)}`;
 
   const tbody = document.getElementById("activeTableBody");
