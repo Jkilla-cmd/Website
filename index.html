@@ -361,6 +361,34 @@ tr:hover td { background: rgba(56,189,248,0.04); }
 .modal .box .btnRow { display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
 .modal .box .btnRow button { width:auto; }
 
+
+/* Buy Me a Coffee Floating Button */
+.bmc-float {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 10050;
+}
+.bmc-float a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fbbf24;
+  color: #1f2937;
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+}
+.bmc-float a:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 40px rgba(0,0,0,0.45);
+}
+.bmc-float span {
+  font-size: 18px;
+}
+
 </style>
 </head>
 
@@ -529,7 +557,6 @@ tr:hover td { background: rgba(56,189,248,0.04); }
 
     <div class="nav" id="nav">
       <button class="active" data-target="secDashboard" onclick="showSection('secDashboard')">📊 Dashboard</button>
-      <button data-target="secIncome" onclick="showSection('secIncome')">💰 Income</button>
       <button data-target="secInventory" onclick="showSection('secInventory')">📋 Inventory</button>
       <button data-target="secSold" onclick="showSection('secSold')">📦 Sold</button>
       <button data-target="secTools" onclick="showSection('secTools')">🧮 Tools</button>
@@ -591,29 +618,6 @@ tr:hover td { background: rgba(56,189,248,0.04); }
         </div>
       </div>
     </section>
-
-    <!-- INCOME -->
-    <section id="secIncome" class="section">
-      <div class="grid">
-        <div class="panel">
-          <h3>Monthly Income (Manual)</h3>
-
-          <label>Month (e.g. Feb 2025)</label>
-          <input type="text" id="monthLabel" />
-
-          <label>Gross Income ($)</label>
-          <input type="number" id="monthIncome" />
-
-          <button onclick="addMonthlyIncome()">Add Month</button>
-
-          <div class="divider"></div>
-          <div class="stat muted">
-            Tip: If you import Sold CSV, press <span class="blue">Sync Income From Sold</span> to auto-build the income graph.
-          </div>
-        </div>
-      </div>
-    </section>
-
 
     <!-- INVENTORY -->
     <section id="secInventory" class="section">
@@ -1039,7 +1043,7 @@ function showSection(sectionId) {
 
   setActiveNav(sectionId);
 
-  const titleMap = { secDashboard:"Dashboard", secIncome:"Income", secInventory:"Inventory", secSold:"Sold", secTools:"Tools", secSettings:"Settings" };
+  const titleMap = { secDashboard:"Dashboard", secInventory:"Inventory", secSold:"Sold", secTools:"Tools", secSettings:"Settings" };
   const t = document.getElementById("topbarTitle");
   if (t) t.textContent = titleMap[sectionId] || "Reseller Dashboard";
 
@@ -2336,6 +2340,15 @@ window.onload = () => {
   showSection('secDashboard');
 };
 </script>
+
+
+<!-- Buy Me a Coffee -->
+<div class="bmc-float">
+  <a href="https://buymeacoffee.com/jac0bb" target="_blank" rel="noopener">
+    <span>☕</span>
+    <span>Buy me a coffee</span>
+  </a>
+</div>
 
 </body>
 </html>
