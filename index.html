@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="hackercyan">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -617,6 +617,13 @@ button:hover{
   background: color-mix(in srgb, var(--accent) 18%, transparent) !important;
   border-color: color-mix(in srgb, var(--accent) 42%, transparent) !important;
 }
+
+
+/* Lock screen readability */
+#lockScreen h3, #lockScreen .name { color: var(--text) !important; }
+#lockScreen .muted, #lockScreen label { color: color-mix(in srgb, var(--text) 75%, var(--muted)) !important; }
+#lockScreen .stat.muted { color: color-mix(in srgb, var(--text) 75%, var(--muted)) !important; }
+#lockScreen .panel { box-shadow: 0 22px 70px rgba(0,0,0,0.55) !important; }
 
 </style>
 </head>
