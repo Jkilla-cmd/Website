@@ -1,14 +1,15 @@
 /* Reseller Dashboard Service Worker
    Cache-first for app shell assets; network-first for anything else.
 */
-const CACHE_VERSION = "v3-2026-01-01";
+const CACHE_VERSION = "v4-2026-01-01";
 const APP_CACHE = `reseller-dashboard-${CACHE_VERSION}`;
 
 const APP_SHELL = [
   "./",
   "./index.html",
   "./index_updated.html",
-  "./manifest.webmanifest",
+  "./manifest.webmanifest,
+  "./favicon.png"",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
   "./icons/icon-512-maskable.png"
