@@ -314,6 +314,53 @@ tr:hover td { background: rgba(56,189,248,0.04); }
 .inline-row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
 .inline-row label { margin:0; }
 .inline-row input[type="checkbox"] { width:auto; margin:0; }
+
+.edit { cursor: pointer; user-select: none; opacity: 0.9; color: var(--yellow); }
+.edit:hover { opacity: 1; }
+.soldbtn { cursor: pointer; user-select: none; opacity: 0.95; color: var(--green); }
+.soldbtn:hover { opacity: 1; }
+.pill { display:inline-block; padding:3px 8px; border:1px solid var(--border); border-radius:999px; font-size:12px; color:var(--muted); }
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px 14px;
+  z-index: 10010;
+  display: none;
+  max-width: 92vw;
+  width: 520px;
+}
+.toast .row { display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+.toast .msg { font-size: 13px; color: var(--text); }
+.toast .actions { display:flex; gap:10px; }
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 10020;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.modal .box {
+  width: 100%;
+  max-width: 760px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 16px;
+}
+.modal .box h3 { margin:0 0 12px; font-size:13px; letter-spacing:1px; color: var(--accent); text-transform: uppercase; }
+.modal .box .btnRow { display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
+.modal .box .btnRow button { width:auto; }
+
 </style>
 </head>
 
@@ -385,10 +432,80 @@ tr:hover td { background: rgba(56,189,248,0.04); }
     </div>
 
     <p class="lockMsg" id="lockMsg"></p>
+  
+</div>
+</div>
+
+<!-- UNDO TOAST -->
+<div class="toast" id="undoToast">
+  <div class="row">
+    <div class="msg" id="undoMsg">Deleted.</div>
+    <div class="actions">
+      <button class="small" onclick="undoLastDelete()">Undo</button>
+      <button class="small danger" onclick="hideUndo()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal" id="editModal" onclick="modalBackdropClose(event)">
+  <div class="box" onclick="event.stopPropagation()">
+    <h3 id="editTitle">Edit</h3>
+    <div id="editBody"></div>
+    <div class="divider"></div>
+    <div class="btnRow">
+      <button class="small" onclick="closeEditModal()">Cancel</button>
+      <button class="small" onclick="saveEditModal()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- MARK SOLD MODAL -->
+<div class="modal" id="markSoldModal" onclick="modalBackdropClose(event)">
+  <div class="box" onclick="event.stopPropagation()">
+    <h3>Mark Item Sold</h3>
+
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;">
+      <div>
+        <label>Sold Date</label>
+        <input type="date" id="msDate">
+      </div>
+      <div>
+        <label>Sale ($)</label>
+        <input type="number" id="msSale" step="0.01">
+      </div>
+      <div>
+        <label>Platform</label>
+        <input type="text" id="msPlatform" placeholder="eBay, Mercari, etc.">
+      </div>
+      <div>
+        <label>Fees ($)</label>
+        <input type="number" id="msFees" step="0.01">
+      </div>
+      <div>
+        <label>Shipping ($)</label>
+        <input type="number" id="msShip" step="0.01">
+      </div>
+    </div>
+
+    <label>Item</label>
+    <input type="text" id="msItem">
+
+    <div class="inline-row" style="margin-bottom:10px;">
+      <input type="checkbox" id="msSyncIncome" checked>
+      <label for="msSyncIncome" class="muted">Also update Income graph</label>
+    </div>
+
+    <div class="divider"></div>
+    <div class="btnRow">
+      <button class="small" onclick="closeMarkSoldModal()">Cancel</button>
+      <button class="small" onclick="confirmMarkSold()">Move to Sold</button>
+    </div>
   </div>
 </div>
 
 <!-- Topbar -->
+
 <div class="topbar">
   <button class="hamburger" onclick="toggleSidebar()">☰</button>
   <div class="title" id="topbarTitle">Dashboard</div>
@@ -413,6 +530,7 @@ tr:hover td { background: rgba(56,189,248,0.04); }
     <div class="nav" id="nav">
       <button class="active" data-target="secDashboard" onclick="showSection('secDashboard')">📊 Dashboard</button>
       <button data-target="secIncome" onclick="showSection('secIncome')">💰 Income</button>
+      <button data-target="secInventory" onclick="showSection('secInventory')">📋 Inventory</button>
       <button data-target="secSold" onclick="showSection('secSold')">📦 Sold</button>
       <button data-target="secTools" onclick="showSection('secTools')">🧮 Tools</button>
       <button data-target="secSettings" onclick="showSection('secSettings')">⚙️ Settings</button>
@@ -495,6 +613,129 @@ tr:hover td { background: rgba(56,189,248,0.04); }
         </div>
       </div>
     </section>
+
+
+    <!-- INVENTORY -->
+    <section id="secInventory" class="section">
+      <div class="grid">
+        <div class="panel">
+          <h3>Active Inventory (Import / Export)</h3>
+          <div class="stat muted" style="line-height:1.5">
+            Required columns: <span class="blue">date, item</span><br>
+            Recommended: <span class="blue">platform, cost, list, qty, notes</span>
+          </div>
+
+          <div class="divider"></div>
+
+          <label>CSV File</label>
+          <input type="file" id="activeFile" accept=".csv,text/csv" />
+
+          <button onclick="importActiveCSV()">Import Inventory CSV</button>
+
+          <div class="divider"></div>
+
+          <button onclick="exportActiveCSV()">Export Inventory (CSV)</button>
+          <div style="height:10px"></div>
+          <button class="danger" onclick="clearActive()">Clear Inventory</button>
+
+          <div class="stat muted" id="activeImportMsg" style="margin-top:10px;"></div>
+        </div>
+
+        <div class="panel">
+          <h3>Inventory Filters</h3>
+
+          <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">
+            <div>
+              <label>Year</label>
+              <select id="activeYearFilter" onchange="renderActive()">
+                <option value="ALL">ALL</option>
+              </select>
+            </div>
+            <div>
+              <label>Month</label>
+              <select id="activeMonthFilter" onchange="renderActive()">
+                <option value="ALL">ALL</option>
+              </select>
+            </div>
+            <div>
+              <label>Platform</label>
+              <select id="activePlatformFilter" onchange="renderActive()">
+                <option value="ALL">ALL</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+          <div class="stat blue" id="activeCountStat"></div>
+          <div class="stat green" id="activeCostStat"></div>
+          <div class="stat muted" id="activeAvgCostStat"></div>
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top:16px;">
+        <div class="panel">
+          <h3>Add Inventory Item Manually</h3>
+
+          <label>Acquired Date</label>
+          <input type="date" id="invDate">
+
+          <label>Item</label>
+          <input type="text" id="invItem" placeholder="e.g. Batman #251">
+
+          <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;">
+            <div>
+              <label>Platform / Source</label>
+              <input type="text" id="invPlatform" placeholder="garage sale, eBay, Mercari">
+            </div>
+            <div>
+              <label>Cost ($)</label>
+              <input type="number" id="invCost" step="0.01">
+            </div>
+            <div>
+              <label>List ($)</label>
+              <input type="number" id="invList" step="0.01">
+            </div>
+            <div>
+              <label>Qty</label>
+              <input type="number" id="invQty" value="1">
+            </div>
+          </div>
+
+          <label>Notes</label>
+          <input type="text" id="invNotes" placeholder="condition, grade, etc.">
+
+          <button onclick="addActiveManually()">Add to Inventory</button>
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top:16px;">
+        <div class="panel">
+          <h3>Active Inventory Items</h3>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Item</th>
+                  <th>Platform</th>
+                  <th>Cost</th>
+                  <th>List</th>
+                  <th>Qty</th>
+                  <th>Notes</th>
+                  <th class="action-cell"></th>
+                </tr>
+              </thead>
+              <tbody id="activeTableBody"></tbody>
+            </table>
+          </div>
+
+          <div class="divider"></div>
+          <div class="stat muted">Actions: <span class="pill">✏️ edit</span> <span class="pill">✅ sold</span> <span class="pill">🗑 delete</span></div>
+        </div>
+      </div>
+    </section>
+
 
     <!-- SOLD -->
     <section id="secSold" class="section">
@@ -798,7 +1039,7 @@ function showSection(sectionId) {
 
   setActiveNav(sectionId);
 
-  const titleMap = { secDashboard:"Dashboard", secIncome:"Income", secSold:"Sold", secTools:"Tools", secSettings:"Settings" };
+  const titleMap = { secDashboard:"Dashboard", secIncome:"Income", secInventory:"Inventory", secSold:"Sold", secTools:"Tools", secSettings:"Settings" };
   const t = document.getElementById("topbarTitle");
   if (t) t.textContent = titleMap[sectionId] || "Reseller Dashboard";
 
@@ -1335,10 +1576,14 @@ function removeLastSold() {
 }
 
 function deleteSoldById(id) {
-  const data = readSold().filter(x => x && x._id !== id);
-  writeSold(data);
+  const arr = readSold();
+  const idx = arr.findIndex(x => x && x._id === id);
+  if (idx === -1) return;
+  const removed = arr.splice(idx, 1)[0];
+  writeSold(arr);
   renderSold();
   rebuildMonthlyIncomeFromSold();
+  showUndo("Sold item deleted.", { key: SOLD_KEY, item: removed, index: idx });
 }
 
 function clearSold() {
@@ -1437,14 +1682,24 @@ function renderSold() {
       tr.appendChild(td);
     });
 
-    // trash action
+    // actions (edit + delete)
     const delTd = document.createElement("td");
     delTd.className = "action-cell";
+
+    const e = document.createElement("span");
+    e.className = "edit";
+    e.title = "Edit";
+    e.textContent = "✏️";
+    e.onclick = () => openEditModal("sold", r._id);
+
     const span = document.createElement("span");
     span.className = "trash";
     span.title = "Delete";
     span.textContent = "🗑";
+    span.style.marginLeft = "8px";
     span.onclick = () => deleteSoldById(r._id);
+
+    delTd.appendChild(e);
     delTd.appendChild(span);
     tr.appendChild(delTd);
 
@@ -1555,6 +1810,473 @@ function factoryReset() {
 }
 
 
+
+/* ========= Inventory (Active) ========= */
+const ACTIVE_KEY = "activeInventory";
+
+function readActive() { return JSON.parse(localStorage.getItem(ACTIVE_KEY)) || []; }
+function writeActive(arr) { localStorage.setItem(ACTIVE_KEY, JSON.stringify(arr)); }
+
+let lastDelete = null;
+let undoTimer = null;
+
+function showUndo(message, payload) {
+  lastDelete = payload;
+  const toast = document.getElementById("undoToast");
+  const msg = document.getElementById("undoMsg");
+  if (!toast || !msg) return;
+  msg.textContent = message;
+  toast.style.display = "block";
+
+  if (undoTimer) clearTimeout(undoTimer);
+  undoTimer = setTimeout(() => {
+    hideUndo();
+  }, 6000);
+}
+function hideUndo() {
+  const toast = document.getElementById("undoToast");
+  if (toast) toast.style.display = "none";
+  lastDelete = null;
+  if (undoTimer) { clearTimeout(undoTimer); undoTimer = null; }
+}
+function undoLastDelete() {
+  if (!lastDelete) return;
+  const { key, item, index } = lastDelete;
+  const arr = JSON.parse(localStorage.getItem(key)) || [];
+  const idx = Math.min(Math.max(0, index), arr.length);
+  arr.splice(idx, 0, item);
+  localStorage.setItem(key, JSON.stringify(arr));
+  hideUndo();
+
+  if (key === SOLD_KEY) { renderSold(); rebuildMonthlyIncomeFromSold(); }
+  if (key === ACTIVE_KEY) { renderActive(); }
+}
+
+function modalBackdropClose(e) {
+  // close only if click outside box
+  if (e.target && e.target.classList.contains("modal")) {
+    closeEditModal();
+    closeMarkSoldModal();
+  }
+}
+
+/* --- Active Inventory CSV --- */
+function importActiveCSV() {
+  const f = document.getElementById("activeFile").files[0];
+  const msg = document.getElementById("activeImportMsg");
+  if (!f) { msg.textContent = "Choose a CSV first."; msg.style.color="var(--yellow)"; return; }
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const text = String(reader.result || "");
+      const parsed = parseCSV(text);
+      if (!parsed.length) { msg.textContent = "CSV looks empty."; msg.style.color="var(--yellow)"; return; }
+
+      const header = parsed[0].map(h => normalizeKey(h));
+      const idx = (names) => {
+        for (const n of names) {
+          const k = normalizeKey(n);
+          const i = header.indexOf(k);
+          if (i !== -1) return i;
+        }
+        return -1;
+      };
+
+      const iDate = idx(["date","acquireddate","purchasedate","boughtdate"]);
+      const iItem = idx(["item","title","name","listing","description"]);
+      const iPlatform = idx(["platform","source","market","marketplace","site"]);
+      const iCost = idx(["cost","itemcost","cogs","purchase","buycost"]);
+      const iList = idx(["list","listprice","ask","asking","price"]);
+      const iQty = idx(["qty","quantity","count"]);
+      const iNotes = idx(["notes","note","condition","details"]);
+
+      if (iDate === -1 || iItem === -1) {
+        msg.textContent = "Missing required columns. Needs at least: date, item.";
+        msg.style.color = "var(--red)";
+        return;
+      }
+
+      const existing = readActive();
+      let added = 0;
+
+      for (let r = 1; r < parsed.length; r++) {
+        const row = parsed[r];
+        const dateObj = parseDateAny(row[iDate]);
+        if (!dateObj) continue;
+
+        const item = String(row[iItem] || "").trim();
+        if (!item) continue;
+
+        const platform = iPlatform !== -1 ? String(row[iPlatform] || "").trim() : "";
+        const cost = iCost !== -1 ? parseMoney(row[iCost]) : 0;
+        const list = iList !== -1 ? parseMoney(row[iList]) : 0;
+        const qty = iQty !== -1 ? (parseInt(String(row[iQty]||"1"), 10) || 1) : 1;
+        const notes = iNotes !== -1 ? String(row[iNotes] || "").trim() : "";
+
+        existing.push({
+          _id: genId(),
+          date: formatDate(dateObj),
+          item,
+          platform,
+          cost,
+          list,
+          qty,
+          notes
+        });
+        added++;
+      }
+
+      writeActive(existing);
+      msg.textContent = `Imported ${added} rows ✅`;
+      msg.style.color = "var(--green)";
+      renderActive();
+    } catch {
+      msg.textContent = "Import failed. Try exporting CSV again.";
+      msg.style.color = "var(--red)";
+    }
+  };
+  reader.readAsText(f);
+}
+
+function exportActiveCSV() {
+  const inv = readActive();
+  const header = ["date","item","platform","cost","list","qty","notes"];
+  const lines = [toCSVRow(header)];
+  inv.slice().sort((a,b)=>String(a.date).localeCompare(String(b.date))).forEach(r => {
+    lines.push(toCSVRow([
+      r.date || "",
+      r.item || "",
+      r.platform || "",
+      Number(r.cost || 0),
+      Number(r.list || 0),
+      Number(r.qty || 1),
+      r.notes || ""
+    ]));
+  });
+  downloadTextFile("inventory_export.csv", lines.join("\n"), "text/csv");
+}
+
+function clearActive() {
+  const ok = confirm("Clear ALL active inventory items?");
+  if (!ok) return;
+  localStorage.removeItem(ACTIVE_KEY);
+  renderActive();
+  const msg = document.getElementById("activeImportMsg");
+  if (msg) { msg.textContent = "Inventory cleared."; msg.style.color = "var(--yellow)"; }
+}
+
+function addActiveManually() {
+  const d = invDate.value;
+  const item = (invItem.value || "").trim();
+  const platform = (invPlatform.value || "").trim();
+  const cost = Number(invCost.value) || 0;
+  const list = Number(invList.value) || 0;
+  const qty = parseInt(invQty.value || "1", 10) || 1;
+  const notes = (invNotes.value || "").trim();
+
+  if (!d || !item) return;
+
+  const all = readActive();
+  all.push({ _id: genId(), date: d, item, platform, cost, list, qty, notes });
+  writeActive(all);
+  renderActive();
+
+  invDate.value = "";
+  invItem.value = "";
+  invPlatform.value = "";
+  invCost.value = "";
+  invList.value = "";
+  invQty.value = "1";
+  invNotes.value = "";
+}
+
+function refreshActiveFilters(data) {
+  const yearSel = document.getElementById("activeYearFilter");
+  const monthSel = document.getElementById("activeMonthFilter");
+  const platSel = document.getElementById("activePlatformFilter");
+  if (!yearSel || !monthSel || !platSel) return;
+
+  const years = Array.from(new Set(data.map(x => extractYear(x.date)).filter(Boolean))).sort();
+  const months = Array.from(new Set(data.map(x => monthKey(x.date)).filter(Boolean))).sort();
+  const plats = Array.from(new Set(data.map(x => String(x.platform || "").trim()).filter(Boolean))).sort((a,b)=>a.localeCompare(b));
+
+  const yCur = yearSel.value || "ALL";
+  const mCur = monthSel.value || "ALL";
+  const pCur = platSel.value || "ALL";
+
+  yearSel.innerHTML = `<option value="ALL">ALL</option>` + years.map(y => `<option value="${y}">${y}</option>`).join("");
+
+  const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  monthSel.innerHTML = `<option value="ALL">ALL</option>` + months.map(ym => {
+    const parts = ym.split("-");
+    const y = parts[0];
+    const mi = Math.max(1, Math.min(12, parseInt(parts[1], 10))) - 1;
+    const label = `${monthNames[mi]} ${y}`;
+    return `<option value="${ym}">${label}</option>`;
+  }).join("");
+
+  platSel.innerHTML = `<option value="ALL">ALL</option>` + plats.map(p => `<option value="${p}">${p}</option>`).join("");
+
+  if ([...yearSel.options].some(o => o.value === yCur)) yearSel.value = yCur;
+  if ([...monthSel.options].some(o => o.value === mCur)) monthSel.value = mCur;
+  if ([...platSel.options].some(o => o.value === pCur)) platSel.value = pCur;
+}
+
+function renderActive() {
+  const all = readActive();
+  refreshActiveFilters(all);
+
+  const y = document.getElementById("activeYearFilter")?.value || "ALL";
+  const mth = document.getElementById("activeMonthFilter")?.value || "ALL";
+  const p = document.getElementById("activePlatformFilter")?.value || "ALL";
+
+  const filtered = all.filter(row => {
+    const yr = extractYear(row.date);
+    const mk = monthKey(row.date);
+    const okY = (y === "ALL") || (yr === y);
+    const okM = (mth === "ALL") || (mk === mth);
+    const okP = (p === "ALL") || (String(row.platform || "") === p);
+    return okY && okM && okP;
+  });
+
+  const count = filtered.reduce((s,x)=>s + (Number(x.qty)||1), 0);
+  const totalCost = filtered.reduce((s,x)=>s + (Number(x.cost)||0) * (Number(x.qty)||1), 0);
+  const avgCost = count ? totalCost / count : 0;
+
+  const cEl = document.getElementById("activeCountStat");
+  const tEl = document.getElementById("activeCostStat");
+  const aEl = document.getElementById("activeAvgCostStat");
+  if (cEl) cEl.textContent = `ITEMS (QTY): ${count}`;
+  if (tEl) tEl.textContent = `TOTAL COST: ${formatDollars(totalCost)}`;
+  if (aEl) aEl.textContent = `AVG COST: ${formatDollars(avgCost)}`;
+
+  const tbody = document.getElementById("activeTableBody");
+  if (!tbody) return;
+  tbody.innerHTML = "";
+
+  const sorted = [...filtered].sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  for (const r of sorted) {
+    const tr = document.createElement("tr");
+
+    const cells = [
+      r.date, r.item, r.platform || "",
+      formatDollars(r.cost),
+      formatDollars(r.list),
+      String(r.qty || 1),
+      r.notes || ""
+    ];
+    cells.forEach(c => {
+      const td = document.createElement("td");
+      td.textContent = c;
+      tr.appendChild(td);
+    });
+
+    const action = document.createElement("td");
+    action.className = "action-cell";
+
+    const e = document.createElement("span");
+    e.className = "edit";
+    e.title = "Edit";
+    e.textContent = "✏️";
+    e.onclick = () => openEditModal("active", r._id);
+
+    const s = document.createElement("span");
+    s.className = "soldbtn";
+    s.title = "Mark Sold";
+    s.textContent = "✅";
+    s.style.marginLeft = "8px";
+    s.onclick = () => openMarkSoldModal(r._id);
+
+    const d = document.createElement("span");
+    d.className = "trash";
+    d.title = "Delete";
+    d.textContent = "🗑";
+    d.style.marginLeft = "8px";
+    d.onclick = () => deleteActiveById(r._id);
+
+    action.appendChild(e);
+    action.appendChild(s);
+    action.appendChild(d);
+    tr.appendChild(action);
+
+    tbody.appendChild(tr);
+  }
+}
+
+function deleteActiveById(id) {
+  const arr = readActive();
+  const idx = arr.findIndex(x => x && x._id === id);
+  if (idx === -1) return;
+  const removed = arr.splice(idx, 1)[0];
+  writeActive(arr);
+  renderActive();
+  showUndo("Inventory item deleted.", { key: ACTIVE_KEY, item: removed, index: idx });
+}
+
+/* ========= Edit Modal (Sold + Active) ========= */
+let editContext = null; // { type: 'sold'|'active', id: '...', key: ... }
+
+function openEditModal(type, id) {
+  const modal = document.getElementById("editModal");
+  const body = document.getElementById("editBody");
+  const title = document.getElementById("editTitle");
+  if (!modal || !body || !title) return;
+
+  editContext = { type, id };
+  let obj = null;
+
+  if (type === "sold") obj = readSold().find(x => x && x._id === id);
+  if (type === "active") obj = readActive().find(x => x && x._id === id);
+  if (!obj) return;
+
+  if (type === "sold") {
+    title.textContent = "Edit Sold Item";
+    body.innerHTML = `
+      <label>Date</label><input type="date" id="eDate" value="${obj.date || ""}">
+      <label>Item</label><input type="text" id="eItem" value="${(obj.item||"").replace(/"/g,"&quot;")}">
+      <label>Platform</label><input type="text" id="ePlatform" value="${(obj.platform||"").replace(/"/g,"&quot;")}">
+      <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;">
+        <div><label>Sale ($)</label><input type="number" id="eSale" step="0.01" value="${obj.sale ?? 0}"></div>
+        <div><label>Cost ($)</label><input type="number" id="eCost" step="0.01" value="${obj.cost ?? 0}"></div>
+        <div><label>Fees ($)</label><input type="number" id="eFees" step="0.01" value="${obj.fees ?? 0}"></div>
+        <div><label>Shipping ($)</label><input type="number" id="eShip" step="0.01" value="${obj.ship ?? 0}"></div>
+      </div>
+      <div class="stat muted">Profit auto-recalculates on save.</div>
+    `;
+  } else {
+    title.textContent = "Edit Inventory Item";
+    body.innerHTML = `
+      <label>Acquired Date</label><input type="date" id="eDate" value="${obj.date || ""}">
+      <label>Item</label><input type="text" id="eItem" value="${(obj.item||"").replace(/"/g,"&quot;")}">
+      <label>Platform / Source</label><input type="text" id="ePlatform" value="${(obj.platform||"").replace(/"/g,"&quot;")}">
+      <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;">
+        <div><label>Cost ($)</label><input type="number" id="eCost" step="0.01" value="${obj.cost ?? 0}"></div>
+        <div><label>List ($)</label><input type="number" id="eList" step="0.01" value="${obj.list ?? 0}"></div>
+        <div><label>Qty</label><input type="number" id="eQty" value="${obj.qty ?? 1}"></div>
+      </div>
+      <label>Notes</label><input type="text" id="eNotes" value="${(obj.notes||"").replace(/"/g,"&quot;")}">
+    `;
+  }
+
+  modal.style.display = "flex";
+}
+
+function closeEditModal() {
+  const modal = document.getElementById("editModal");
+  if (modal) modal.style.display = "none";
+  editContext = null;
+}
+
+function saveEditModal() {
+  if (!editContext) return;
+
+  const d = document.getElementById("eDate")?.value || "";
+  const item = (document.getElementById("eItem")?.value || "").trim();
+  const platform = (document.getElementById("ePlatform")?.value || "").trim();
+
+  if (!d || !item) return;
+
+  if (editContext.type === "sold") {
+    const sale = Number(document.getElementById("eSale")?.value) || 0;
+    const cost = Number(document.getElementById("eCost")?.value) || 0;
+    const fees = Number(document.getElementById("eFees")?.value) || 0;
+    const ship = Number(document.getElementById("eShip")?.value) || 0;
+    const profit = sale - cost - fees - ship;
+
+    const arr = readSold();
+    const idx = arr.findIndex(x => x && x._id === editContext.id);
+    if (idx === -1) return;
+    arr[idx] = { ...arr[idx], date:d, item, platform, sale, cost, fees, ship, profit };
+    writeSold(arr);
+    renderSold();
+    rebuildMonthlyIncomeFromSold();
+  } else {
+    const cost = Number(document.getElementById("eCost")?.value) || 0;
+    const list = Number(document.getElementById("eList")?.value) || 0;
+    const qty = parseInt(document.getElementById("eQty")?.value || "1", 10) || 1;
+    const notes = (document.getElementById("eNotes")?.value || "").trim();
+
+    const arr = readActive();
+    const idx = arr.findIndex(x => x && x._id === editContext.id);
+    if (idx === -1) return;
+    arr[idx] = { ...arr[idx], date:d, item, platform, cost, list, qty, notes };
+    writeActive(arr);
+    renderActive();
+  }
+
+  closeEditModal();
+}
+
+/* ========= Mark Sold (move Inventory -> Sold) ========= */
+let markSoldActiveId = null;
+
+function openMarkSoldModal(activeId) {
+  const inv = readActive().find(x => x && x._id === activeId);
+  if (!inv) return;
+  markSoldActiveId = activeId;
+
+  const modal = document.getElementById("markSoldModal");
+  if (!modal) return;
+
+  const today = new Date();
+  const y = today.getFullYear();
+  const m = String(today.getMonth()+1).padStart(2,"0");
+  const d = String(today.getDate()).padStart(2,"0");
+  document.getElementById("msDate").value = `${y}-${m}-${d}`;
+  document.getElementById("msSale").value = inv.list || "";
+  document.getElementById("msPlatform").value = inv.platform || "";
+  document.getElementById("msFees").value = "";
+  document.getElementById("msShip").value = "";
+  document.getElementById("msItem").value = inv.item || "";
+  document.getElementById("msSyncIncome").checked = true;
+
+  modal.style.display = "flex";
+}
+
+function closeMarkSoldModal() {
+  const modal = document.getElementById("markSoldModal");
+  if (modal) modal.style.display = "none";
+  markSoldActiveId = null;
+}
+
+function confirmMarkSold() {
+  if (!markSoldActiveId) return;
+
+  const soldDate = document.getElementById("msDate").value;
+  const item = (document.getElementById("msItem").value || "").trim();
+  const platform = (document.getElementById("msPlatform").value || "").trim() || "Unknown";
+  const sale = Number(document.getElementById("msSale").value) || 0;
+  const fees = Number(document.getElementById("msFees").value) || 0;
+  const ship = Number(document.getElementById("msShip").value) || 0;
+
+  if (!soldDate || !item || !sale) return;
+
+  const invArr = readActive();
+  const invIdx = invArr.findIndex(x => x && x._id === markSoldActiveId);
+  if (invIdx === -1) return;
+  const inv = invArr[invIdx];
+
+  const cost = Number(inv.cost) || 0;
+  const profit = sale - cost - fees - ship;
+
+  // Add to sold
+  const soldArr = readSold();
+  soldArr.push({ _id: genId(), date: soldDate, item, platform, sale, cost, fees, ship, profit });
+  writeSold(soldArr);
+
+  // Remove from active
+  const removed = invArr.splice(invIdx, 1)[0];
+  writeActive(invArr);
+
+  renderActive();
+  renderSold();
+
+  if (document.getElementById("msSyncIncome")?.checked) rebuildMonthlyIncomeFromSold();
+
+  closeMarkSoldModal();
+}
+
 /* ========= Export ========= */
 function downloadTextFile(filename, text, mime="text/plain") {
   const blob = new Blob([text], { type: mime });
@@ -1608,6 +2330,7 @@ window.onload = () => {
   inventoryAllowance.value = localStorage.getItem("inventoryAllowance") || "";
 
   updateBalanceStats();
+  renderActive();
   renderSold();
   loadIncomeChart();
   showSection('secDashboard');
