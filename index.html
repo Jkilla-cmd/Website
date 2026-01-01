@@ -18,21 +18,44 @@
 
 <style>
 
-:root{
-  --bg:#070a0f;
-  --panel:#0b1220;
-  --border:#172036;
-  --text:#e5e7eb;
-  --muted:#9ca3af;
 
-  /* OffTheShelf Dark (cool accent) */
-  --accent:#38bdf8;     /* cool cyan */
-  --accent-2:#60a5fa;   /* blue */
+
+:root{
   --green:#22c55e;
   --red:#ef4444;
-  --blue:#38bdf8;
-  --yellow:#fbbf24;     /* keep for small highlights only */
+  --yellow:#fbbf24;
 }
+
+html[data-theme="hackercyan"]{
+  --bg:#03060a;
+  --panel:rgba(10,16,24,0.78);
+  --panel-solid:#0a1018;
+  --border:rgba(56,189,248,0.22);
+  --text:#e5f0ff;
+  --muted:#7b8ca3;
+
+  --accent:#38bdf8;
+  --accent-2:#22d3ee;
+  --blue:#38bdf8;
+}
+
+
+html[data-theme="cyberred"]{
+  --bg:#040404;
+  --panel:rgba(10,10,12,0.78);
+  --panel-solid:#0a0a0c;
+  --border:rgba(255,77,77,0.22);
+  --text:#eaeaea;
+  --muted:#8f8f95;
+
+  --accent:#ff4d4d;
+  --accent-2:#ff7a7a;
+  --blue:#8b5cf6;
+  --red:#ff4d4d;
+}
+
+
+
 
 
 * { box-sizing: border-box; }
@@ -407,6 +430,192 @@ tr:hover td { background: rgba(56,189,248,0.04); }
 }
 .bmc-float span {
   font-size: 18px;
+}
+
+
+/* Hacker Cyan vibe: terminal depth + scanlines */
+body{
+  background:
+    radial-gradient(900px 600px at 18% 12%, rgba(56,189,248,0.14), transparent 55%),
+    radial-gradient(900px 600px at 78% 22%, rgba(34,211,238,0.10), transparent 55%),
+    linear-gradient(180deg, #02040a 0%, #040814 50%, #02040a 100%);
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:-1;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 1px, transparent 2px, transparent 6px),
+    radial-gradient(1200px 800px at 50% 40%, rgba(56,189,248,0.06), transparent 60%);
+  mix-blend-mode: overlay;
+  opacity: 0.55;
+}
+
+/* Glassy panels */
+.panel{
+  background: var(--panel) !important;
+  border: 1px solid var(--border) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 18px 55px rgba(0,0,0,0.42);
+}
+
+/* Sidebar + topbar */
+.sidebar{
+  background: rgba(10,12,20,0.72) !important;
+  border-right: 1px solid var(--border) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.topbar{
+  background: rgba(8,10,16,0.70) !important;
+  border-bottom: 1px solid var(--border) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Nav buttons */
+.sidebar button{
+  border-radius: 14px !important;
+  border: 1px solid transparent !important;
+  transition: transform .15s ease, background .15s ease, border-color .15s ease;
+  position: relative;
+}
+.sidebar button:hover{
+  transform: translateY(-1px);
+  background: rgba(56,189,248,0.08) !important;
+  border-color: rgba(56,189,248,0.18) !important;
+}
+.sidebar button.active{
+  background: rgba(56,189,248,0.12) !important;
+  border-color: rgba(56,189,248,0.25) !important;
+  box-shadow: 0 10px 30px rgba(56,189,248,0.10);
+}
+.sidebar button.active::before{
+  content:"";
+  position:absolute;
+  left:-2px;
+  top:8px;
+  bottom:8px;
+  width:4px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(56,189,248,0.95), rgba(34,211,238,0.85));
+  box-shadow: 0 0 18px rgba(56,189,248,0.35);
+}
+
+/* Inputs/selects */
+input, select, textarea{
+  background: rgba(5,7,12,0.65) !important;
+  border: 1px solid rgba(90,110,160,0.25) !important;
+}
+input:focus, select:focus, textarea:focus{
+  outline: none;
+  border-color: rgba(56,189,248,0.55) !important;
+  box-shadow: 0 0 0 3px rgba(56,189,248,0.12);
+}
+
+/* Buttons */
+button{
+  background: rgba(56,189,248,0.12) !important;
+  border: 1px solid rgba(56,189,248,0.28) !important;
+}
+button:hover{
+  background: rgba(56,189,248,0.16) !important;
+  border-color: rgba(56,189,248,0.40) !important;
+}
+button.danger{
+  background: rgba(239,68,68,0.14) !important;
+  border-color: rgba(239,68,68,0.35) !important;
+}
+
+/* Tables */
+thead th{
+  background: rgba(10,12,20,0.60) !important;
+}
+tbody tr:hover{
+  background: rgba(56,189,248,0.06) !important;
+}
+
+/* Accent text */
+.stat.blue{ color: var(--accent) !important; }
+h3{ letter-spacing: 1.1px; }
+
+
+/* ========= Theme Skins ========= */
+/* shared base uses vars */
+body{
+  background: var(--bg);
+}
+
+/* Hacker Cyan skin */
+html[data-theme="hackercyan"] body{
+  background:
+    radial-gradient(900px 600px at 18% 12%, rgba(56,189,248,0.14), transparent 55%),
+    radial-gradient(900px 600px at 78% 22%, rgba(34,211,238,0.10), transparent 55%),
+    linear-gradient(180deg, #02040a 0%, #040814 50%, #02040a 100%);
+}
+html[data-theme="hackercyan"] body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:-1;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 1px, transparent 2px, transparent 6px),
+    radial-gradient(1200px 800px at 50% 40%, rgba(56,189,248,0.06), transparent 60%);
+  mix-blend-mode: overlay;
+  opacity: 0.55;
+}
+
+/* Cyber Red skin */
+html[data-theme="cyberred"] body{
+  background:
+    radial-gradient(900px 600px at 18% 12%, rgba(255,77,77,0.14), transparent 55%),
+    radial-gradient(900px 600px at 78% 22%, rgba(139,92,246,0.10), transparent 55%),
+    linear-gradient(180deg, #030303 0%, #05060a 50%, #030303 100%);
+}
+html[data-theme="cyberred"] body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:-1;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 2px, transparent 6px),
+    radial-gradient(1200px 800px at 50% 40%, rgba(255,77,77,0.06), transparent 60%);
+  mix-blend-mode: overlay;
+  opacity: 0.55;
+}
+
+/* Make sure common UI pulls from vars */
+.sidebar button:hover{
+  background: color-mix(in srgb, var(--accent) 14%, transparent) !important;
+  border-color: color-mix(in srgb, var(--accent) 22%, transparent) !important;
+}
+.sidebar button.active{
+  background: color-mix(in srgb, var(--accent) 18%, transparent) !important;
+  border-color: color-mix(in srgb, var(--accent) 30%, transparent) !important;
+  box-shadow: 0 10px 30px color-mix(in srgb, var(--accent) 16%, transparent);
+}
+.sidebar button.active::before{
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 95%, transparent), color-mix(in srgb, var(--accent-2) 85%, transparent));
+  box-shadow: 0 0 18px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+input:focus, select:focus, textarea:focus{
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent);
+}
+
+button{
+  background: color-mix(in srgb, var(--accent) 14%, transparent) !important;
+  border-color: color-mix(in srgb, var(--accent) 30%, transparent) !important;
+}
+button:hover{
+  background: color-mix(in srgb, var(--accent) 18%, transparent) !important;
+  border-color: color-mix(in srgb, var(--accent) 42%, transparent) !important;
 }
 
 </style>
@@ -1005,6 +1214,22 @@ tr:hover td { background: rgba(56,189,248,0.04); }
     <!-- SETTINGS -->
     <section id="secSettings" class="section">
       <div class="grid">
+
+        <div class="panel">
+          <h3>Theme</h3>
+          <div class="stat muted" style="margin-bottom:10px;">Switch the look of OffTheShelf.</div>
+
+          <label>Theme</label>
+          <select id="themeSelect" onchange="setTheme(this.value)">
+            <option value="hackercyan">Hacker Cyan</option>
+            <option value="cyberred">Cyber Red</option>
+          </select>
+
+          <div class="divider"></div>
+          <div class="stat muted">Your choice is saved on this device.</div>
+        </div>
+
+
         <div class="panel">
           <h3>Security & Data</h3>
           <div class="stat muted">
@@ -2353,6 +2578,23 @@ function exportIncomeCSV() {
   const lines = [toCSVRow(header)];
   income.forEach(r => lines.push(toCSVRow([r.label || "", Number(r.income || 0)])));
   downloadTextFile("income_export.csv", lines.join("\n"), "text/csv");
+}
+
+
+/* ========= Theme ========= */
+const THEME_KEY = "ots_theme";
+
+function applyTheme(theme) {
+  const t = (theme === "cyberred") ? "cyberred" : "hackercyan";
+  document.documentElement.setAttribute("data-theme", t);
+  localStorage.setItem(THEME_KEY, t);
+
+  const sel = document.getElementById("themeSelect");
+  if (sel) sel.value = t;
+}
+
+function setTheme(theme) {
+  applyTheme(theme);
 }
 
 /* ========= BOOT ========= */
