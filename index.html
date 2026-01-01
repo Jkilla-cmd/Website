@@ -106,15 +106,8 @@ button.small { width: auto; padding: 8px 10px; border-radius: 10px; }
 .divider { height: 1px; background: var(--border); margin: 12px 0; }
 
 /* Charts */
-.chart-wrap {
-  width: 100%;
-  height: 260px;
-  position: relative;
-}
-.chart-wrap canvas {
-  width: 100% !important;
-  height: 100% !important;
-}
+.chart-wrap { width: 100%; height: 260px; position: relative; }
+.chart-wrap canvas { width: 100% !important; height: 100% !important; }
 
 /* ===== LOGIN OVERLAY ===== */
 #lockScreen {
@@ -127,7 +120,6 @@ button.small { width: auto; padding: 8px 10px; border-radius: 10px; }
   padding: 16px;
   z-index: 9999;
 }
-
 .lockBox {
   width: 100%;
   max-width: 520px;
@@ -136,7 +128,6 @@ button.small { width: auto; padding: 8px 10px; border-radius: 10px; }
   padding: 16px;
   border-radius: 18px;
 }
-
 .lockTitle {
   color: var(--accent);
   letter-spacing: 1px;
@@ -144,28 +135,18 @@ button.small { width: auto; padding: 8px 10px; border-radius: 10px; }
   font-size: 13px;
   margin: 0 0 10px;
 }
-
 .lockHint {
   color: var(--muted);
   font-size: 12px;
   margin: 0 0 14px;
   line-height: 1.4;
 }
-
-.lockMsg {
-  font-size: 12px;
-  color: var(--muted);
-  margin-top: 10px;
-}
+.lockMsg { font-size: 12px; color: var(--muted); margin-top: 10px; }
 
 /* Collapsible */
 .collapse-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-  user-select: none;
-  padding: 8px 0;
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; user-select: none; padding: 8px 0;
 }
 .collapse-header span {
   color: var(--accent);
@@ -173,11 +154,7 @@ button.small { width: auto; padding: 8px 10px; border-radius: 10px; }
   text-transform: uppercase;
   font-size: 13px;
 }
-.caret {
-  transition: transform 0.2s ease;
-  color: var(--muted);
-  font-size: 14px;
-}
+.caret { transition: transform 0.2s ease; color: var(--muted); font-size: 14px; }
 .caret.open { transform: rotate(180deg); }
 .collapse-body { display: none; padding-top: 8px; }
 
@@ -214,11 +191,14 @@ button.small { width: auto; padding: 8px 10px; border-radius: 10px; }
 
 /* ===== Tables ===== */
 .table-wrap { overflow: auto; border: 1px solid var(--border); border-radius: 14px; }
-table { width: 100%; border-collapse: collapse; min-width: 720px; }
+table { width: 100%; border-collapse: collapse; min-width: 820px; }
 th, td { padding: 10px 10px; border-bottom: 1px solid rgba(31,41,55,0.65); font-size: 13px; }
 th { text-align: left; color: var(--muted); font-weight: 600; background: rgba(31,41,55,0.18); position: sticky; top: 0; }
 td { color: var(--text); }
 tr:hover td { background: rgba(56,189,248,0.04); }
+.action-cell { text-align: center; width: 46px; }
+.trash { cursor: pointer; user-select: none; opacity: 0.9; }
+.trash:hover { opacity: 1; }
 
 /* ===== App Shell ===== */
 .app {
@@ -228,14 +208,8 @@ tr:hover td { background: rgba(56,189,248,0.04); }
   max-width: 1280px;
   margin: 0 auto;
 }
-
-/* Desktop sidebar can be hidden */
-.app.sidebar-closed {
-  grid-template-columns: 1fr;
-}
-.app.sidebar-closed .sidebar {
-  display: none;
-}
+.app.sidebar-closed { grid-template-columns: 1fr; }
+.app.sidebar-closed .sidebar { display: none; }
 
 .sidebar {
   position: sticky;
@@ -250,14 +224,9 @@ tr:hover td { background: rgba(56,189,248,0.04); }
   gap: 10px;
   border-radius: 16px;
 }
-
 .brand {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 6px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding-bottom: 10px; border-bottom: 1px solid var(--border); margin-bottom: 6px;
 }
 .brand .name {
   color: var(--accent);
@@ -265,7 +234,6 @@ tr:hover td { background: rgba(56,189,248,0.04); }
   text-transform: uppercase;
   font-size: 13px;
 }
-
 .nav { display: flex; flex-direction: column; gap: 8px; }
 .nav button {
   width: 100%;
@@ -282,7 +250,7 @@ tr:hover td { background: rgba(56,189,248,0.04); }
 .canvas { min-width: 0; }
 
 .topbar {
-  display: flex; /* ✅ Always show (desktop + mobile) */
+  display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
@@ -295,14 +263,12 @@ tr:hover td { background: rgba(56,189,248,0.04); }
   top: 12px;
   z-index: 30;
 }
-
 .topbar .title {
   color: var(--accent);
   text-transform: uppercase;
   letter-spacing: 1px;
   font-size: 13px;
 }
-
 .hamburger { width: auto; padding: 8px 10px; }
 
 .section { display: none; }
@@ -313,7 +279,6 @@ tr:hover td { background: rgba(56,189,248,0.04); }
   body { padding: 12px; }
   .app { grid-template-columns: 1fr; }
   .app.sidebar-closed { grid-template-columns: 1fr; }
-  /* On mobile, sidebar-closed just means hidden drawer (still exists offscreen) */
   .app.sidebar-closed .sidebar { display: flex; }
 
   .sidebar {
@@ -342,10 +307,13 @@ tr:hover td { background: rgba(56,189,248,0.04); }
   .drawer-scrim.show { display: block; }
 
   .chart-wrap { height: 240px; }
-  table { min-width: 860px; }
+  table { min-width: 960px; }
 }
-
 .drawer-scrim { display:none; } /* desktop default */
+
+.inline-row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+.inline-row label { margin:0; }
+.inline-row input[type="checkbox"] { width:auto; margin:0; }
 </style>
 </head>
 
@@ -397,9 +365,7 @@ tr:hover td { background: rgba(56,189,248,0.04); }
       </div>
 
       <div class="collapse-body" id="masterResetBody">
-        <p class="lockHint">
-          Forgot your passcode? Reset it with your master phrase (set once via console).
-        </p>
+        <p class="lockHint">Forgot your passcode? Reset it with your master phrase (set once via console).</p>
 
         <label>Master Phrase</label>
         <input id="resetPhrase" type="password" placeholder="Master reset phrase" />
@@ -422,7 +388,7 @@ tr:hover td { background: rgba(56,189,248,0.04); }
   </div>
 </div>
 
-<!-- Desktop/Mobile top bar -->
+<!-- Topbar -->
 <div class="topbar">
   <button class="hamburger" onclick="toggleSidebar()">☰</button>
   <div class="title" id="topbarTitle">Dashboard</div>
@@ -434,7 +400,7 @@ tr:hover td { background: rgba(56,189,248,0.04); }
 
 <div class="app" id="appShell">
 
-  <!-- Overlay scrim (mobile only shows via class) -->
+  <!-- Scrim for mobile -->
   <div class="drawer-scrim" id="drawerScrim" onclick="closeSidebar()"></div>
 
   <!-- Sidebar -->
@@ -463,7 +429,7 @@ tr:hover td { background: rgba(56,189,248,0.04); }
     </div>
   </aside>
 
-  <!-- Main Canvas -->
+  <!-- Main -->
   <main class="canvas">
 
     <!-- DASHBOARD -->
@@ -500,6 +466,8 @@ tr:hover td { background: rgba(56,189,248,0.04); }
 
           <div class="divider"></div>
 
+          <button onclick="rebuildMonthlyIncomeFromSold()">Sync Income From Sold</button>
+          <div style="height:10px"></div>
           <button class="danger" onclick="resetMonthlyIncome()">Reset Month Data</button>
           <div class="stat muted" id="monthCountStat"></div>
         </div>
@@ -510,7 +478,7 @@ tr:hover td { background: rgba(56,189,248,0.04); }
     <section id="secIncome" class="section">
       <div class="grid">
         <div class="panel">
-          <h3>Monthly Income</h3>
+          <h3>Monthly Income (Manual)</h3>
 
           <label>Month (e.g. Feb 2025)</label>
           <input type="text" id="monthLabel" />
@@ -522,7 +490,7 @@ tr:hover td { background: rgba(56,189,248,0.04); }
 
           <div class="divider"></div>
           <div class="stat muted">
-            Tip: Use labels like <span class="blue">Jan 2025</span> so the year filter works.
+            Tip: If you import Sold CSV, press <span class="blue">Sync Income From Sold</span> to auto-build the income graph.
           </div>
         </div>
       </div>
@@ -535,9 +503,7 @@ tr:hover td { background: rgba(56,189,248,0.04); }
           <h3>Import Sold Spreadsheet (CSV)</h3>
 
           <div class="stat muted" style="line-height:1.5">
-            Export your spreadsheet as <span class="blue">CSV</span> and import it here.<br>
-            Required columns (header names can vary):<br>
-            <span class="blue">date, item, platform, sale</span><br>
+            Required columns: <span class="blue">date, item, platform, sale</span><br>
             Optional: <span class="blue">cost, fees, shipping</span>
           </div>
 
@@ -545,6 +511,11 @@ tr:hover td { background: rgba(56,189,248,0.04); }
 
           <label>CSV File</label>
           <input type="file" id="soldFile" accept=".csv,text/csv" />
+
+          <div class="inline-row" style="margin-bottom:10px;">
+            <input type="checkbox" id="syncIncomeToggle" checked>
+            <label for="syncIncomeToggle" class="muted">Also update Income graph from sold data</label>
+          </div>
 
           <button onclick="importSoldCSV()">Import CSV</button>
 
@@ -583,6 +554,45 @@ tr:hover td { background: rgba(56,189,248,0.04); }
 
       <div class="grid" style="margin-top:16px;">
         <div class="panel">
+          <h3>Add Sold Item Manually</h3>
+
+          <label>Date</label>
+          <input type="date" id="manualDate">
+
+          <label>Item</label>
+          <input type="text" id="manualItem" placeholder="e.g. Amazing Spider-Man #300">
+
+          <label>Platform</label>
+          <input type="text" id="manualPlatform" placeholder="eBay, Mercari, etc.">
+
+          <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;">
+            <div>
+              <label>Sale ($)</label>
+              <input type="number" id="manualSale" />
+            </div>
+            <div>
+              <label>Cost ($)</label>
+              <input type="number" id="manualCost" />
+            </div>
+            <div>
+              <label>Fees ($)</label>
+              <input type="number" id="manualFees" />
+            </div>
+            <div>
+              <label>Shipping ($)</label>
+              <input type="number" id="manualShip" />
+            </div>
+          </div>
+
+          <div class="inline-row" style="margin-bottom:10px;">
+            <input type="checkbox" id="manualSyncIncome" checked>
+            <label for="manualSyncIncome" class="muted">Also update Income graph</label>
+          </div>
+
+          <button onclick="addSoldManually()">Add Sold Item</button>
+        </div>
+
+        <div class="panel">
           <h3>Sold Graphs</h3>
           <div class="chart-wrap" style="height:280px;">
             <canvas id="soldProfitChart"></canvas>
@@ -612,6 +622,7 @@ tr:hover td { background: rgba(56,189,248,0.04); }
                   <th>Fees</th>
                   <th>Ship</th>
                   <th>Profit</th>
+                  <th class="action-cell"></th>
                 </tr>
               </thead>
               <tbody id="soldTableBody"></tbody>
@@ -755,7 +766,7 @@ if ("serviceWorker" in navigator) {
   });
 }
 
-/* ========= NAV / SIDEBAR (FIXED FOR DESKTOP + MOBILE) ========= */
+/* ========= NAV / SIDEBAR ========= */
 function isMobile() { return window.matchMedia("(max-width: 900px)").matches; }
 
 function setActiveNav(targetId) {
@@ -773,13 +784,7 @@ function showSection(sectionId) {
 
   setActiveNav(sectionId);
 
-  const titleMap = {
-    secDashboard: "Dashboard",
-    secIncome: "Income",
-    secSold: "Sold",
-    secTools: "Tools",
-    secSettings: "Settings"
-  };
+  const titleMap = { secDashboard:"Dashboard", secIncome:"Income", secSold:"Sold", secTools:"Tools", secSettings:"Settings" };
   const t = document.getElementById("topbarTitle");
   if (t) t.textContent = titleMap[sectionId] || "Reseller Dashboard";
 
@@ -802,7 +807,6 @@ function toggleSidebar() {
     const open = sb.classList.toggle("open");
     scrim.classList.toggle("show", open);
   } else {
-    // ✅ Desktop: truly hide/show sidebar
     app.classList.toggle("sidebar-closed");
   }
 }
@@ -811,15 +815,12 @@ function closeSidebar() {
   const sb = document.getElementById("sidebar");
   const scrim = document.getElementById("drawerScrim");
   if (!sb || !scrim) return;
-
   sb.classList.remove("open");
   scrim.classList.remove("show");
 }
 
 window.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") {
-    if (isMobile()) closeSidebar();
-  }
+  if (e.key === "Escape" && isMobile()) closeSidebar();
 });
 
 /* ========= COLLAPSE HELPERS ========= */
@@ -852,11 +853,13 @@ function simpleHash(str) {
   return (h >>> 0).toString(16);
 }
 function showLockScreen(show) { document.getElementById("lockScreen").style.display = show ? "flex" : "none"; }
+
 function setMasterPhraseOnce(phrase) {
   if (localStorage.getItem("masterPhraseHash")) return false;
   localStorage.setItem("masterPhraseHash", simpleHash(String(phrase || "")));
   return true;
 }
+
 function resetWithPhrase() {
   const stored = localStorage.getItem("masterPhraseHash");
   const msg = document.getElementById("lockMsg");
@@ -865,17 +868,21 @@ function resetWithPhrase() {
   const phrase = document.getElementById("resetPhrase").value || "";
   const p1 = document.getElementById("resetNew1").value || "";
   const p2 = document.getElementById("resetNew2").value || "";
+
   if (simpleHash(phrase) !== stored) { msg.textContent = "Master phrase incorrect."; msg.style.color = "var(--red)"; return; }
   if (p1.length < 4) { msg.textContent = "New passcode must be at least 4 characters."; msg.style.color = "var(--red)"; return; }
   if (p1 !== p2) { msg.textContent = "New passcodes do not match."; msg.style.color = "var(--red)"; return; }
 
   localStorage.setItem("dashboardPassHash", simpleHash(p1));
+
   document.getElementById("resetPhrase").value = "";
   document.getElementById("resetNew1").value = "";
   document.getElementById("resetNew2").value = "";
+
   msg.textContent = "Passcode reset successfully. You can unlock now.";
   msg.style.color = "var(--green)";
 }
+
 function initLock() {
   const storedHash = localStorage.getItem("dashboardPassHash");
   const msg = document.getElementById("lockMsg");
@@ -905,6 +912,7 @@ function initLock() {
     showLockScreen(true);
   }
 }
+
 function setPasscodeFirstTime() {
   const storedHash = localStorage.getItem("dashboardPassHash");
   const msg = document.getElementById("lockMsg");
@@ -918,9 +926,11 @@ function setPasscodeFirstTime() {
   localStorage.setItem("dashboardPassHash", simpleHash(p1));
   document.getElementById("firstNew1").value = "";
   document.getElementById("firstNew2").value = "";
+
   msg.textContent = "Passcode set. Unlock using the passcode field above.";
   msg.style.color = "var(--green)";
 }
+
 function changePasscode() {
   const storedHash = localStorage.getItem("dashboardPassHash");
   const msg = document.getElementById("lockMsg");
@@ -937,9 +947,11 @@ function changePasscode() {
   document.getElementById("oldPass").value = "";
   document.getElementById("newPass1").value = "";
   document.getElementById("newPass2").value = "";
+
   msg.textContent = "Passcode changed successfully.";
   msg.style.color = "var(--green)";
 }
+
 function unlock() {
   const storedHash = localStorage.getItem("dashboardPassHash");
   const input = document.getElementById("passInput").value || "";
@@ -958,6 +970,13 @@ function unlock() {
 }
 function lockNow() { initLock(); }
 
+window.addEventListener("keydown", (e) => {
+  if (document.getElementById("lockScreen").style.display === "flex") {
+    if (e.key === "Enter") unlock();
+    if (e.key === "Escape") { toggleMasterReset(false); togglePassSettings(false); }
+  }
+});
+
 /* ========= HELPERS ========= */
 function formatDollars(v) {
   const n = Number(v);
@@ -973,6 +992,9 @@ function parseMoney(x) {
   const s = String(x).replace(/[$,]/g, "").trim();
   const n = parseFloat(s);
   return isFinite(n) ? n : 0;
+}
+function genId() {
+  return "id_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 8);
 }
 
 /* ========= DASHBOARD LOGIC ========= */
@@ -1091,20 +1113,54 @@ function loadIncomeChart() {
   });
 }
 
-/* ========= SOLD DATA (CSV IMPORT + TABLE + CHARTS) ========= */
+/* ========= SOLD DATA ========= */
 const SOLD_KEY = "soldInventory";
 let soldProfitChartObj, soldItemsChartObj;
+
+function readSold() { return JSON.parse(localStorage.getItem(SOLD_KEY)) || []; }
+function writeSold(arr) { localStorage.setItem(SOLD_KEY, JSON.stringify(arr)); }
+
+/* Build monthlyIncome from sold rows (sale totals by month) */
+function rebuildMonthlyIncomeFromSold() {
+  const sold = readSold();
+  const map = {};
+
+  sold.forEach(row => {
+    if (!row.date) return;
+    const sale = Number(row.sale) || 0;
+    const ym = String(row.date).slice(0, 7); // YYYY-MM
+    if (!/^\d{4}-\d{2}$/.test(ym)) return;
+    if (!map[ym]) map[ym] = 0;
+    map[ym] += sale;
+  });
+
+  const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const monthly = Object.entries(map)
+    .sort(([a],[b]) => a.localeCompare(b))
+    .map(([ym, total]) => {
+      const [y, m] = ym.split("-");
+      const mi = Math.max(1, Math.min(12, parseInt(m, 10))) - 1;
+      const label = `${monthNames[mi]} ${y}`;
+      return { label, income: Number(total) || 0 };
+    });
+
+  localStorage.setItem("monthlyIncome", JSON.stringify(monthly));
+  loadIncomeChart();
+}
 
 function parseCSV(text) {
   const rows = [];
   let i = 0, field = "", row = [], inQuotes = false;
+
   while (i < text.length) {
     const c = text[i];
+
     if (c === '"') {
       if (inQuotes && text[i + 1] === '"') { field += '"'; i += 2; continue; }
       inQuotes = !inQuotes; i++; continue;
     }
-    if (!inQuotes && c === ",") { row.push(field); field = ""; i++; continue; }
+
+    if (!inQuotes && (c === ",")) { row.push(field); field = ""; i++; continue; }
     if (!inQuotes && (c === "\n" || c === "\r")) {
       if (c === "\r" && text[i + 1] === "\n") i++;
       row.push(field); field = "";
@@ -1114,6 +1170,7 @@ function parseCSV(text) {
     }
     field += c; i++;
   }
+
   row.push(field);
   if (row.some(x => String(x).trim().length)) rows.push(row);
   return rows;
@@ -1122,12 +1179,11 @@ function parseCSV(text) {
 function normalizeKey(s) {
   return String(s || "").trim().toLowerCase().replace(/\s+/g, "").replace(/[^a-z0-9]/g, "");
 }
-function readSold() { return JSON.parse(localStorage.getItem(SOLD_KEY)) || []; }
-function writeSold(arr) { localStorage.setItem(SOLD_KEY, JSON.stringify(arr)); }
 
 function parseDateAny(v) {
   const s = String(v || "").trim();
   if (!s) return null;
+
   const d = new Date(s);
   if (!isNaN(d.getTime())) return d;
 
@@ -1142,6 +1198,7 @@ function parseDateAny(v) {
   }
   return null;
 }
+
 function formatDate(d) {
   if (!(d instanceof Date) || isNaN(d.getTime())) return "";
   const y = d.getFullYear();
@@ -1153,14 +1210,14 @@ function formatDate(d) {
 function importSoldCSV() {
   const f = document.getElementById("soldFile").files[0];
   const msg = document.getElementById("soldImportMsg");
-  if (!f) { msg.textContent = "Choose a CSV first."; return; }
+  if (!f) { msg.textContent = "Choose a CSV first."; msg.style.color="var(--yellow)"; return; }
 
   const reader = new FileReader();
   reader.onload = () => {
     try {
       const text = String(reader.result || "");
       const parsed = parseCSV(text);
-      if (!parsed.length) { msg.textContent = "CSV looks empty."; return; }
+      if (!parsed.length) { msg.textContent = "CSV looks empty."; msg.style.color="var(--yellow)"; return; }
 
       const header = parsed[0].map(h => normalizeKey(h));
       const idx = (names) => {
@@ -1191,8 +1248,8 @@ function importSoldCSV() {
 
       for (let r = 1; r < parsed.length; r++) {
         const row = parsed[r];
-        const date = parseDateAny(row[iDate]);
-        if (!date) continue;
+        const dateObj = parseDateAny(row[iDate]);
+        if (!dateObj) continue;
 
         const item = String(row[iItem] || "").trim();
         const platform = String(row[iPlatform] || "").trim() || "Unknown";
@@ -1204,14 +1261,20 @@ function importSoldCSV() {
 
         if (!item || !isFinite(sale)) continue;
 
-        existing.push({ date: formatDate(date), item, platform, sale, cost, fees, ship, profit });
+        existing.push({
+          _id: genId(),
+          date: formatDate(dateObj),
+          item, platform, sale, cost, fees, ship, profit
+        });
         added++;
       }
 
       writeSold(existing);
       msg.textContent = `Imported ${added} rows ✅`;
       msg.style.color = "var(--green)";
+
       renderSold();
+      if (document.getElementById("syncIncomeToggle")?.checked) rebuildMonthlyIncomeFromSold();
     } catch {
       msg.textContent = "Import failed. Try exporting CSV again.";
       msg.style.color = "var(--red)";
@@ -1220,11 +1283,48 @@ function importSoldCSV() {
   reader.readAsText(f);
 }
 
+function addSoldManually() {
+  const d = manualDate.value;
+  const item = (manualItem.value || "").trim();
+  const platform = (manualPlatform.value || "").trim() || "Manual";
+  const sale = Number(manualSale.value) || 0;
+  const cost = Number(manualCost.value) || 0;
+  const fees = Number(manualFees.value) || 0;
+  const ship = Number(manualShip.value) || 0;
+
+  if (!d || !item || !sale) return;
+
+  const profit = sale - cost - fees - ship;
+  const all = readSold();
+  all.push({ _id: genId(), date: d, item, platform, sale, cost, fees, ship, profit });
+  writeSold(all);
+
+  renderSold();
+  if (document.getElementById("manualSyncIncome")?.checked) rebuildMonthlyIncomeFromSold();
+
+  manualDate.value = "";
+  manualItem.value = "";
+  manualPlatform.value = "";
+  manualSale.value = "";
+  manualCost.value = "";
+  manualFees.value = "";
+  manualShip.value = "";
+}
+
 function removeLastSold() {
   const data = readSold();
   data.pop();
   writeSold(data);
   renderSold();
+  // keep income in sync if user wants it derived from sold
+  rebuildMonthlyIncomeFromSold();
+}
+
+function deleteSoldById(id) {
+  const data = readSold().filter(x => x && x._id !== id);
+  writeSold(data);
+  renderSold();
+  rebuildMonthlyIncomeFromSold();
 }
 
 function clearSold() {
@@ -1232,6 +1332,7 @@ function clearSold() {
   renderSold();
   const msg = document.getElementById("soldImportMsg");
   if (msg) { msg.textContent = "Sold data cleared."; msg.style.color = "var(--yellow)"; }
+  rebuildMonthlyIncomeFromSold();
 }
 
 function refreshSoldFilters(data) {
@@ -1287,6 +1388,7 @@ function renderSold() {
   tbody.innerHTML = "";
 
   const sorted = [...filtered].sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+
   for (const r of sorted) {
     const tr = document.createElement("tr");
     const cells = [
@@ -1297,18 +1399,32 @@ function renderSold() {
       formatDollars(r.ship),
       formatDollars(r.profit)
     ];
+
     cells.forEach((c, idx) => {
       const td = document.createElement("td");
       td.textContent = c;
-      if (idx === 7) td.style.color = (r.profit >= 0 ? "var(--green)" : "var(--red)");
+      if (idx === 7) td.style.color = (Number(r.profit) >= 0 ? "var(--green)" : "var(--red)");
       tr.appendChild(td);
     });
+
+    // trash action
+    const delTd = document.createElement("td");
+    delTd.className = "action-cell";
+    const span = document.createElement("span");
+    span.className = "trash";
+    span.title = "Delete";
+    span.textContent = "🗑";
+    span.onclick = () => deleteSoldById(r._id);
+    delTd.appendChild(span);
+    tr.appendChild(delTd);
+
     tbody.appendChild(tr);
   }
 
   const rowCount = document.getElementById("soldRowCount");
-  if (rowCount) rowCount.textContent = `ROWS: ${filtered.length} (showing newest first)`;
+  if (rowCount) rowCount.textContent = `ROWS: ${filtered.length} (newest first)`;
 
+  // Monthly buckets
   const buckets = new Map();
   for (const r of filtered) {
     const k = monthKey(r.date);
@@ -1364,8 +1480,15 @@ function calculateMinPrice() {
   const cost = parseFloat(itemCost.value);
   const f = (parseFloat(fees.value) || 0) / 100;
   const p = (parseFloat(profit.value) || 0) / 100;
+
   if (isNaN(cost)) return;
-  if (f + p >= 1) { minPriceStat.textContent = "ERROR: fees + profit must be under 100%"; minPriceStat.className = "stat red"; return; }
+
+  if (f + p >= 1) {
+    minPriceStat.textContent = "ERROR: fees + profit must be under 100%";
+    minPriceStat.className = "stat red";
+    return;
+  }
+
   const min = cost / (1 - f - p);
   minPriceStat.textContent = `MIN SAFE PRICE: ${formatDollars(min)}`;
   minPriceStat.className = "stat blue";
@@ -1409,8 +1532,8 @@ window.onload = () => {
   inventoryAllowance.value = localStorage.getItem("inventoryAllowance") || "";
 
   updateBalanceStats();
-  loadIncomeChart();
   renderSold();
+  loadIncomeChart();
   showSection('secDashboard');
 };
 </script>
