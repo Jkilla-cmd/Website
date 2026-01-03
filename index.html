@@ -705,55 +705,7 @@ button:hover{
         </div>
       </div>
 
-      <div class="grid" style="margin-bottom:16px;">
-        <div class="panel">
-          <h3>Monthly Goal</h3>
-          <label>Monthly Profit Goal ($)</label>
-          <input type="number" id="goalMonthly" step="0.01" placeholder="e.g. 1500" oninput="saveGoal()">
-          <div class="progressWrap">
-            <div class="progress"><div id="goalBar"></div></div>
-            <div class="smallhelp" id="goalText">Set a goal to track progress.</div>
-          </div>
-        </div>
-
-
-        <div class="panel">
-          <h3>Notifications</h3>
-          <div class="stat muted" style="margin-bottom:10px;">Optional local reminders (no cloud). You can also allow browser notifications.</div>
-
-          <div class="inline-row" style="margin-bottom:10px;">
-            <input type="checkbox" id="notifEnable" onchange="toggleNotifEnabled(this.checked)">
-            <label for="notifEnable">Enable in-app reminders</label>
-          </div>
-
-          <div class="inline-row" style="margin-bottom:10px;">
-            <input type="checkbox" id="notifBrowser" onchange="toggleBrowserNotifs(this.checked)">
-            <label for="notifBrowser">Use browser notifications (requires permission)</label>
-          </div>
-
-          <label>Stale Inventory Threshold (days)</label>
-          <input type="number" id="staleDays" value="45" onchange="saveNotifSettings()">
-
-          <div class="divider"></div>
-          <div class="stat muted">Examples: “Item listed 45+ days” • “Monthly goal reached”</div>
-        </div>
-
-        <div class="panel">
-          <h3>Sales Velocity</h3>
-          <div class="stat blue" id="velAvg">AVG DAYS TO SELL: —</div>
-          <div class="stat green" id="velFast">FASTEST: —</div>
-          <div class="stat muted" id="velSlow">SLOWEST: —</div>
-          <div class="smallhelp">Based on items moved from Inventory → Sold.</div>
-        </div>
-
-        <div class="panel">
-          <h3>Category Performance</h3>
-          <div class="stat blue" id="catTop">TOP CATEGORY: —</div>
-          <div class="stat green" id="catProfit">TOP PROFIT: —</div>
-          <div class="stat muted" id="catRoi">TOP ROI: —</div>
-          <div class="smallhelp">Add categories to Inventory/Sold to unlock insights.</div>
-        </div>
-      </div>
+      
 
     </div>
 
@@ -883,6 +835,56 @@ button:hover{
 
     <!-- DASHBOARD -->
     <section id="secDashboard" class="section active">
+<div class="grid" style="margin-bottom:16px;">
+        <div class="panel">
+          <h3>Monthly Goal</h3>
+          <label>Monthly Profit Goal ($)</label>
+          <input type="number" id="goalMonthly" step="0.01" placeholder="e.g. 1500" oninput="saveGoal()">
+          <div class="progressWrap">
+            <div class="progress"><div id="goalBar"></div></div>
+            <div class="smallhelp" id="goalText">Set a goal to track progress.</div>
+          </div>
+        </div>
+
+
+        <div class="panel">
+          <h3>Notifications</h3>
+          <div class="stat muted" style="margin-bottom:10px;">Optional local reminders (no cloud). You can also allow browser notifications.</div>
+
+          <div class="inline-row" style="margin-bottom:10px;">
+            <input type="checkbox" id="notifEnable" onchange="toggleNotifEnabled(this.checked)">
+            <label for="notifEnable">Enable in-app reminders</label>
+          </div>
+
+          <div class="inline-row" style="margin-bottom:10px;">
+            <input type="checkbox" id="notifBrowser" onchange="toggleBrowserNotifs(this.checked)">
+            <label for="notifBrowser">Use browser notifications (requires permission)</label>
+          </div>
+
+          <label>Stale Inventory Threshold (days)</label>
+          <input type="number" id="staleDays" value="45" onchange="saveNotifSettings()">
+
+          <div class="divider"></div>
+          <div class="stat muted">Examples: “Item listed 45+ days” • “Monthly goal reached”</div>
+        </div>
+
+        <div class="panel">
+          <h3>Sales Velocity</h3>
+          <div class="stat blue" id="velAvg">AVG DAYS TO SELL: —</div>
+          <div class="stat green" id="velFast">FASTEST: —</div>
+          <div class="stat muted" id="velSlow">SLOWEST: —</div>
+          <div class="smallhelp">Based on items moved from Inventory → Sold.</div>
+        </div>
+
+        <div class="panel">
+          <h3>Category Performance</h3>
+          <div class="stat blue" id="catTop">TOP CATEGORY: —</div>
+          <div class="stat green" id="catProfit">TOP PROFIT: —</div>
+          <div class="stat muted" id="catRoi">TOP ROI: —</div>
+          <div class="smallhelp">Add categories to Inventory/Sold to unlock insights.</div>
+        </div>
+      </div>
+
       <div class="grid">
         <div class="panel">
         <div style="display:flex;justify-content:center;margin-bottom:14px;"><img src="./icons/icon-192.png" alt="OffTheShelf" style="width:54px;height:54px;border-radius:14px;border:1px solid var(--border);box-shadow:0 10px 25px rgba(0,0,0,0.35);"></div>
