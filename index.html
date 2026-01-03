@@ -804,7 +804,7 @@ button:hover{
 
 <div class="topbar">
   <button class="hamburger" onclick="toggleSidebar()">☰</button>
-  <div class="title" id="topbarTitle">OffTheShelf</div>
+  <div class="title" id="topbarTitle">RESELLr</div>
   <div style="display:flex; gap:10px; flex-wrap:wrap;">
     <button class="small" onclick="lockNow()">Lock</button>
     <button class="small danger" onclick="factoryReset()">Reset</button>
@@ -820,7 +820,7 @@ button:hover{
   <aside class="sidebar" id="sidebar">
     <div class="brand">
       <div>
-        <div class="name">OffTheShelf</div>
+        <div class="name">RESELLr</div>
         <div class="muted" style="font-size:12px;margin-top:4px;">Inventory → Sold → Profit</div>
       </div>
       <button class="small" onclick="closeSidebar()">✕</button>
@@ -852,7 +852,7 @@ button:hover{
     <section id="secDashboard" class="section active">
       <div class="grid">
         <div class="panel">
-        <div style="display:flex;justify-content:center;margin-bottom:14px;"><img src="./icons/icon-192.png" alt="OffTheShelf" style="width:54px;height:54px;border-radius:14px;border:1px solid var(--border);box-shadow:0 10px 25px rgba(0,0,0,0.35);"></div>
+        <div style="display:flex;justify-content:center;margin-bottom:14px;"><img src="./icons/icon-192.png" alt="RESELLr" style="width:54px;height:54px;border-radius:14px;border:1px solid var(--border);box-shadow:0 10px 25px rgba(0,0,0,0.35);"></div>
 
           <h3>Current Balance</h3>
 
@@ -1286,7 +1286,7 @@ button:hover{
 
         <div class="panel">
           <h3>Theme</h3>
-          <div class="stat muted" style="margin-bottom:10px;">Switch the look of OffTheShelf.</div>
+          <div class="stat muted" style="margin-bottom:10px;">Switch the look of RESELLr.</div>
 
           <label>Theme</label>
           <select id="themeSelect" onchange="setTheme(this.value)">
@@ -1367,7 +1367,7 @@ function showSection(sectionId) {
 
   const titleMap = { secDashboard:"Dashboard", secInventory:"Inventory", secSold:"Sold", secTools:"Tools", secSettings:"Settings" };
   const t = document.getElementById("topbarTitle");
-  if (t) t.textContent = titleMap[sectionId] || "OffTheShelf";
+  if (t) t.textContent = titleMap[sectionId] || "RESELLr";
 
   if (isMobile()) closeSidebar();
 
