@@ -628,6 +628,12 @@ button:hover{
   height: 38px;
 }
 
+
+/* Profit colors */
+.profit-pos{ color: var(--green) !important; }
+.profit-neg{ color: var(--red) !important; }
+.profit-zero{ color: var(--muted) !important; }
+
 </style>
 </head>
 
@@ -1970,62 +1976,18 @@ function renderSold() {
 
     const tdDate = document.createElement("td"); tdDate.textContent = r.date || ""; tr.appendChild(tdDate);
     const tdItem = document.createElement("td"); tdItem.textContent = r.item || ""; tr.appendChild(tdItem);
-
-    // Type select for sold items too
+    // Type
     const tdType = document.createElement("td");
-    const sel = document.createElement("select");
-    sel.style.width = "100%";
-    ["","Comic","Card","Other"].forEach(v=>{
-      const o = document.createElement("option");
-      o.value = v; o.textContent = v ? v : "—";
-      if ((r.type||"") === v) o.selected = true;
-      sel.appendChild(o);
-    });
-    tdType.appendChild(sel);
+    tdType.textContent = r.type || "";
     tr.appendChild(tdType);
-
-    const tdPlat = document.createElement("td"); tdPlat.textContent = r.platform || ""; tr.appendChild(tdPlat);
-    const tdSale = document.createElement("td"); tdSale.textContent = formatDollars(r.sale); tr.appendChild(tdSale);
-    const tdCost = document.createElement("td"); tdCost.textContent = formatDollars(r.cost); tr.appendChild(tdCost);
-    const tdFees = document.createElement("td"); tdFees.textContent = formatDollars(r.fees); tr.appendChild(tdFees);
-    const tdShip = document.createElement("td"); tdShip.textContent = formatDollars(r.ship); tr.appendChild(tdShip);
-    const tdProfit = document.createElement("td"); tdProfit.textContent = formatDollars(r.profit); tr.appendChild(tdProfit);
-
-    const action = document.createElement("td");
-    action.className = "action-cell";
-
-    const e = document.createElement("span");
-    e.className = "edit";
-    e.title = "Edit";
-    e.textContent = "✏️";
-    e.onclick = () => openEditModal("sold", r._id);
-
-    const del = document.createElement("span");
-    del.className = "trash";
-    del.title = "Delete";
-    del.textContent = "🗑";
-    del.style.marginLeft = "8px";
-    del.onclick = () => deleteSoldById(r._id);
-
-    action.appendChild(e); action.appendChild(del);
-    tr.appendChild(action);
-
-    // save type change
-    sel.onchange = () => {
-      const arr = readSold();
-      const idx = arr.findIndex(x => x && x._id === r._id);
-      if (idx !== -1){
-        arr[idx].type = sel.value;
-        writeSold(arr);
-        renderSoldSummary(); // keep summary accurate if it depends on type
-      }
-    };
 
     tbody.appendChild(tr);
   }
 
   renderSoldSummary();
+  try{ updateSoldSummaryAndCharts(); }catch(e){}
 }
+
 
 /* ========= Tools ========= */
 function calculateBudget() {
@@ -2345,75 +2307,10 @@ function renderActive() {
     const tdItem = document.createElement("td");
     tdItem.textContent = r.item || "";
     tr.appendChild(tdItem);
-
-    // Type select (easy tagging)
+    // Type
     const tdType = document.createElement("td");
-    const sel = document.createElement("select");
-    sel.style.width = "100%";
-    ["","Comic","Card","Other"].forEach(v=>{
-      const o = document.createElement("option");
-      o.value = v; o.textContent = v ? v : "—";
-      if ((r.type||"") === v) o.selected = true
-    });
-    // Python bug: "True" in JS, fix below with string replace after.
-    tdType.appendChild(sel);
+    tdType.textContent = r.type || "";
     tr.appendChild(tdType);
-
-    const tdPlat = document.createElement("td");
-    tdPlat.textContent = r.platform || "";
-    tr.appendChild(tdPlat);
-
-    const tdCost = document.createElement("td");
-    tdCost.textContent = formatDollars(r.cost);
-    tr.appendChild(tdCost);
-
-    const tdList = document.createElement("td");
-    tdList.textContent = formatDollars(r.list);
-    tr.appendChild(tdList);
-
-    const tdQty = document.createElement("td");
-    tdQty.textContent = String(r.qty || 1);
-    tr.appendChild(tdQty);
-
-    const tdNotes = document.createElement("td");
-    tdNotes.textContent = r.notes || "";
-    tr.appendChild(tdNotes);
-
-    const action = document.createElement("td");
-    action.className = "action-cell";
-
-    const e = document.createElement("span");
-    e.className = "edit";
-    e.title = "Edit";
-    e.textContent = "✏️";
-    e.onclick = () => openEditModal("active", r._id);
-
-    const sbtn = document.createElement("span");
-    sbtn.className = "soldbtn";
-    sbtn.title = "Mark Sold";
-    sbtn.textContent = "✅";
-    sbtn.style.marginLeft = "8px";
-    sbtn.onclick = () => openMarkSoldModal(r._id);
-
-    const d = document.createElement("span");
-    d.className = "trash";
-    d.title = "Delete";
-    d.textContent = "🗑";
-    d.style.marginLeft = "8px";
-    d.onclick = () => deleteActiveById(r._id);
-
-    action.appendChild(e); action.appendChild(sbtn); action.appendChild(d);
-    tr.appendChild(action);
-
-    // hook type save
-    sel.onchange = () => {
-      const arr = readActive();
-      const idx = arr.findIndex(x => x && x._id === r._id);
-      if (idx !== -1){
-        arr[idx].type = sel.value;
-        writeActive(arr);
-      }
-    };
 
     tbody.appendChild(tr);
   }
@@ -2743,6 +2640,170 @@ function matchesSoldSearch(obj){
   const hay = [obj.item, obj.platform, obj.type].join(" ").toLowerCase();
   return hay.includes(soldSearchTerm);
 }
+
+
+/* ========= Sold Summary + Charts ========= */
+let soldProfitChartObj = null;
+let soldItemsChartObj = null;
+let soldSearchTerm = "";
+
+function setSoldSearch(val){
+  soldSearchTerm = (val || "").trim().toLowerCase();
+  renderSold();
+}
+function matchesSoldSearch(obj){
+  if (!soldSearchTerm) return true;
+  const hay = [obj.item, obj.platform, obj.notes, obj.type].join(" ").toLowerCase();
+  return hay.includes(soldSearchTerm);
+}
+
+function getFilteredSoldForSummary(){
+  const all = readSold();
+  // keep filters in sync with UI
+  const year = document.getElementById("soldYearFilter")?.value || "ALL";
+  const month = document.getElementById("soldMonthFilter")?.value || "ALL";
+  const platform = document.getElementById("soldPlatformFilter")?.value || "ALL";
+  const type = document.getElementById("soldTypeFilter")?.value || "ALL";
+
+  return all.filter(r => {
+    const yr = extractYear(r.date);
+    const mk = monthKey(r.date);
+    const okY = (year==="ALL") || (yr===year);
+    const okM = (month==="ALL") || (mk===month);
+    const okP = (platform==="ALL") || (String(r.platform||"")===platform);
+    const okT = (type==="ALL") || (String(r.type||"")===type);
+    return okY && okM && okP && okT && matchesSoldSearch(r);
+  });
+}
+
+function updateSoldSummaryAndCharts(){
+  const data = getFilteredSoldForSummary();
+
+  const revenue = data.reduce((s,x)=>s + (Number(x.sale)||0), 0);
+  const profit  = data.reduce((s,x)=>s + (Number(x.profit)||0), 0);
+  const items   = data.length;
+  const avg     = items ? profit / items : 0;
+
+  const revEl = document.getElementById("soldRevenueStat");
+  const proEl = document.getElementById("soldProfitStat");
+  const itEl  = document.getElementById("soldItemsStat");
+  const avgEl = document.getElementById("soldAvgStat");
+
+  if (revEl) revEl.textContent = `REVENUE: ${formatDollars(revenue)}`;
+  if (proEl){
+    proEl.textContent = `PROFIT: ${formatDollars(profit)}`;
+    proEl.classList.remove("profit-pos","profit-neg","profit-zero");
+    if (profit > 0) proEl.classList.add("profit-pos");
+    else if (profit < 0) proEl.classList.add("profit-neg");
+    else proEl.classList.add("profit-zero");
+  }
+  if (itEl) itEl.textContent = `ITEMS SOLD: ${items}`;
+  if (avgEl) avgEl.textContent = `AVG PROFIT/ITEM: ${formatDollars(avg)}`;
+
+  // Monthly buckets for charts
+  const buckets = {};
+  for (const r of data){
+    const mk = monthKey(r.date); // YYYY-MM
+    if (!mk) continue;
+    if (!buckets[mk]) buckets[mk] = { profit:0, items:0 };
+    buckets[mk].profit += Number(r.profit)||0;
+    buckets[mk].items += 1;
+  }
+  const labels = Object.keys(buckets).sort();
+  const profitSeries = labels.map(k => +buckets[k].profit.toFixed(2));
+  const itemsSeries = labels.map(k => buckets[k].items);
+
+  const ctxP = document.getElementById("soldProfitChart");
+  const ctxI = document.getElementById("soldItemsChart");
+
+  if (ctxP && typeof Chart !== "undefined"){
+    if (soldProfitChartObj) soldProfitChartObj.destroy();
+    soldProfitChartObj = new Chart(ctxP, {
+      type: "bar",
+      data: {
+        labels,
+        datasets: [{ label: "Profit", data: profitSeries }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true } }
+      }
+    });
+  }
+
+  if (ctxI && typeof Chart !== "undefined"){
+    if (soldItemsChartObj) soldItemsChartObj.destroy();
+    soldItemsChartObj = new Chart(ctxI, {
+      type: "bar",
+      data: {
+        labels,
+        datasets: [{ label: "Items Sold", data: itemsSeries }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, ticks: { precision:0 } } }
+      }
+    });
+  }
+}
+
+
+/* ========= Edit Modal Type Field ========= */
+(function(){
+  const _open = openEditModal;
+  openEditModal = function(type, id){
+    _open(type, id);
+    const body = document.getElementById("editBody");
+    if (!body) return;
+    // add Type selector at top if not present
+    if (!document.getElementById("eType")){
+      const wrap = document.createElement("div");
+      wrap.innerHTML = `
+        <label>Type</label>
+        <select id="eType">
+          <option value="">—</option>
+          <option value="Comic">Comic</option>
+          <option value="Card">Card</option>
+          <option value="Other">Other</option>
+        </select>
+        <div class="divider"></div>
+      `;
+      body.prepend(wrap);
+    }
+    // populate based on record
+    if (type === "active"){
+      const rec = readActive().find(x => x && x._id === id);
+      const el = document.getElementById("eType");
+      if (el) el.value = rec?.type || "";
+    } else {
+      const rec = readSold().find(x => x && x._id === id);
+      const el = document.getElementById("eType");
+      if (el) el.value = rec?.type || "";
+    }
+  };
+
+  const _save = saveEditModal;
+  saveEditModal = function(){
+    if (typeof editContext === "undefined" || !editContext) return _save();
+    const t = (document.getElementById("eType")?.value || "").trim();
+    if (editContext.type === "active"){
+      const arr = readActive();
+      const idx = arr.findIndex(x => x && x._id === editContext.id);
+      if (idx !== -1){ arr[idx].type = t; writeActive(arr); }
+    } else if (editContext.type === "sold"){
+      const arr = readSold();
+      const idx = arr.findIndex(x => x && x._id === editContext.id);
+      if (idx !== -1){ arr[idx].type = t; writeSold(arr); }
+    }
+    const res = _save();
+    try{ updateSoldSummaryAndCharts(); }catch(e){}
+    return res;
+  };
+})();
 
 /* ========= BOOT ========= */
 window.onload = () => {
