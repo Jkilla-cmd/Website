@@ -2298,18 +2298,18 @@ function renderActive() {
 
   const year = document.getElementById("activeYearFilter")?.value || "ALL";
   const month = document.getElementById("activeMonthFilter")?.value || "ALL";
-  const platform = document.getElementById("activePlatformFilter")?.value || "ALL";
+  const platformF = document.getElementById("activePlatformFilter")?.value || "ALL";
 
-  const filtered = all.filter(row => {
-    const yr = extractYear(row.date);
-    const mk = monthKey(row.date);
+  const filtered = all.filter(r => {
+    const yr = extractYear(r.date);
+    const mk = monthKey(r.date);
     const okY = (year === "ALL") || (yr === year);
     const okM = (month === "ALL") || (mk === month);
-    const okP = (platform === "ALL") || (String(row.platform || "") === platform);
-    return okY && okM && okP && matchesActiveSearch(row);
+    const okP = (platformF === "ALL") || (String(r.platform || "") === platformF);
+    return okY && okM && okP && matchesActiveSearch(r);
   });
 
-  // stats
+  // Stats
   const qty = filtered.reduce((s,x)=> s + (Number(x.qty)||1), 0);
   const totalCost = filtered.reduce((s,x)=> s + (Number(x.cost)||0) * (Number(x.qty)||1), 0);
   const totalList = filtered.reduce((s,x)=> s + (Number(x.list)||0) * (Number(x.qty)||1), 0);
@@ -2330,17 +2330,40 @@ function renderActive() {
   for (const r of sorted){
     const tr = document.createElement("tr");
 
-    const tdDate = document.createElement("td");
-    tdDate.textContent = r.date || "";
-    tr.appendChild(tdDate);
+    const tdDate = document.createElement("td"); tdDate.textContent = r.date || ""; tr.appendChild(tdDate);
+    const tdItem = document.createElement("td"); tdItem.textContent = r.item || ""; tr.appendChild(tdItem);
+    const tdType = document.createElement("td"); tdType.textContent = r.type || ""; tr.appendChild(tdType);
+    const tdPlat = document.createElement("td"); tdPlat.textContent = r.platform || ""; tr.appendChild(tdPlat);
+    const tdCost = document.createElement("td"); tdCost.textContent = formatDollars(r.cost); tr.appendChild(tdCost);
+    const tdList = document.createElement("td"); tdList.textContent = formatDollars(r.list); tr.appendChild(tdList);
+    const tdQty = document.createElement("td"); tdQty.textContent = String(r.qty ?? 1); tr.appendChild(tdQty);
+    const tdNotes = document.createElement("td"); tdNotes.textContent = r.notes || ""; tr.appendChild(tdNotes);
 
-    const tdItem = document.createElement("td");
-    tdItem.textContent = r.item || "";
-    tr.appendChild(tdItem);
-    // Type
-    const tdType = document.createElement("td");
-    tdType.textContent = r.type || "";
-    tr.appendChild(tdType);
+    const action = document.createElement("td");
+    action.className = "action-cell";
+
+    const e = document.createElement("span");
+    e.className = "edit";
+    e.title = "Edit";
+    e.textContent = "✏️";
+    e.onclick = () => openEditModal("active", r._id);
+
+    const sbtn = document.createElement("span");
+    sbtn.className = "soldbtn";
+    sbtn.title = "Mark Sold";
+    sbtn.textContent = "✅";
+    sbtn.style.marginLeft = "8px";
+    sbtn.onclick = () => openMarkSoldModal(r._id);
+
+    const d = document.createElement("span");
+    d.className = "trash";
+    d.title = "Delete";
+    d.textContent = "🗑";
+    d.style.marginLeft = "8px";
+    d.onclick = () => deleteActiveById(r._id);
+
+    action.appendChild(e); action.appendChild(sbtn); action.appendChild(d);
+    tr.appendChild(action);
 
     tbody.appendChild(tr);
   }
@@ -2376,7 +2399,23 @@ function openEditModal(type, id) {
     title.textContent = "Edit Sold Item";
     body.innerHTML = `
       <label>Date</label><input type="date" id="eDate" value="${obj.date || ""}">
-      <label>Item</label><input type="text" id="eItem" value="${(obj.item||"").replace(/"/g,"&quot;")}">
+      <label>Item</label><input type="text" id="eItem"
+      <label>Type</label>
+      <select id="eType">
+        <option value="" ${!obj.type ? "selected" : ""}>—</option>
+        <option value="Comic" ${obj.type==="Comic" ? "selected" : ""}>Comic</option>
+        <option value="Card" ${obj.type==="Card" ? "selected" : ""}>Card</option>
+        <option value="Other" ${obj.type==="Other" ? "selected" : ""}>Other</option>
+      </select>
+
+      <label>Type</label>
+      <select id="eType">
+        <option value="" ${!obj.type ? "selected" : ""}>—</option>
+        <option value="Comic" ${obj.type==="Comic" ? "selected" : ""}>Comic</option>
+        <option value="Card" ${obj.type==="Card" ? "selected" : ""}>Card</option>
+        <option value="Other" ${obj.type==="Other" ? "selected" : ""}>Other</option>
+      </select>
+ value="${(obj.item||"").replace(/"/g,"&quot;")}">
       <label>Platform</label><input type="text" id="ePlatform" value="${(obj.platform||"").replace(/"/g,"&quot;")}">
       <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;">
         <div><label>Sale ($)</label><input type="number" id="eSale" step="0.01" value="${obj.sale ?? 0}"></div>
@@ -2416,6 +2455,7 @@ function saveEditModal() {
   const d = document.getElementById("eDate")?.value || "";
   const item = (document.getElementById("eItem")?.value || "").trim();
   const platform = (document.getElementById("ePlatform")?.value || "").trim();
+  const t = (document.getElementById("eType")?.value || "").trim();
 
   if (!d || !item) return;
 
@@ -2429,7 +2469,7 @@ function saveEditModal() {
     const arr = readSold();
     const idx = arr.findIndex(x => x && x._id === editContext.id);
     if (idx === -1) return;
-    arr[idx] = { ...arr[idx], date:d, item, platform, sale, cost, fees, ship, profit };
+    arr[idx] = { ...arr[idx], date:d, item, type:t, platform, sale, cost, fees, ship, profit };
     writeSold(arr);
     renderSold();
     rebuildMonthlyIncomeFromSold();
@@ -2442,7 +2482,7 @@ function saveEditModal() {
     const arr = readActive();
     const idx = arr.findIndex(x => x && x._id === editContext.id);
     if (idx === -1) return;
-    arr[idx] = { ...arr[idx], date:d, item, platform, cost, list, qty, notes };
+    arr[idx] = { ...arr[idx], date:d, item, type:t, platform, cost, list, qty, notes };
     writeActive(arr);
     renderActive();
   }
