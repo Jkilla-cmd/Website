@@ -733,6 +733,16 @@ button:hover{
         <input type="number" id="msSale" step="0.01">
       </div>
       <div>
+        <label>Type</label>
+        <select id="msType">
+          <option value="">—</option>
+          <option value="Comic">Comic</option>
+          <option value="Card">Card</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <div>
         <label>Platform</label>
         <input type="text" id="msPlatform" placeholder="eBay, Mercari, etc.">
       </div>
@@ -897,10 +907,36 @@ button:hover{
               </select>
             </div>
             <div>
+              <label>Type</label>
+              <select id="soldTypeFilter" onchange="renderSold()">
+                <option value="ALL">ALL</option>
+                <option value="Comic">Comic</option>
+                <option value="Card">Card</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <div>
               <label>Platform</label>
               <select id="activePlatformFilter" onchange="renderActive()">
                 <option value="ALL">ALL</option>
               </select>
+            </div>
+            <div>
+              <label>Type</label>
+              <select id="soldTypeFilter" onchange="renderSold()">
+                <option value="ALL">ALL</option>
+                <option value="Comic">Comic</option>
+                <option value="Card">Card</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <div>
+              <label>Platform</label>
+            <div>
+              <label>Search</label>
+              <input type="text" id="activeSearch" placeholder="Search inventory…" oninput="setActiveSearch(this.value)">
             </div>
           </div>
 
@@ -923,6 +959,16 @@ button:hover{
           <input type="text" id="invItem" placeholder="e.g. Batman #251">
 
           <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;">
+            <div>
+              <label>Type</label>
+              <select id="invType">
+                <option value="">—</option>
+                <option value="Comic">Comic</option>
+                <option value="Card">Card</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
             <div>
               <label>Platform / Source</label>
               <input type="text" id="invPlatform" placeholder="garage sale, eBay, Mercari">
@@ -958,6 +1004,7 @@ button:hover{
                 <tr>
                   <th>Date</th>
                   <th>Item</th>
+                  <th>Type</th>
                   <th>Platform</th>
                   <th>Cost</th>
                   <th>List</th>
@@ -1057,6 +1104,14 @@ button:hover{
           <label>Item</label>
           <input type="text" id="manualItem" placeholder="e.g. Amazing Spider-Man #300">
 
+          <label>Type</label>
+          <select id="manualType">
+            <option value="">—</option>
+            <option value="Comic">Comic</option>
+            <option value="Card">Card</option>
+            <option value="Other">Other</option>
+          </select>
+
           <label>Platform</label>
           <input type="text" id="manualPlatform" placeholder="eBay, Mercari, etc.">
 
@@ -1111,6 +1166,7 @@ button:hover{
                 <tr>
                   <th>Date</th>
                   <th>Item</th>
+                  <th>Type</th>
                   <th>Platform</th>
                   <th>Sale</th>
                   <th>Cost</th>
@@ -1506,6 +1562,19 @@ function parseMoney(x) {
   const n = parseFloat(s);
   return isFinite(n) ? n : 0;
 }
+
+/* ========= Inventory Search ========= */
+let activeSearch = "";
+function setActiveSearch(val){
+  activeSearch = String(val||"").trim().toLowerCase();
+  renderActive();
+}
+function matchesActiveSearch(row){
+  if (!activeSearch) return true;
+  const hay = [row.item, row.notes, row.platform, row.type].join(" ").toLowerCase();
+  return hay.includes(activeSearch);
+}
+
 function genId() {
   return "id_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 8);
 }
@@ -1744,8 +1813,9 @@ function importSoldCSV() {
 
       const iDate = idx(["date","solddate","orderdate","transactiondate"]);
       const iItem = idx(["item","title","name","listing","description"]);
-      const iPlatform = idx(["platform","market","marketplace","site"]);
-      const iSale = idx(["sale","saleprice","sold","soldprice","price","gross","revenue"]);
+
+      const iType = idx(["type","category","kind","itemtype"]);const iPlatform = idx(["platform","market","marketplace","site"]);
+const iSale = idx(["sale","saleprice","sold","soldprice","price","gross","revenue"]);
       const iCost = idx(["cost","itemcost","cogs","purchase","buycost"]);
       const iFees = idx(["fees","fee","platformfees"]);
       const iShip = idx(["shipping","ship","shipcost","shippingcost"]);
@@ -1765,7 +1835,10 @@ function importSoldCSV() {
         if (!dateObj) continue;
 
         const item = String(row[iItem] || "").trim();
+        const type = (iType !== -1) ? String(row[iType] || "").trim() : "";
+        const type = (typeof iType !== "undefined" && iType !== -1) ? String(row[iType] || "").trim() : "";
         const platform = String(row[iPlatform] || "").trim() || "Unknown";
+        const type = (typeof iType !== "undefined" && iType !== -1) ? String(row[iType] || "").trim() : "";
         const sale = parseMoney(row[iSale]);
         const cost = iCost !== -1 ? parseMoney(row[iCost]) : 0;
         const fees = iFees !== -1 ? parseMoney(row[iFees]) : 0;
@@ -1777,7 +1850,9 @@ function importSoldCSV() {
         existing.push({
           _id: genId(),
           date: formatDate(dateObj),
-          item, platform, sale, cost, fees, ship, profit
+          item,
+          type,
+          platform, sale, cost, fees, ship, profit
         });
         added++;
       }
@@ -1799,6 +1874,7 @@ function importSoldCSV() {
 function addSoldManually() {
   const d = manualDate.value;
   const item = (manualItem.value || "").trim();
+  const type = String(document.getElementById("manualType")?.value || "").trim();
   const platform = (manualPlatform.value || "").trim() || "Manual";
   const sale = Number(manualSale.value) || 0;
   const cost = Number(manualCost.value) || 0;
@@ -1809,7 +1885,7 @@ function addSoldManually() {
 
   const profit = sale - cost - fees - ship;
   const all = readSold();
-  all.push({ _id: genId(), date: d, item, platform, sale, cost, fees, ship, profit });
+  all.push({ _id: genId(), date: d, item, type, platform, sale, cost, fees, ship, profit });
   writeSold(all);
 
   renderSold();
@@ -1818,6 +1894,8 @@ function addSoldManually() {
   manualDate.value = "";
   manualItem.value = "";
   manualPlatform.value = "";
+  const mt = document.getElementById("manualType");
+  if (mt) mt.value = "";
   manualSale.value = "";
   manualCost.value = "";
   manualFees.value = "";
@@ -1895,6 +1973,7 @@ function renderSold() {
   refreshSoldFilters(all);
 
   const y = document.getElementById("soldYearFilter")?.value || "ALL";
+  const t = document.getElementById("soldTypeFilter")?.value || "ALL";
   const p = document.getElementById("soldPlatformFilter")?.value || "ALL";
   const mth = document.getElementById("soldMonthFilter")?.value || "ALL";
 
@@ -1902,9 +1981,10 @@ function renderSold() {
     const yr = extractYear(row.date);
     const mk = monthKey(row.date);
     const okY = (y === "ALL") || (yr === y);
+    const okT = (t === "ALL") || (String(row.type || "") === t);
     const okP = (p === "ALL") || (String(row.platform || "") === p);
     const okM = (mth === "ALL") || (mk === mth);
-    return okY && okP && okM;
+    return okY && okT && okP && okM;
   });
 
   const revenue = filtered.reduce((s,x)=>s + (Number(x.sale)||0), 0);
@@ -1925,7 +2005,7 @@ function renderSold() {
   for (const r of sorted) {
     const tr = document.createElement("tr");
     const cells = [
-      r.date, r.item, r.platform,
+      r.date, r.item, (r.type || ""), r.platform,
       formatDollars(r.sale),
       formatDollars(r.cost),
       formatDollars(r.fees),
@@ -1936,7 +2016,7 @@ function renderSold() {
     cells.forEach((c, idx) => {
       const td = document.createElement("td");
       td.textContent = c;
-      if (idx === 7) td.style.color = (Number(r.profit) >= 0 ? "var(--green)" : "var(--red)");
+      if (idx === 8) td.style.color = (Number(r.profit) >= 0 ? "var(--green)" : "var(--red)");
       tr.appendChild(td);
     });
 
@@ -2143,7 +2223,8 @@ function importActiveCSV() {
 
       const iDate = idx(["date","acquireddate","purchasedate","boughtdate"]);
       const iItem = idx(["item","title","name","listing","description"]);
-      const iPlatform = idx(["platform","source","market","marketplace","site"]);
+
+      const iType = idx(["type","category","kind","itemtype"]);      const iPlatform = idx(["platform","source","market","marketplace","site"]);
       const iCost = idx(["cost","itemcost","cogs","purchase","buycost"]);
       const iList = idx(["list","listprice","ask","asking","price"]);
       const iQty = idx(["qty","quantity","count"]);
@@ -2164,6 +2245,7 @@ function importActiveCSV() {
         if (!dateObj) continue;
 
         const item = String(row[iItem] || "").trim();
+        const type = (iType !== -1) ? String(row[iType] || "").trim() : "";
         if (!item) continue;
 
         const platform = iPlatform !== -1 ? String(row[iPlatform] || "").trim() : "";
@@ -2176,6 +2258,7 @@ function importActiveCSV() {
           _id: genId(),
           date: formatDate(dateObj),
           item,
+          type,
           platform,
           cost,
           list,
@@ -2199,12 +2282,13 @@ function importActiveCSV() {
 
 function exportActiveCSV() {
   const inv = readActive();
-  const header = ["date","item","platform","cost","list","qty","notes"];
+  const header = ["date","item","type","platform","cost","list","qty","notes"];
   const lines = [toCSVRow(header)];
   inv.slice().sort((a,b)=>String(a.date).localeCompare(String(b.date))).forEach(r => {
     lines.push(toCSVRow([
       r.date || "",
       r.item || "",
+      (r.type || ""),
       r.platform || "",
       Number(r.cost || 0),
       Number(r.list || 0),
@@ -2228,6 +2312,7 @@ function addActiveManually() {
   const d = invDate.value;
   const item = (invItem.value || "").trim();
   const platform = (invPlatform.value || "").trim();
+  const type = String(document.getElementById("invType")?.value || "").trim();
   const cost = Number(invCost.value) || 0;
   const list = Number(invList.value) || 0;
   const qty = parseInt(invQty.value || "1", 10) || 1;
@@ -2236,13 +2321,15 @@ function addActiveManually() {
   if (!d || !item) return;
 
   const all = readActive();
-  all.push({ _id: genId(), date: d, item, platform, cost, list, qty, notes });
+  all.push({ _id: genId(), date: d, item, type, platform, cost, list, qty, notes });
   writeActive(all);
   renderActive();
 
   invDate.value = "";
   invItem.value = "";
   invPlatform.value = "";
+  const invTypeEl = document.getElementById("invType");
+  if (invTypeEl) invTypeEl.value = "";
   invCost.value = "";
   invList.value = "";
   invQty.value = "1";
@@ -2295,7 +2382,7 @@ function renderActive() {
     const okY = (y === "ALL") || (yr === y);
     const okM = (mth === "ALL") || (mk === mth);
     const okP = (p === "ALL") || (String(row.platform || "") === p);
-    return okY && okM && okP;
+    return okY && okM && okP && matchesActiveSearch(row);
   });
 
   const count = filtered.reduce((s,x)=>s + (Number(x.qty)||1), 0);
@@ -2321,7 +2408,7 @@ function renderActive() {
     const tr = document.createElement("tr");
 
     const cells = [
-      r.date, r.item, r.platform || "",
+      r.date, r.item, (r.type || ""), r.platform || "",
       formatDollars(r.cost),
       formatDollars(r.list),
       String(r.qty || 1),
@@ -2486,6 +2573,8 @@ function openMarkSoldModal(activeId) {
   const d = String(today.getDate()).padStart(2,"0");
   document.getElementById("msDate").value = `${y}-${m}-${d}`;
   document.getElementById("msSale").value = inv.list || "";
+  const msTypeEl = document.getElementById("msType");
+  if (msTypeEl) msTypeEl.value = inv.type || "";
   document.getElementById("msPlatform").value = inv.platform || "";
   document.getElementById("msFees").value = "";
   document.getElementById("msShip").value = "";
@@ -2506,6 +2595,7 @@ function confirmMarkSold() {
 
   const soldDate = document.getElementById("msDate").value;
   const item = (document.getElementById("msItem").value || "").trim();
+  const type = String(document.getElementById("msType")?.value || "").trim();
   const platform = (document.getElementById("msPlatform").value || "").trim() || "Unknown";
   const sale = Number(document.getElementById("msSale").value) || 0;
   const fees = Number(document.getElementById("msFees").value) || 0;
@@ -2523,7 +2613,7 @@ function confirmMarkSold() {
 
   // Add to sold
   const soldArr = readSold();
-  soldArr.push({ _id: genId(), date: soldDate, item, platform, sale, cost, fees, ship, profit });
+  soldArr.push({ _id: genId(), date: soldDate, item, type: (type || inv.type || ""), platform, sale, cost, fees, ship, profit });
   writeSold(soldArr);
 
   // Remove from active
@@ -2559,12 +2649,13 @@ function toCSVRow(values) {
 }
 function exportSoldCSV() {
   const sold = readSold();
-  const header = ["date","item","platform","sale","cost","fees","shipping","profit"];
+  const header = ["date","item","type","platform","sale","cost","fees","shipping","profit"];
   const lines = [toCSVRow(header)];
   sold.slice().sort((a,b)=>String(a.date).localeCompare(String(b.date))).forEach(r => {
     lines.push(toCSVRow([
       r.date || "",
       r.item || "",
+      (r.type || ""),
       r.platform || "",
       Number(r.sale || 0),
       Number(r.cost || 0),
