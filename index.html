@@ -54,6 +54,21 @@ html[data-theme="cyberred"]{
   --red:#ff4d4d;
 }
 
+[data-theme="monochrome"]{
+  --bg:#000000;
+  --panel:rgba(255,255,255,0.04);
+  --panel-2:rgba(255,255,255,0.06);
+  --border:rgba(255,255,255,0.18);
+  --text:#f3f4f6;
+  --muted:rgba(243,244,246,0.68);
+  --accent:#ffffff;
+  --accent-2:#a3a3a3;
+  --blue:#ffffff;
+  --green:#a3a3a3;
+  --red:#ffffff;
+}
+
+
 
 
 
@@ -1277,6 +1292,7 @@ button:hover{
           <select id="themeSelect" onchange="setTheme(this.value)">
             <option value="hackercyan">Hacker Cyan</option>
             <option value="cyberred">Cyber Red</option>
+            <option value="monochrome">Black & White</option>
           </select>
 
           <div class="divider"></div>
@@ -2395,28 +2411,25 @@ function openEditModal(type, id) {
   if (type === "active") obj = readActive().find(x => x && x._id === id);
   if (!obj) return;
 
+  const safe = (v) => String(v || "").replace(/"/g, "&quot;");
+
+  const typeSelect = `
+      <label>Type</label>
+      <select id="eType">
+        <option value="" ${!obj.type ? "selected" : ""}>—</option>
+        <option value="Comic" ${obj.type==="Comic" ? "selected" : ""}>Comic</option>
+        <option value="Card" ${obj.type==="Card" ? "selected" : ""}>Card</option>
+        <option value="Other" ${obj.type==="Other" ? "selected" : ""}>Other</option>
+      </select>
+  `;
+
   if (type === "sold") {
     title.textContent = "Edit Sold Item";
     body.innerHTML = `
       <label>Date</label><input type="date" id="eDate" value="${obj.date || ""}">
-      <label>Item</label><input type="text" id="eItem"
-      <label>Type</label>
-      <select id="eType">
-        <option value="" ${!obj.type ? "selected" : ""}>—</option>
-        <option value="Comic" ${obj.type==="Comic" ? "selected" : ""}>Comic</option>
-        <option value="Card" ${obj.type==="Card" ? "selected" : ""}>Card</option>
-        <option value="Other" ${obj.type==="Other" ? "selected" : ""}>Other</option>
-      </select>
-
-      <label>Type</label>
-      <select id="eType">
-        <option value="" ${!obj.type ? "selected" : ""}>—</option>
-        <option value="Comic" ${obj.type==="Comic" ? "selected" : ""}>Comic</option>
-        <option value="Card" ${obj.type==="Card" ? "selected" : ""}>Card</option>
-        <option value="Other" ${obj.type==="Other" ? "selected" : ""}>Other</option>
-      </select>
- value="${(obj.item||"").replace(/"/g,"&quot;")}">
-      <label>Platform</label><input type="text" id="ePlatform" value="${(obj.platform||"").replace(/"/g,"&quot;")}">
+      <label>Item</label><input type="text" id="eItem" value="${safe(obj.item)}">
+      ${typeSelect}
+      <label>Platform</label><input type="text" id="ePlatform" value="${safe(obj.platform)}">
       <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;">
         <div><label>Sale ($)</label><input type="number" id="eSale" step="0.01" value="${obj.sale ?? 0}"></div>
         <div><label>Cost ($)</label><input type="number" id="eCost" step="0.01" value="${obj.cost ?? 0}"></div>
@@ -2429,14 +2442,15 @@ function openEditModal(type, id) {
     title.textContent = "Edit Inventory Item";
     body.innerHTML = `
       <label>Acquired Date</label><input type="date" id="eDate" value="${obj.date || ""}">
-      <label>Item</label><input type="text" id="eItem" value="${(obj.item||"").replace(/"/g,"&quot;")}">
-      <label>Platform / Source</label><input type="text" id="ePlatform" value="${(obj.platform||"").replace(/"/g,"&quot;")}">
+      <label>Item</label><input type="text" id="eItem" value="${safe(obj.item)}">
+      ${typeSelect}
+      <label>Platform / Source</label><input type="text" id="ePlatform" value="${safe(obj.platform)}">
       <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;">
         <div><label>Cost ($)</label><input type="number" id="eCost" step="0.01" value="${obj.cost ?? 0}"></div>
         <div><label>List ($)</label><input type="number" id="eList" step="0.01" value="${obj.list ?? 0}"></div>
         <div><label>Qty</label><input type="number" id="eQty" value="${obj.qty ?? 1}"></div>
       </div>
-      <label>Notes</label><input type="text" id="eNotes" value="${(obj.notes||"").replace(/"/g,"&quot;")}">
+      <label>Notes</label><input type="text" id="eNotes" value="${safe(obj.notes)}">
     `;
   }
 
@@ -2612,7 +2626,10 @@ function exportIncomeCSV() {
 const THEME_KEY = "ots_theme";
 
 function applyTheme(theme) {
-  const t = (theme === "cyberred") ? "cyberred" : "hackercyan";
+  let t = "hackercyan";
+  if (theme === "cyberred") t = "cyberred";
+  if (theme === "monochrome") t = "monochrome";
+
   document.documentElement.setAttribute("data-theme", t);
   localStorage.setItem(THEME_KEY, t);
 
