@@ -672,12 +672,14 @@ button:hover{
   box-shadow: none !important;
 }
 .lockBox .login-logo{
-  width: 100%;
-  max-width: 100%;
+  width: auto;
+  max-width: 86%;
+  max-height: 72px;
   height: auto;
   display:block;
-  filter: none; /* no border-like glow */
+  filter: none;
 }
+
 
 </style>
 </head>
@@ -934,7 +936,7 @@ button:hover{
           <h3>Active Inventory (Import / Export)</h3>
           <div class="stat muted" style="line-height:1.5">
             Required columns: <span class="blue">date, item</span><br>
-            Recommended: <span class="blue">platform, cost, list, qty, notes</span>
+            Recommended: <span class="blue">type, platform, cost, list, qty, notes</span>
           </div>
 
           <div class="divider"></div>
@@ -1064,7 +1066,7 @@ button:hover{
 
           <div class="stat muted" style="line-height:1.5">
             Required columns: <span class="blue">date, item, platform, sale</span><br>
-            Optional: <span class="blue">cost, fees, shipping</span>
+            Optional: <span class="blue">type, cost, fees, shipping</span>
           </div>
 
           <div class="divider"></div>
@@ -1798,6 +1800,20 @@ function normalizeKey(s) {
   return String(s || "").trim().toLowerCase().replace(/\s+/g, "").replace(/[^a-z0-9]/g, "");
 }
 
+function normalizeType(v){
+  const s = String(v||"").trim().toLowerCase();
+  if (!s) return "";
+  if (s.startsWith("comic") || s.includes("comic")) return "Comic";
+  if (s.startsWith("card") || s.includes("card")) return "Card";
+  if (s.startsWith("other") || s.includes("other")) return "Other";
+  // allow shorthand
+  if (s === "c") return "Comic";
+  if (s === "k") return "Card";
+  if (s === "o") return "Other";
+  return "";
+}
+
+
 function parseDateAny(v) {
   const s = String(v || "").trim();
   if (!s) return null;
@@ -1849,6 +1865,7 @@ function importSoldCSV() {
 
       const iDate = idx(["date","solddate","orderdate","transactiondate"]);
       const iItem = idx(["item","title","name","listing","description"]);
+      const iType = idx(["type","category","kind","itemtype"]);
       const iPlatform = idx(["platform","market","marketplace","site"]);
       const iSale = idx(["sale","saleprice","sold","soldprice","price","gross","revenue"]);
       const iCost = idx(["cost","itemcost","cogs","purchase","buycost"]);
@@ -1870,6 +1887,7 @@ function importSoldCSV() {
         if (!dateObj) continue;
 
         const item = String(row[iItem] || "").trim();
+        const type = (iType !== -1) ? normalizeType(row[iType]) : "";
         const platform = String(row[iPlatform] || "").trim() || "Unknown";
         const sale = parseMoney(row[iSale]);
         const cost = iCost !== -1 ? parseMoney(row[iCost]) : 0;
@@ -1882,7 +1900,7 @@ function importSoldCSV() {
         existing.push({
           _id: genId(),
           date: formatDate(dateObj),
-          item, platform, sale, cost, fees, ship, profit
+          item, type, platform, sale, cost, fees, ship, profit
         });
         added++;
       }
@@ -2202,6 +2220,7 @@ function importActiveCSV() {
 
       const iDate = idx(["date","acquireddate","purchasedate","boughtdate"]);
       const iItem = idx(["item","title","name","listing","description"]);
+      const iType = idx(["type","category","kind","itemtype"]);
       const iPlatform = idx(["platform","source","market","marketplace","site"]);
       const iCost = idx(["cost","itemcost","cogs","purchase","buycost"]);
       const iList = idx(["list","listprice","ask","asking","price"]);
@@ -2223,6 +2242,7 @@ function importActiveCSV() {
         if (!dateObj) continue;
 
         const item = String(row[iItem] || "").trim();
+        const type = (iType !== -1) ? normalizeType(row[iType]) : "";
         if (!item) continue;
 
         const platform = iPlatform !== -1 ? String(row[iPlatform] || "").trim() : "";
@@ -2235,6 +2255,7 @@ function importActiveCSV() {
           _id: genId(),
           date: formatDate(dateObj),
           item,
+          type,
           platform,
           cost,
           list,
@@ -2258,12 +2279,13 @@ function importActiveCSV() {
 
 function exportActiveCSV() {
   const inv = readActive();
-  const header = ["date","item","platform","cost","list","qty","notes"];
+  const header = ["date","item","type","platform","cost","list","qty","notes"];
   const lines = [toCSVRow(header)];
   inv.slice().sort((a,b)=>String(a.date).localeCompare(String(b.date))).forEach(r => {
     lines.push(toCSVRow([
       r.date || "",
       r.item || "",
+      r.type || "",
       r.platform || "",
       Number(r.cost || 0),
       Number(r.list || 0),
@@ -2632,12 +2654,13 @@ function toCSVRow(values) {
 }
 function exportSoldCSV() {
   const sold = readSold();
-  const header = ["date","item","platform","sale","cost","fees","shipping","profit"];
+  const header = ["date","item","type","platform","sale","cost","fees","shipping","profit"];
   const lines = [toCSVRow(header)];
   sold.slice().sort((a,b)=>String(a.date).localeCompare(String(b.date))).forEach(r => {
     lines.push(toCSVRow([
       r.date || "",
       r.item || "",
+      r.type || "",
       r.platform || "",
       Number(r.sale || 0),
       Number(r.cost || 0),
