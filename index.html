@@ -913,16 +913,7 @@ button:hover{
                 <option value="ALL">ALL</option>
               </select>
             </div>
-            <div>
-              <label>Search</label>
-          <input type="text" id="activeSearch" placeholder="Search active inventory…" oninput="setActiveSearch(this.value)">
-
-          <label>Platform</label>
-              <select id="activePlatformFilter" onchange="renderActive()">
-                <option value="ALL">ALL</option>
-              </select>
-            </div>
-          </div>
+</div>
 
           <div class="divider"></div>
           <div class="stat blue" id="activeCountStat"></div>
@@ -990,7 +981,7 @@ button:hover{
                   <th>Date</th>
                   <th>Item</th>
                   <th>Type</th>
-                  <th>Platform</th
+                  <th>Platform</th>
                   <th>Cost</th>
                   <th>List</th>
                   <th>Qty</th>
@@ -1048,6 +1039,7 @@ button:hover{
         <div class="panel">
           <h3>Sold Summary</h3>
 
+
           <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">
             <div>
               <label>Year</label>
@@ -1055,20 +1047,7 @@ button:hover{
                 <option value="ALL">ALL</option>
               </select>
             </div>
-            <div>
-              <label>Type</label>
-          <select id="soldTypeFilter" onchange="renderSold()">
-            <option value="ALL">All</option>
-            <option value="Comic">Comic</option>
-            <option value="Card">Card</option>
-            <option value="Other">Other</option>
-          </select>
 
-          <label>Platform</label>
-              <select id="soldPlatformFilter" onchange="renderSold()">
-                <option value="ALL">ALL</option>
-              </select>
-            </div>
             <div>
               <label>Month</label>
               <select id="soldMonthFilter" onchange="renderSold()">
@@ -1076,6 +1055,22 @@ button:hover{
               </select>
             </div>
 
+            <div>
+              <label>Type</label>
+              <select id="soldTypeFilter" onchange="renderSold()">
+                <option value="ALL">All</option>
+                <option value="Comic">Comic</option>
+                <option value="Card">Card</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <div>
+              <label>Platform</label>
+              <select id="soldPlatformFilter" onchange="renderSold()">
+                <option value="ALL">ALL</option>
+              </select>
+            </div>
           </div>
 
           <div class="divider"></div>
@@ -1163,7 +1158,7 @@ button:hover{
                   <th>Date</th>
                   <th>Item</th>
                   <th>Type</th>
-                  <th>Platform</th
+                  <th>Platform</th>
                   <th>Sale</th>
                   <th>Cost</th>
                   <th>Fees</th>
