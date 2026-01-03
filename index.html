@@ -1963,7 +1963,8 @@ function renderSold() {
     const okM = (month==="ALL") || (mk===month);
     const okP = (platform==="ALL") || (String(r.platform||"")===platform);
     const okT = (type==="ALL") || (String(r.type||"")===type);
-    return okY && okM && okP && okT && matchesSoldSearch(r);
+    const okS = (typeof matchesSoldSearch === "function") ? matchesSoldSearch(r) : true;
+    return okY && okM && okP && okT && okS;
   });
 
   const tbody = document.getElementById("soldTableBody");
@@ -1977,17 +1978,43 @@ function renderSold() {
 
     const tdDate = document.createElement("td"); tdDate.textContent = r.date || ""; tr.appendChild(tdDate);
     const tdItem = document.createElement("td"); tdItem.textContent = r.item || ""; tr.appendChild(tdItem);
-    // Type
-    const tdType = document.createElement("td");
-    tdType.textContent = r.type || "";
-    tr.appendChild(tdType);
+    const tdType = document.createElement("td"); tdType.textContent = r.type || ""; tr.appendChild(tdType);
+    const tdPlat = document.createElement("td"); tdPlat.textContent = r.platform || ""; tr.appendChild(tdPlat);
+
+    const tdSale = document.createElement("td"); tdSale.textContent = formatDollars(r.sale); tr.appendChild(tdSale);
+    const tdCost = document.createElement("td"); tdCost.textContent = formatDollars(r.cost); tr.appendChild(tdCost);
+    const tdFees = document.createElement("td"); tdFees.textContent = formatDollars(r.fees); tr.appendChild(tdFees);
+    const tdShip = document.createElement("td"); tdShip.textContent = formatDollars(r.ship); tr.appendChild(tdShip);
+
+    const tdProfit = document.createElement("td"); tdProfit.textContent = formatDollars(r.profit);
+    const p = Number(r.profit)||0;
+    if (p > 0) tdProfit.classList.add("profit-pos");
+    else if (p < 0) tdProfit.classList.add("profit-neg");
+    else tdProfit.classList.add("profit-zero");
+    tr.appendChild(tdProfit);
+
+    const action = document.createElement("td");
+    action.className = "action-cell";
+    const e = document.createElement("span");
+    e.className = "edit";
+    e.title = "Edit";
+    e.textContent = "✏️";
+    e.onclick = () => openEditModal("sold", r._id);
+
+    const del = document.createElement("span");
+    del.className = "trash";
+    del.title = "Delete";
+    del.textContent = "🗑";
+    del.style.marginLeft = "8px";
+    del.onclick = () => deleteSoldById(r._id);
+
+    action.appendChild(e); action.appendChild(del);
+    tr.appendChild(action);
 
     tbody.appendChild(tr);
   }
 
-  renderSoldSummary();
   try{ updateSoldSummaryAndCharts(); }catch(e){}
-  try{ window.otsUpdateSoldSummaryAndCharts(); }catch(e){}
 }
 
 
@@ -2724,6 +2751,89 @@ window.otsUpdateSoldSummaryAndCharts = function(){
     }
   }catch(e){}
 };
+
+
+/* ========= Sold Summary + Charts ========= */
+let otsSoldProfitChart = null;
+let otsSoldItemsChart = null;
+
+function getFilteredSoldForSummary(){
+  const all = readSold();
+  const year = document.getElementById("soldYearFilter")?.value || "ALL";
+  const month = document.getElementById("soldMonthFilter")?.value || "ALL";
+  const platform = document.getElementById("soldPlatformFilter")?.value || "ALL";
+  const type = document.getElementById("soldTypeFilter")?.value || "ALL";
+  return all.filter(r => {
+    const yr = extractYear(r.date);
+    const mk = monthKey(r.date);
+    const okY = (year==="ALL") || (yr===year);
+    const okM = (month==="ALL") || (mk===month);
+    const okP = (platform==="ALL") || (String(r.platform||"")===platform);
+    const okT = (type==="ALL") || (String(r.type||"")===type);
+    return okY && okM && okP && okT && (typeof matchesSoldSearch==="function" ? matchesSoldSearch(r) : true);
+  });
+}
+
+function updateSoldSummaryAndCharts(){
+  const data = getFilteredSoldForSummary();
+
+  const revenue = data.reduce((s,x)=> s + (Number(x.sale)||0), 0);
+  const profit  = data.reduce((s,x)=> s + (Number(x.profit)||0), 0);
+  const items   = data.length;
+  const avg     = items ? profit/items : 0;
+
+  const revEl = document.getElementById("soldRevenueStat");
+  const proEl = document.getElementById("soldProfitStat");
+  const itEl  = document.getElementById("soldItemsStat");
+  const avgEl = document.getElementById("soldAvgStat");
+
+  if (revEl) revEl.textContent = `REVENUE: ${formatDollars(revenue)}`;
+  if (proEl){
+    proEl.textContent = `PROFIT: ${formatDollars(profit)}`;
+    proEl.classList.remove("profit-pos","profit-neg","profit-zero");
+    if (profit > 0) proEl.classList.add("profit-pos");
+    else if (profit < 0) proEl.classList.add("profit-neg");
+    else proEl.classList.add("profit-zero");
+  }
+  if (itEl) itEl.textContent = `ITEMS SOLD: ${items}`;
+  if (avgEl) avgEl.textContent = `AVG PROFIT/ITEM: ${formatDollars(avg)}`;
+
+  // Monthly buckets
+  const buckets = {};
+  for (const r of data){
+    const mk = monthKey(r.date);
+    if (!mk) continue;
+    if (!buckets[mk]) buckets[mk] = {profit:0, items:0};
+    buckets[mk].profit += Number(r.profit)||0;
+    buckets[mk].items += 1;
+  }
+  const labels = Object.keys(buckets).sort();
+  const profitSeries = labels.map(k => +buckets[k].profit.toFixed(2));
+  const itemsSeries = labels.map(k => buckets[k].items);
+
+  const canvasP = document.getElementById("soldProfitChart");
+  const canvasI = document.getElementById("soldItemsChart");
+  if (typeof Chart === "undefined") return;
+
+  if (canvasP){
+    if (otsSoldProfitChart) otsSoldProfitChart.destroy();
+    otsSoldProfitChart = new Chart(canvasP, {
+      type: "bar",
+      data: { labels, datasets: [{ label: "Profit", data: profitSeries }] },
+      options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ y:{ beginAtZero:true } } }
+    });
+  }
+  if (canvasI){
+    if (otsSoldItemsChart) otsSoldItemsChart.destroy();
+    otsSoldItemsChart = new Chart(canvasI, {
+      type: "bar",
+      data: { labels, datasets: [{ label: "Items Sold", data: itemsSeries }] },
+      options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ y:{ beginAtZero:true, ticks:{ precision:0 } } } }
+    });
+  }
+}
+// alias for older calls
+window.otsUpdateSoldSummaryAndCharts = updateSoldSummaryAndCharts;
 
 /* ========= BOOT ========= */
 window.onload = () => {
