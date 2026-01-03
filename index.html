@@ -619,23 +619,6 @@ button:hover{
 #lockScreen .stat.muted { color: color-mix(in srgb, var(--text) 75%, var(--muted)) !important; }
 #lockScreen .panel { box-shadow: 0 22px 70px rgba(0,0,0,0.55) !important; }
 
-
-/* ========= Enhancements ========= */
-.topbar .searchWrap{ flex: 1; display:flex; justify-content:center; padding:0 10px; }
-.topbar .searchWrap input{ max-width:520px; width:100%; height:36px; }
-@media (max-width: 860px){ .topbar .searchWrap{padding:0 6px;} .topbar .searchWrap input{max-width:100%;} }
-.profit-pos{ color: var(--green) !important; }
-.profit-neg{ color: var(--red) !important; }
-.profit-zero{ color: var(--muted) !important; }
-.row-good{ background: color-mix(in srgb, var(--green) 10%, transparent) !important; }
-.row-bad{ background: color-mix(in srgb, var(--red) 10%, transparent) !important; }
-.badge{ display:inline-flex; align-items:center; gap:6px; padding:3px 8px; border-radius:999px; border:1px solid var(--border); font-size:12px; color:var(--muted); }
-.progressWrap{ margin-top:10px; }
-.progress{ height:12px; border-radius:999px; border:1px solid var(--border); background: rgba(0,0,0,0.25); overflow:hidden; }
-.progress > div{ height:100%; width:0%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); }
-.smallhelp{ font-size:12px; color: var(--muted); margin-top:6px; }
-#lockScreen .muted, #lockScreen label { color: color-mix(in srgb, var(--text) 75%, var(--muted)) !important; }
-
 </style>
 </head>
 
@@ -704,9 +687,6 @@ button:hover{
           One-time setup (run in console): <span class="blue">setMasterPhraseOnce("your-phrase")</span>
         </div>
       </div>
-
-      
-
     </div>
 
     <p class="lockMsg" id="lockMsg"></p>
@@ -719,7 +699,7 @@ button:hover{
   <div class="row">
     <div class="msg" id="undoMsg">Deleted.</div>
     <div class="actions">
-      <button class="small" id="undoBtn" onclick="undoLastDelete()">Undo</button>
+      <button class="small" onclick="undoLastDelete()">Undo</button>
       <button class="small danger" onclick="hideUndo()">Close</button>
     </div>
   </div>
@@ -753,9 +733,6 @@ button:hover{
         <input type="number" id="msSale" step="0.01">
       </div>
       <div>
-        <label>Category</label>
-        <input type="text" id="msCategory" placeholder="comics, shoes, etc.">
-
         <label>Platform</label>
         <input type="text" id="msPlatform" placeholder="eBay, Mercari, etc.">
       </div>
@@ -835,56 +812,6 @@ button:hover{
 
     <!-- DASHBOARD -->
     <section id="secDashboard" class="section active">
-<div class="grid" style="margin-bottom:16px;">
-        <div class="panel">
-          <h3>Monthly Goal</h3>
-          <label>Monthly Profit Goal ($)</label>
-          <input type="number" id="goalMonthly" step="0.01" placeholder="e.g. 1500" oninput="saveGoal()">
-          <div class="progressWrap">
-            <div class="progress"><div id="goalBar"></div></div>
-            <div class="smallhelp" id="goalText">Set a goal to track progress.</div>
-          </div>
-        </div>
-
-
-        <div class="panel">
-          <h3>Notifications</h3>
-          <div class="stat muted" style="margin-bottom:10px;">Optional local reminders (no cloud). You can also allow browser notifications.</div>
-
-          <div class="inline-row" style="margin-bottom:10px;">
-            <input type="checkbox" id="notifEnable" onchange="toggleNotifEnabled(this.checked)">
-            <label for="notifEnable">Enable in-app reminders</label>
-          </div>
-
-          <div class="inline-row" style="margin-bottom:10px;">
-            <input type="checkbox" id="notifBrowser" onchange="toggleBrowserNotifs(this.checked)">
-            <label for="notifBrowser">Use browser notifications (requires permission)</label>
-          </div>
-
-          <label>Stale Inventory Threshold (days)</label>
-          <input type="number" id="staleDays" value="45" onchange="saveNotifSettings()">
-
-          <div class="divider"></div>
-          <div class="stat muted">Examples: “Item listed 45+ days” • “Monthly goal reached”</div>
-        </div>
-
-        <div class="panel">
-          <h3>Sales Velocity</h3>
-          <div class="stat blue" id="velAvg">AVG DAYS TO SELL: —</div>
-          <div class="stat green" id="velFast">FASTEST: —</div>
-          <div class="stat muted" id="velSlow">SLOWEST: —</div>
-          <div class="smallhelp">Based on items moved from Inventory → Sold.</div>
-        </div>
-
-        <div class="panel">
-          <h3>Category Performance</h3>
-          <div class="stat blue" id="catTop">TOP CATEGORY: —</div>
-          <div class="stat green" id="catProfit">TOP PROFIT: —</div>
-          <div class="stat muted" id="catRoi">TOP ROI: —</div>
-          <div class="smallhelp">Add categories to Inventory/Sold to unlock insights.</div>
-        </div>
-      </div>
-
       <div class="grid">
         <div class="panel">
         <div style="display:flex;justify-content:center;margin-bottom:14px;"><img src="./icons/icon-192.png" alt="OffTheShelf" style="width:54px;height:54px;border-radius:14px;border:1px solid var(--border);box-shadow:0 10px 25px rgba(0,0,0,0.35);"></div>
@@ -982,7 +909,6 @@ button:hover{
           <div class="stat green" id="activeCostStat"></div>
           <div class="stat blue" id="activeListStat"></div>
           <div class="stat muted" id="activeAvgCostStat"></div>
-          <div class="stat muted" id="activeAgeStat"></div>
         </div>
       </div>
 
@@ -998,9 +924,6 @@ button:hover{
 
           <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;">
             <div>
-              <label>Category</label>
-              <input type="text" id="invCategory" placeholder="comics, shoes, etc.">
-
               <label>Platform / Source</label>
               <input type="text" id="invPlatform" placeholder="garage sale, eBay, Mercari">
             </div>
@@ -1035,12 +958,10 @@ button:hover{
                 <tr>
                   <th>Date</th>
                   <th>Item</th>
-                  <th>Category</th>
                   <th>Platform</th>
                   <th>Cost</th>
                   <th>List</th>
                   <th>Qty</th>
-                  <th>Age</th>
                   <th>Notes</th>
                   <th class="action-cell"></th>
                 </tr>
@@ -1136,9 +1057,6 @@ button:hover{
           <label>Item</label>
           <input type="text" id="manualItem" placeholder="e.g. Amazing Spider-Man #300">
 
-          <label>Category</label>
-          <input type="text" id="manualCategory" placeholder="comics, shoes, etc.">
-
           <label>Platform</label>
           <input type="text" id="manualPlatform" placeholder="eBay, Mercari, etc.">
 
@@ -1199,7 +1117,6 @@ button:hover{
                   <th>Fees</th>
                   <th>Ship</th>
                   <th>Profit</th>
-                  <th>ROI</th>
                   <th class="action-cell"></th>
                 </tr>
               </thead>
@@ -2168,8 +2085,6 @@ function showUndo(message, payload) {
   if (!toast || !msg) return;
   msg.textContent = message;
   toast.style.display = "block";
-  const ub = document.getElementById("undoBtn");
-  if (ub) ub.style.display = lastDelete ? "inline-flex" : "none";
 
   if (undoTimer) clearTimeout(undoTimer);
   undoTimer = setTimeout(() => {
@@ -2312,7 +2227,6 @@ function clearActive() {
 function addActiveManually() {
   const d = invDate.value;
   const item = (invItem.value || "").trim();
-  const category = (document.getElementById("invCategory")?.value || "").trim();
   const platform = (invPlatform.value || "").trim();
   const cost = Number(invCost.value) || 0;
   const list = Number(invList.value) || 0;
@@ -2322,13 +2236,12 @@ function addActiveManually() {
   if (!d || !item) return;
 
   const all = readActive();
-  all.push({ _id: genId(), date: d, item, category, platform, cost, list, qty, notes });
+  all.push({ _id: genId(), date: d, item, platform, cost, list, qty, notes });
   writeActive(all);
   renderActive();
 
   invDate.value = "";
   invItem.value = "";
-  if (document.getElementById("invCategory")) document.getElementById("invCategory").value = "";
   invPlatform.value = "";
   invCost.value = "";
   invList.value = "";
@@ -2734,413 +2647,6 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!lock) return;
   const obs = new MutationObserver(() => updateBmcVisibility());
   obs.observe(lock, { attributes: true, attributeFilter: ["class"] });
-});
-
-
-/* ========= Enhancements Logic ========= */
-const OTS_SEARCH_KEY = "ots_global_search";
-const OTS_GOAL_KEY = "ots_goal_monthly";
-const OTS_NOTIF_KEY = "ots_notif_settings";
-const OTS_FEE_KEY = "ots_fee_presets";
-
-let otsSearch = (localStorage.getItem(OTS_SEARCH_KEY) || "").trim().toLowerCase();
-
-function setGlobalSearch(v){
-  otsSearch = (v||"").trim().toLowerCase();
-  localStorage.setItem(OTS_SEARCH_KEY, otsSearch);
-  renderActive();
-  renderSold();
-}
-
-function matchesSearch(obj){
-  if (!otsSearch) return true;
-  const hay = [obj.item,obj.notes,obj.platform,obj.category].join(" ").toLowerCase();
-  return hay.includes(otsSearch);
-}
-
-function defaultFeePresets(){
-  return {
-    "Mercari": { pct: 10 },
-    "eBay": { pct: 13.25 },
-    "Etsy": { pct: 9.5 },
-    "Poshmark": { pct: 20 },
-    "Facebook": { pct: 5 },
-    "Local": { pct: 0 }
-  };
-}
-function readFees(){ return JSON.parse(localStorage.getItem(OTS_FEE_KEY)) || defaultFeePresets(); }
-function calcFee(platform, sale){
-  const p = (platform||"").trim();
-  const hit = readFees()[p];
-  const pct = hit ? Number(hit.pct)||0 : 0;
-  return sale * (pct/100);
-}
-
-function saveGoal(){
-  const v = Number(document.getElementById("goalMonthly")?.value) || 0;
-  localStorage.setItem(OTS_GOAL_KEY, String(v));
-  updateDashboardInsights();
-}
-function loadGoal(){
-  const v = Number(localStorage.getItem(OTS_GOAL_KEY)) || 0;
-  const el = document.getElementById("goalMonthly");
-  if (el) el.value = v ? v : "";
-}
-
-function defaultNotif(){ return { enabled:false, browser:false, staleDays:45 }; }
-function readNotif(){ return JSON.parse(localStorage.getItem(OTS_NOTIF_KEY)) || defaultNotif(); }
-function writeNotif(n){ localStorage.setItem(OTS_NOTIF_KEY, JSON.stringify(n)); }
-
-function toggleNotifEnabled(on){ const n=readNotif(); n.enabled=!!on; writeNotif(n); }
-async function toggleBrowserNotifs(on){
-  const n=readNotif(); n.browser=!!on; writeNotif(n);
-  if (n.browser && "Notification" in window && Notification.permission==="default"){
-    try{ await Notification.requestPermission(); }catch{}
-  }
-}
-function saveNotifSettings(){
-  const n=readNotif();
-  n.staleDays = parseInt(document.getElementById("staleDays")?.value || "45",10) || 45;
-  writeNotif(n);
-}
-function loadNotifSettings(){
-  const n=readNotif();
-  const e=document.getElementById("notifEnable");
-  const b=document.getElementById("notifBrowser");
-  const s=document.getElementById("staleDays");
-  if (e) e.checked=!!n.enabled;
-  if (b) b.checked=!!n.browser;
-  if (s) s.value=n.staleDays||45;
-}
-function toast(msg){
-  // reuse undo toast, but no undo payload
-  showUndo(msg, null);
-}
-function maybeNotify(title, body){
-  const n=readNotif();
-  if (!n.enabled) return;
-  toast(body);
-  if (n.browser && "Notification" in window && Notification.permission==="granted"){
-    try{ new Notification(title, { body }); }catch{}
-  }
-}
-function runNotifChecks(){
-  const n=readNotif();
-  if (!n.enabled) return;
-  const staleDays=n.staleDays||45;
-  const now=Date.now();
-  const inv=readActive();
-  const stale=inv.filter(x=>{
-    const d=parseDateAny(x.date);
-    if(!d) return false;
-    const age=Math.floor((now-d.getTime())/86400000);
-    return age>=staleDays;
-  });
-  if(stale.length) maybeNotify("Stale inventory", `${stale.length} item(s) are ${staleDays}+ days old.`);
-  const goal=Number(localStorage.getItem(OTS_GOAL_KEY))||0;
-  if(goal>0){
-    const sold=readSold();
-    const cur=monthKey(new Date().toISOString().slice(0,10));
-    const mp=sold.filter(s=>monthKey(s.date)===cur).reduce((sum,s)=>sum+(Number(s.profit)||0),0);
-    if(mp>=goal) maybeNotify("Goal reached", `You hit your monthly profit goal (${formatDollars(goal)}).`);
-  }
-}
-
-function updateDashboardInsights(){
-  const goal=Number(localStorage.getItem(OTS_GOAL_KEY))||0;
-  const goalBar=document.getElementById("goalBar");
-  const goalText=document.getElementById("goalText");
-  const sold=readSold();
-  const cur=monthKey(new Date().toISOString().slice(0,10));
-  const mp=sold.filter(s=>monthKey(s.date)===cur).reduce((sum,s)=>sum+(Number(s.profit)||0),0);
-  if(goal>0 && goalBar && goalText){
-    const pct=Math.max(0,Math.min(100,(mp/goal)*100));
-    goalBar.style.width=pct.toFixed(1)+"%";
-    goalText.textContent=`This month: ${formatDollars(mp)} / ${formatDollars(goal)} (${pct.toFixed(0)}%)`;
-  } else if(goalBar && goalText){
-    goalBar.style.width="0%";
-    goalText.textContent="Set a goal to track progress.";
-  }
-
-  // velocity
-  const vel=sold.filter(s=>s.acquiredDate && s.date).map(s=>{
-    const a=parseDateAny(s.acquiredDate); const d=parseDateAny(s.date);
-    if(!a||!d) return null;
-    return Math.max(0,Math.round((d.getTime()-a.getTime())/86400000));
-  }).filter(x=>x!==null);
-  const velAvg=document.getElementById("velAvg");
-  const velFast=document.getElementById("velFast");
-  const velSlow=document.getElementById("velSlow");
-  if(velAvg){
-    if(!vel.length){ velAvg.textContent="AVG DAYS TO SELL: —"; if(velFast) velFast.textContent="FASTEST: —"; if(velSlow) velSlow.textContent="SLOWEST: —"; }
-    else{
-      const avg=vel.reduce((a,b)=>a+b,0)/vel.length;
-      velAvg.textContent=`AVG DAYS TO SELL: ${avg.toFixed(1)}`;
-      if(velFast) velFast.textContent=`FASTEST: ${Math.min(...vel)} days`;
-      if(velSlow) velSlow.textContent=`SLOWEST: ${Math.max(...vel)} days`;
-    }
-  }
-
-  // category
-  const by={};
-  sold.forEach(s=>{
-    const c=(s.category||"").trim()||"Uncategorized";
-    by[c]=by[c]||{profit:0,cost:0};
-    by[c].profit+=Number(s.profit)||0;
-    by[c].cost+=Number(s.cost)||0;
-  });
-  let top=null;
-  for(const [k,v] of Object.entries(by)){
-    if(!top || v.profit>top.v.profit) top={k,v};
-  }
-  const catTop=document.getElementById("catTop");
-  const catProfit=document.getElementById("catProfit");
-  const catRoi=document.getElementById("catRoi");
-  if(catTop && top){
-    catTop.textContent=`TOP CATEGORY: ${top.k}`;
-    catProfit.textContent=`TOP PROFIT: ${formatDollars(top.v.profit)}`;
-    const roi=top.v.cost? (top.v.profit/top.v.cost)*100:0;
-    catRoi.textContent=`TOP ROI: ${roi.toFixed(1)}%`;
-  } else if(catTop){
-    catTop.textContent="TOP CATEGORY: —"; if(catProfit) catProfit.textContent="TOP PROFIT: —"; if(catRoi) catRoi.textContent="TOP ROI: —";
-  }
-}
-
-// Patch confirmMarkSold to include category/acquiredDate and auto-fee
-(function(){
-  const _orig = confirmMarkSold;
-  confirmMarkSold = function(){
-    if (!markSoldActiveId) return;
-    const soldDate = document.getElementById("msDate").value;
-    const item = (document.getElementById("msItem").value || "").trim();
-    const category = (document.getElementById("msCategory")?.value || "").trim();
-    const platform = (document.getElementById("msPlatform").value || "").trim() || "Unknown";
-    const sale = Number(document.getElementById("msSale").value) || 0;
-    const feesEl = document.getElementById("msFees");
-    let fees = Number(feesEl.value) || 0;
-    const ship = Number(document.getElementById("msShip").value) || 0;
-    if (!fees && sale>0){
-      const auto = calcFee(platform, sale);
-      if (auto>0){ fees = +auto.toFixed(2); feesEl.value = fees.toFixed(2); }
-    }
-    if (!soldDate || !item || !sale) return;
-
-    const invArr = readActive();
-    const invIdx = invArr.findIndex(x => x && x._id === markSoldActiveId);
-    if (invIdx === -1) return;
-    const inv = invArr[invIdx];
-
-    const cost = Number(inv.cost) || 0;
-    const profit = sale - cost - fees - ship;
-
-    const soldArr = readSold();
-    soldArr.push({ _id: genId(), date: soldDate, item, category: category || inv.category || "", platform, sale, cost, fees, ship, profit, acquiredDate: inv.date || "" });
-    writeSold(soldArr);
-
-    invArr.splice(invIdx,1);
-    writeActive(invArr);
-
-    renderActive();
-    renderSold();
-    if (document.getElementById("msSyncIncome")?.checked) rebuildMonthlyIncomeFromSold();
-    closeMarkSoldModal();
-    updateDashboardInsights();
-  };
-})();
-
-// Patch manual sold add to include category and auto-fee
-(function(){
-  const _orig = addSoldManually;
-  addSoldManually = function(){
-    const d = manualDate.value;
-    const item = (manualItem.value || "").trim();
-    const category = (document.getElementById("manualCategory")?.value || "").trim();
-    const platform = (manualPlatform.value || "").trim() || "Manual";
-    const sale = Number(manualSale.value) || 0;
-    const cost = Number(manualCost.value) || 0;
-    const feesEl = manualFees;
-    let fees = Number(feesEl.value) || 0;
-    const ship = Number(manualShip.value) || 0;
-
-    if (!fees && sale>0){
-      const auto = calcFee(platform, sale);
-      if (auto>0){ fees = +auto.toFixed(2); feesEl.value = fees.toFixed(2); }
-    }
-
-    if (!d || !item || !sale) return;
-
-    const profit = sale - cost - fees - ship;
-    const all = readSold();
-    all.push({ _id: genId(), date: d, item, category, platform, sale, cost, fees, ship, profit, acquiredDate: "" });
-    writeSold(all);
-
-    renderSold();
-    if (document.getElementById("manualSyncIncome")?.checked) rebuildMonthlyIncomeFromSold();
-    updateDashboardInsights();
-
-    manualDate.value = "";
-    manualItem.value = "";
-    if (document.getElementById("manualCategory")) document.getElementById("manualCategory").value = "";
-    manualPlatform.value = "";
-    manualSale.value = "";
-    manualCost.value = "";
-    manualFees.value = "";
-    manualShip.value = "";
-  };
-})();
-
-// Override renderActive to add category + age + search + avg age stat
-(function(){
-  const _orig = renderActive;
-  renderActive = function(){
-    const all = readActive();
-    refreshActiveFilters(all);
-
-    const year = document.getElementById("activeYearFilter")?.value || "ALL";
-    const month = document.getElementById("activeMonthFilter")?.value || "ALL";
-    const plat = document.getElementById("activePlatformFilter")?.value || "ALL";
-
-    const filtered = all.filter(r=>{
-      const okY = (year==="ALL") || (extractYear(r.date)===year);
-      const okM = (month==="ALL") || (monthKey(r.date)===month);
-      const okP = (plat==="ALL") || (String(r.platform||"")===plat);
-      return okY && okM && okP && matchesSearch(r);
-    });
-
-    // stats
-    const qtySum = filtered.reduce((s,x)=>s+(Number(x.qty)||1),0);
-    const totalCost = filtered.reduce((s,x)=>s+(Number(x.cost)||0)*(Number(x.qty)||1),0);
-    const totalList = filtered.reduce((s,x)=>s+(Number(x.list)||0)*(Number(x.qty)||1),0);
-    const avgCost = qtySum? totalCost/qtySum:0;
-
-    document.getElementById("activeCountStat").textContent = `ITEMS (QTY): ${qtySum}`;
-    document.getElementById("activeCostStat").textContent = `TOTAL COST: ${formatDollars(totalCost)}`;
-    document.getElementById("activeListStat").textContent = `TOTAL LIST: ${formatDollars(totalList)}`;
-    document.getElementById("activeAvgCostStat").textContent = `AVG COST: ${formatDollars(avgCost)}`;
-
-    const ages = filtered.map(x=>{
-      const d=parseDateAny(x.date); if(!d) return null;
-      return Math.floor((Date.now()-d.getTime())/86400000);
-    }).filter(x=>x!==null);
-    const ageEl=document.getElementById("activeAgeStat");
-    if (ageEl){
-      ageEl.textContent = ages.length ? `AVG AGE: ${(ages.reduce((a,b)=>a+b,0)/ages.length).toFixed(1)} days` : "AVG AGE: —";
-    }
-
-    const tbody = document.getElementById("activeTableBody");
-    tbody.innerHTML = "";
-    const sorted=[...filtered].sort((a,b)=>String(b.date).localeCompare(String(a.date)));
-
-    for(const r of sorted){
-      const tr=document.createElement("tr");
-      const d=parseDateAny(r.date);
-      const age = d ? Math.floor((Date.now()-d.getTime())/86400000) : "";
-
-      const cols=[
-        r.date, r.item, r.category||"", r.platform||"",
-        formatDollars(r.cost), formatDollars(r.list), String(r.qty||1),
-        age===""? "": `${age}d`,
-        r.notes||""
-      ];
-      cols.forEach(c=>{ const td=document.createElement("td"); td.textContent=c; tr.appendChild(td); });
-
-      const action=document.createElement("td");
-      action.className="action-cell";
-      const e=document.createElement("span"); e.className="edit"; e.title="Edit"; e.textContent="✏️"; e.onclick=()=>openEditModal("active", r._id);
-      const s=document.createElement("span"); s.className="soldbtn"; s.title="Mark Sold"; s.textContent="✅"; s.style.marginLeft="8px"; s.onclick=()=>openMarkSoldModal(r._id);
-      const del=document.createElement("span"); del.className="trash"; del.title="Delete"; del.textContent="🗑"; del.style.marginLeft="8px"; del.onclick=()=>deleteActiveById(r._id);
-      action.appendChild(e); action.appendChild(s); action.appendChild(del);
-      tr.appendChild(action);
-
-      tbody.appendChild(tr);
-    }
-
-    updateDashboardInsights();
-  };
-})();
-
-// Override renderSold to add category + ROI + search + row coloring
-(function(){
-  const _orig = renderSold;
-  renderSold = function(){
-    const all = readSold();
-    refreshSoldFilters(all);
-
-    const year = document.getElementById("soldYearFilter")?.value || "ALL";
-    const month = document.getElementById("soldMonthFilter")?.value || "ALL";
-    const plat = document.getElementById("soldPlatformFilter")?.value || "ALL";
-
-    const filtered = all.filter(r=>{
-      const okY = (year==="ALL") || (extractYear(r.date)===year);
-      const okM = (month==="ALL") || (monthKey(r.date)===month);
-      const okP = (plat==="ALL") || (String(r.platform||"")===plat);
-      return okY && okM && okP && matchesSearch(r);
-    });
-
-    // existing summary function in file is inline; keep by recomputing like original uses soldSummary elements
-    const totalSales = filtered.reduce((s,x)=>s+(Number(x.sale)||0),0);
-    const totalProfit = filtered.reduce((s,x)=>s+(Number(x.profit)||0),0);
-    const count = filtered.length;
-    const avgProfit = count? totalProfit/count:0;
-
-    const ss1=document.getElementById("soldSalesStat");
-    const ss2=document.getElementById("soldProfitStat");
-    const ss3=document.getElementById("soldCountStat");
-    const ss4=document.getElementById("soldAvgProfitStat");
-    if (ss1) ss1.textContent = `TOTAL SALES: ${formatDollars(totalSales)}`;
-    if (ss2) ss2.textContent = `TOTAL PROFIT: ${formatDollars(totalProfit)}`;
-    if (ss3) ss3.textContent = `SOLD COUNT: ${count}`;
-    if (ss4) ss4.textContent = `AVG PROFIT: ${formatDollars(avgProfit)}`;
-
-    const tbody=document.getElementById("soldTableBody");
-    tbody.innerHTML="";
-    const sorted=[...filtered].sort((a,b)=>String(b.date).localeCompare(String(a.date)));
-
-    for(const r of sorted){
-      const tr=document.createElement("tr");
-      const profit=Number(r.profit)||0;
-      const cost=Number(r.cost)||0;
-      const roi = cost? (profit/cost)*100 : null;
-
-      const cols=[
-        r.date, r.item, r.category||"", r.platform||"",
-        formatDollars(r.sale), formatDollars(r.cost), formatDollars(r.fees),
-        formatDollars(r.ship), formatDollars(profit), roi===null? "—": `${roi.toFixed(1)}%`
-      ];
-      cols.forEach((c,idx)=>{
-        const td=document.createElement("td");
-        td.textContent=c;
-        if(idx===8){
-          td.classList.add(profit>0?"profit-pos":(profit<0?"profit-neg":"profit-zero"));
-        }
-        tr.appendChild(td);
-      });
-
-      if(profit>0) tr.classList.add("row-good");
-      if(profit<0) tr.classList.add("row-bad");
-
-      const action=document.createElement("td");
-      action.className="action-cell";
-      const e=document.createElement("span"); e.className="edit"; e.title="Edit"; e.textContent="✏️"; e.onclick=()=>openEditModal("sold", r._id);
-      const del=document.createElement("span"); del.className="trash"; del.title="Delete"; del.textContent="🗑"; del.style.marginLeft="8px"; del.onclick=()=>deleteSoldById(r._id);
-      action.appendChild(e); action.appendChild(del);
-      tr.appendChild(action);
-
-      tbody.appendChild(tr);
-    }
-
-    updateDashboardInsights();
-  };
-})();
-
-document.addEventListener("DOMContentLoaded", ()=>{
-  const s=document.getElementById("globalSearch");
-  if(s){ s.value = otsSearch; }
-  loadGoal();
-  loadNotifSettings();
-  updateDashboardInsights();
-  setTimeout(runNotifChecks, 2000);
-  setInterval(runNotifChecks, 12*60*60*1000);
 });
 
 /* ========= BOOT ========= */
