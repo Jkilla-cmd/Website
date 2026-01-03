@@ -18,23 +18,16 @@
 
 <style>
 
-
 .login-brand{
   display:flex;
   justify-content:center;
-  align-items:center;
-  margin: 4px 0 14px 0;
+  margin: 10px 0 14px 0;
 }
 .login-logo{
-  width: 240px;
-  max-width: min(78vw, 320px);
+  width: 220px;        /* adjust */
+  max-width: 70vw;
   height: auto;
-  display:block;
-  border-radius: 14px;
-  padding: 10px 12px;
-  background: rgba(0,0,0,0.22);
-  border: 1px solid var(--border);
-  filter: drop-shadow(0 12px 34px rgba(0,0,0,.55));
+  filter: drop-shadow(0 10px 30px rgba(0,0,0,.45));
 }
 
 :root{
@@ -666,6 +659,29 @@ button:hover{
 .profit-neg{ color: var(--red) !important; }
 .profit-zero{ color: var(--muted) !important; }
 
+
+/* RESELLr login logo */
+.login-logo-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.login-logo {
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 10px 30px rgba(0,0,0,0.35));
+}
+
+@media (max-width: 480px) {
+  .login-logo {
+    max-width: 88%;
+  }
+}
+
 </style>
 </head>
 
@@ -673,11 +689,11 @@ button:hover{
 
 <!-- LOGIN / LOCK SCREEN -->
 <div id="lockScreen">
-  <div class="lockBox">
-    <div class="login-brand">
-    <img src="resellr-logo.png" alt="RESELLr" class="login-logo">
+  <div class="login-brand">
+    <img src="reseelr-logo.png" alt="RESELLr" class="login-logo">
   </div>
 
+  <div class="lockBox">
     <p class="lockTitle" id="lockTitle">Dashboard Lock</p>
     <p class="lockHint" id="lockHint"></p>
 
