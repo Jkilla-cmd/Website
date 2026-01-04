@@ -706,6 +706,42 @@ button:hover{
   transform-origin: center;
 }
 
+
+/* === Net Worth (Dashboard) === */
+#netWorthPanel .nw-total{
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  margin-top: 10px;
+  margin-bottom: 2px;
+}
+#netWorthPanel .nw-grid{
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+}
+#netWorthPanel .nw-card{
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  border-radius: 14px;
+  padding: 12px 12px;
+}
+#netWorthPanel .nw-label{
+  font-size: 12px;
+  opacity: 0.75;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+#netWorthPanel .nw-value{
+  margin-top: 6px;
+  font-size: 18px;
+  font-weight: 750;
+}
+#netWorthPanel.is-hidden #nwBody{ display:none; }
+.nw-pos{ color: var(--green) !important; }
+.nw-neg{ color: var(--red) !important; }
+
 </style>
 </head>
 
@@ -914,6 +950,54 @@ button:hover{
     <!-- DASHBOARD -->
     <section id="secDashboard" class="section active">
       <div class="grid">
+        
+        <div class="panel" id="netWorthPanel">
+          <div class="row" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+            <h3 style="margin:0">Net Worth</h3>
+            <div class="row" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+              <label class="pill" style="display:flex;gap:8px;align-items:center;margin:0">
+                <input type="checkbox" id="nwShowToggle" />
+                <span>Show</span>
+              </label>
+              <label class="pill" style="display:flex;gap:8px;align-items:center;margin:0">
+                <input type="checkbox" id="nwConservativeToggle" />
+                <span>Conservative</span>
+              </label>
+              <select id="nwRange" class="pill" style="margin:0">
+                <option value="all">All‑time</option>
+                <option value="ytd">YTD</option>
+                <option value="30">Last 30 days</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="nwBody">
+            <div class="nw-total" id="nwTotal">$0.00</div>
+            <div class="stat muted" id="nwSub">Net Worth = Inventory Value + Realized Profit</div>
+
+            <div class="nw-grid">
+              <div class="nw-card">
+                <div class="nw-label">Inventory Value</div>
+                <div class="nw-value" id="nwInvValue">$0.00</div>
+              </div>
+              <div class="nw-card">
+                <div class="nw-label">Inventory Cost</div>
+                <div class="nw-value" id="nwInvCost">$0.00</div>
+              </div>
+              <div class="nw-card">
+                <div class="nw-label">Unrealized Gain</div>
+                <div class="nw-value" id="nwUnrealized">$0.00</div>
+              </div>
+              <div class="nw-card">
+                <div class="nw-label">Realized Profit</div>
+                <div class="nw-value" id="nwRealized">$0.00</div>
+              </div>
+            </div>
+
+            <div class="stat muted" style="margin-top:10px" id="nwAsOf"></div>
+          </div>
+        </div>
+
         <div class="panel">
         <div style="display:flex;justify-content:center;margin-bottom:14px;"><img src="./icons/icon-192.png" alt="RESELLr" style="width:54px;height:54px;border-radius:14px;border:1px solid var(--border);box-shadow:0 10px 25px rgba(0,0,0,0.35);"></div>
 
