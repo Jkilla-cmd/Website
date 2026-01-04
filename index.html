@@ -412,7 +412,50 @@ tr:hover td { background: rgba(56,189,248,0.04); }
   border-radius: 18px;
   padding: 16px;
 }
-.modal .box h3 { margin:0 0 12px; font-size:13px; letter-spacing:1px; color: var(--accent); te  transition: transform .15s ease, box-shadow .15s ease, opacity .2s eas    radial-gradient(900px 600px at 18% 12%, rgba(56,189,248,0.14), transparent 55%),
+.modal .box h3 { margin:0 0 12px; font-size:13px; letter-spacing:1px; color: var(--accent); text-transform: uppercase; }
+.modal .box .btnRow { display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
+.modal .box .btnRow button { width:auto; }
+
+
+
+/* Buy Me a Coffee – custom logo */
+.bmc-float {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 10050;
+  display: none; /* shown only on Dashboard */
+}
+.bmc-float.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px);
+}
+.bmc-float a { display:block; }
+.bmc-float img {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: rgba(0,0,0,0.35);
+  box-shadow: 0 14px 40px rgba(0,0,0,0.45);
+  transition: transform .15s ease, box-shadow .15s ease, opacity .2s ease;
+  display:block;
+}
+@keyframes bmcPulse {
+  0% { transform: translateY(-2px) scale(1.03); }
+  50% { transform: translateY(-2px) scale(1.08); }
+  100% { transform: translateY(-2px) scale(1.03); }
+}
+.bmc-float img:hover {
+  animation: bmcPulse 0.9s ease-in-out infinite;
+  box-shadow: 0 18px 55px rgba(0,0,0,0.6);
+}
+
+
+/* Hacker Cyan vibe: terminal depth + scanlines */
+body{
+  background:
+    radial-gradient(900px 600px at 18% 12%, rgba(56,189,248,0.14), transparent 55%),
     radial-gradient(900px 600px at 78% 22%, rgba(34,211,238,0.10), transparent 55%),
     linear-gradient(180deg, #02040a 0%, #040814 50%, #02040a 100%);
 }
@@ -717,64 +760,38 @@ button:hover{
 }
 
 
-/* ===== Net Worth toggle polish (compact switches) ===== */
-#netWorthPanel .row{ gap:10px !important; }
+/* ===== Net Worth toggle polish (safe CSS-only) ===== */
+#netWorthPanel .networth-toggles{ gap:10px !important; }
 #netWorthPanel .networth-toggles .pill{
   padding: 6px 10px !important;
   border-radius: 14px !important;
-  border: 1px solid rgba(56,189,248,0.18) !important;
-  background: rgba(2,6,23,0.20) !important;
+  border: 1px solid rgba(56,189,248,0.16) !important;
+  background: rgba(2,6,23,0.18) !important;
   box-shadow: none !important;
 }
-/* Custom switch (checkbox) */
-#netWorthPanel input[type="checkbox"]{
-  -webkit-appearance:none;
-  appearance:none;
-  width: 38px;
-  height: 20px;
-  border-radius: 999px;
-  background: rgba(148,163,184,0.16);
-  border: 1px solid rgba(56,189,248,0.20);
-  position: relative;
-  cursor: pointer;
-  outline: none;
-  flex: 0 0 auto;
-}
-#netWorthPanel input[type="checkbox"]::after{
-  content:"";
-  position:absolute;
-  top: 2px;
-  left: 2px;
-  width: 16px;
-  height: 16px;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.92);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
-  transition: transform .15s ease;
-}
-#netWorthPanel input[type="checkbox"]:checked{
-  background: rgba(56,189,248,0.28);
-}
-#netWorthPanel input[type="checkbox"]:checked::after{
-  transform: translateX(18px);
-}
-#netWorthPanel input[type="checkbox"]:focus-visible{
-  box-shadow: 0 0 0 2px rgba(56,189,248,0.25);
-}
-#netWorthPanel .pill span{
+#netWorthPanel .networth-toggles .pill span{
   font-size: 12px !important;
-  opacity: 0.9;
+  opacity: .9;
 }
-#netWorthPanel select.pill{
-  height: 34px;
-  font-size: 12px;
-  padding: 6px 10px;
+#netWorthPanel .networth-toggles input[type="checkbox"]{
+  transform: scale(.75);
+  transform-origin: left center;
+  margin-right: 6px !important;
+}
+#netWorthPanel .networth-toggles select{
+  height: 32px !important;
+  font-size: 12px !important;
+  padding: 4px 10px !important;
   border-radius: 14px !important;
 }
 
 
-/* Disable Buy Me a Coffee */
-.bmc-float{display:none !important;}
+/* ===== Disable Buy Me a Coffee (safe) ===== */
+.bmc-float, #bmc, #buymeacoffee, .buymeacoffee, [data-bmc], a[href*="buymeacoffee.com"]{
+  display:none !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
 
 </style>
 </head>
@@ -1825,7 +1842,7 @@ const yearSeparatorPlugin = {
   id: "yearSeparatorPlugin",
   afterDraw(chart) {
     const yf = document.getElementById("yearFilter");
-    if (yf && yf.value === "ALL") return;
+    if (yf && (yf.value === "ALL" || yf.value === "All" || yf.value === "all")) return;
     const { ctx, chartArea, scales } = chart;
     const x = scales.x;
     if (!x || !chartArea) return;
@@ -2863,10 +2880,42 @@ function applyTheme(theme) {
   if (sel) sel.value = t;
 }
 
-function setTheme(themfunction updateBmcVisibility() {
+function setTheme(theme) {
+  applyTheme(theme);
+}
+
+
+/* ========= Support Button Behavior ========= */
+let _lastScrollY = 0;
+let _scrollTick = false;
+
+function setBmcVisible(visible) {
+  const el = document.querySelector(".bmc-float");
+  if (!el) return;
+  el.style.display = visible ? "block" : "none";
+  if (!visible) el.classList.add("is-hidden");
+  if (visible) el.classList.remove("is-hidden");
+}
+
+function updateBmcVisibility() {
   const isLocked = !!document.getElementById("lockScreen") && document.getElementById("lockScreen").classList.contains("show");
   const activeSection = document.querySelector(".section.active")?.id || "secDashboard";
-  const shouldShow = (!isLocked) && (activeSection     // Hide when scrolling down a bit, show when scrolling up
+  const shouldShow = (!isLocked) && (activeSection === "secDashboard");
+  setBmcVisible(shouldShow);
+}
+
+function onScrollBmc() {
+  if (_scrollTick) return;
+  _scrollTick = true;
+
+  requestAnimationFrame(() => {
+    const el = document.querySelector(".bmc-float");
+    if (!el || el.style.display === "none") { _scrollTick = false; return; }
+
+    const y = window.scrollY || document.documentElement.scrollTop || 0;
+    const delta = y - _lastScrollY;
+
+    // Hide when scrolling down a bit, show when scrolling up
     if (delta > 10) el.classList.add("is-hidden");
     if (delta < -10) el.classList.remove("is-hidden");
 
@@ -3228,5 +3277,11 @@ window.onload = () => {
 
 
 <!-- Buy Me a Coffee -->
+<div class="bmc-float">
+  <a href="https://buymeacoffee.com/jac0bb" target="_blank" rel="noopener">
+    <span><img src="./icons/bmc-logo.png" alt=""></span>
+  </a>
+</div>
+
 </body>
 </html>
