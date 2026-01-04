@@ -892,6 +892,7 @@ button:hover{
       <button class="active" data-target="secDashboard" onclick="showSection('secDashboard')">📊 Dashboard</button>
       <button data-target="secInventory" onclick="showSection('secInventory')">📋 Inventory</button>
       <button data-target="secSold" onclick="showSection('secSold')">📦 Sold</button>
+      <button data-target="secImportExport" onclick="showSection('secImportExport')">⬆️⬇️ Import / Export</button>
       <button data-target="secTools" onclick="showSection('secTools')">🧮 Tools</button>
       <button data-target="secSettings" onclick="showSection('secSettings')">⚙️ Settings</button>
     </div>
@@ -957,29 +958,6 @@ button:hover{
     <!-- INVENTORY -->
     <section id="secInventory" class="section">
       <div class="grid">
-        <div class="panel">
-          <h3>Active Inventory (Import / Export)</h3>
-          <div class="stat muted" style="line-height:1.5">
-            Required columns: <span class="blue">date, item</span><br>
-            Recommended: <span class="blue">type, platform, cost, list, qty, notes</span>
-          </div>
-
-          <div class="divider"></div>
-
-          <label>CSV File</label>
-          <input type="file" id="activeFile" accept=".csv,text/csv" />
-
-          <button onclick="importActiveCSV()">Import Inventory CSV</button>
-
-          <div class="divider"></div>
-
-          <button onclick="exportActiveCSV()">Export Inventory (CSV)</button>
-          <div style="height:10px"></div>
-          <button class="danger" onclick="clearActive()">Clear Inventory</button>
-
-          <div class="stat muted" id="activeImportMsg" style="margin-top:10px;"></div>
-        </div>
-
         <div class="panel">
           <h3>Inventory Filters</h3>
 
@@ -1086,39 +1064,6 @@ button:hover{
     <!-- SOLD -->
     <section id="secSold" class="section">
       <div class="grid">
-        <div class="panel">
-          <h3>Import Sold Spreadsheet (CSV)</h3>
-
-          <div class="stat muted" style="line-height:1.5">
-            Required columns: <span class="blue">date, item, platform, sale</span><br>
-            Optional: <span class="blue">type, cost, fees, shipping</span>
-          </div>
-
-          <div class="divider"></div>
-
-          <label>CSV File</label>
-          <input type="file" id="soldFile" accept=".csv,text/csv" />
-
-          <div class="inline-row" style="margin-bottom:10px;">
-            <input type="checkbox" id="syncIncomeToggle" checked>
-            <label for="syncIncomeToggle" class="muted">Also update Income graph from sold data</label>
-          </div>
-
-          <button onclick="importSoldCSV()">Import CSV</button>
-
-          <div class="divider"></div>
-
-          <button onclick="exportSoldCSV()">Export Sold (CSV)</button>
-          <div style="height:10px"></div>
-          <button onclick="exportIncomeCSV()">Export Income (CSV)</button>
-          <div class="stat muted" style="margin-top:10px;">Exports download as CSV you can open in Excel/Sheets.</div>
-
-          <div class="divider"></div>
-
-          <button class="danger" onclick="clearSold()">Clear Sold Data</button>
-          <div class="stat muted" id="soldImportMsg"></div>
-        </div>
-
         <div class="panel">
           <h3>Sold Summary</h3>
 
@@ -1261,7 +1206,81 @@ button:hover{
       </div>
     </section>
 
-    <!-- TOOLS -->
+    
+    <!-- IMPORT / EXPORT -->
+    <section id="secImportExport" class="section">
+      <div class="grid">
+        <div class="panel">
+          <h3>Inventory Import / Export</h3>
+          <div class="stat muted" style="line-height:1.5">
+            Required columns: <span class="blue">date, item</span><br>
+            Recommended: <span class="blue">type, platform, cost, list, qty, notes</span>
+          </div>
+
+          <div class="divider"></div>
+
+          <label>CSV File</label>
+          <input type="file" id="activeFile" accept=".csv,text/csv" />
+
+          <button onclick="importActiveCSV()">Import Inventory CSV</button>
+
+          <div class="divider"></div>
+
+          <button onclick="exportActiveCSV()">Export Inventory (CSV)</button>
+          <div style="height:10px"></div>
+          <button class="danger" onclick="clearActive()">Clear Inventory</button>
+
+          <div class="stat muted" id="activeImportMsg" style="margin-top:10px;"></div>
+        </div>
+        <div class="panel">
+          <h3>Sold Import / Export</h3>
+
+          <div class="stat muted" style="line-height:1.5">
+            Required columns: <span class="blue">date, item, platform, sale</span><br>
+            Optional: <span class="blue">type, cost, fees, shipping</span>
+          </div>
+
+          <div class="divider"></div>
+
+          <label>CSV File</label>
+          <input type="file" id="soldFile" accept=".csv,text/csv" />
+
+          <div class="inline-row" style="margin-bottom:10px;">
+            <input type="checkbox" id="syncIncomeToggle" checked>
+            <label for="syncIncomeToggle" class="muted">Also update Income graph from sold data</label>
+          </div>
+
+          <button onclick="importSoldCSV()">Import CSV</button>
+
+          <div class="divider"></div>
+
+          <button onclick="exportSoldCSV()">Export Sold (CSV)</button>
+          <div style="height:10px"></div>
+          <button onclick="exportIncomeCSV()">Export Income (CSV)</button>
+          <div class="stat muted" style="margin-top:10px;">Exports download as CSV you can open in Excel/Sheets.</div>
+
+          <div class="divider"></div>
+
+          <button class="danger" onclick="clearSold()">Clear Sold Data</button>
+          <div class="stat muted" id="soldImportMsg"></div>
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top:16px;">
+        <div class="panel">
+          <h3>Tips</h3>
+          <div class="stat muted" style="line-height:1.7">
+            • Inventory import expects <span class="blue">date, item</span> and supports <span class="blue">type, platform, cost, list, qty, notes</span>.<br>
+            • Sold import expects <span class="blue">date, item, platform, sale</span> and supports <span class="blue">type, cost, fees, shipping</span>.<br>
+            • <span class="blue">Type</span> accepts: Comic / Card / Other.<br>
+            • Exports download as CSV and can be opened in Excel or Google Sheets.
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+<!-- TOOLS -->
     <section id="secTools" class="section">
       <div class="grid">
         <div class="panel">
@@ -1427,7 +1446,7 @@ function showSection(sectionId) {
 
   setActiveNav(sectionId);
 
-  const titleMap = { secDashboard:"Dashboard", secInventory:"Inventory", secSold:"Sold", secTools:"Tools", secSettings:"Settings" };
+  const titleMap = { secDashboard:"Dashboard", secInventory:"Inventory", secSold:"Sold", secTools:"Tools", secSettings:"Settings", secImportExport:"Import / Export" };
   const t = document.getElementById("topbarTitle");
   if (t) t.textContent = titleMap[sectionId] || "RESELLr";
 
