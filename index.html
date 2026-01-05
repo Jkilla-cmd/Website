@@ -706,93 +706,6 @@ button:hover{
   transform-origin: center;
 }
 
-
-/* === Net Worth (Dashboard) === */
-#netWorthPanel .nw-total{
-  font-size: 34px;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  margin-top: 10px;
-  margin-bottom: 2px;
-}
-#netWorthPanel .nw-grid{
-  margin-top: 14px;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: 12px;
-}
-#netWorthPanel .nw-card{
-  border: 1px solid var(--border);
-  background: var(--panel-2);
-  border-radius: 14px;
-  padding: 12px 12px;
-}
-#netWorthPanel .nw-label{
-  font-size: 12px;
-  opacity: 0.75;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-}
-#netWorthPanel .nw-value{
-  margin-top: 6px;
-  font-size: 18px;
-  font-weight: 750;
-}
-#netWorthPanel.is-hidden #nwBody{ display:none; }
-.nw-pos{ color: var(--green) !important; }
-.nw-neg{ color: var(--red) !important; }
-
-
-/* Smaller Net Worth toggles */
-#netWorthPanel .pill{
-  padding: 6px 10px !important;
-  font-size: 12px !important;
-  gap: 6px !important;
-}
-#netWorthPanel .pill input[type="checkbox"]{
-  transform: scale(0.78);
-  transform-origin: left center;
-}
-#netWorthPanel select{
-  height: 30px;
-  font-size: 12px;
-  padding: 4px 8px;
-}
-
-
-/* ===== Net Worth toggle polish (safe CSS-only) ===== */
-#netWorthPanel .networth-toggles{ gap:10px !important; }
-#netWorthPanel .networth-toggles .pill{
-  padding: 6px 10px !important;
-  border-radius: 14px !important;
-  border: 1px solid rgba(56,189,248,0.16) !important;
-  background: rgba(2,6,23,0.18) !important;
-  box-shadow: none !important;
-}
-#netWorthPanel .networth-toggles .pill span{
-  font-size: 12px !important;
-  opacity: .9;
-}
-#netWorthPanel .networth-toggles input[type="checkbox"]{
-  transform: scale(.75);
-  transform-origin: left center;
-  margin-right: 6px !important;
-}
-#netWorthPanel .networth-toggles select{
-  height: 32px !important;
-  font-size: 12px !important;
-  padding: 4px 10px !important;
-  border-radius: 14px !important;
-}
-
-
-/* ===== Disable Buy Me a Coffee (safe) ===== */
-.bmc-float, #bmc, #buymeacoffee, .buymeacoffee, [data-bmc], a[href*="buymeacoffee.com"]{
-  display:none !important;
-  visibility:hidden !important;
-  pointer-events:none !important;
-}
-
 </style>
 </head>
 
@@ -1001,54 +914,6 @@ button:hover{
     <!-- DASHBOARD -->
     <section id="secDashboard" class="section active">
       <div class="grid">
-        
-        <div class="panel" id="netWorthPanel">
-          <div class="row" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-            <h3 style="margin:0">Net Worth</h3>
-            <div class="row" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-              <label class="pill" style="display:flex;gap:8px;align-items:center;margin:0">
-                <input type="checkbox" id="nwShowToggle" />
-                <span>Show</span>
-              </label>
-              <label class="pill" style="display:flex;gap:8px;align-items:center;margin:0">
-                <input type="checkbox" id="nwConservativeToggle" />
-                <span>Conservative</span>
-              </label>
-              <select id="nwRange" class="pill" style="margin:0">
-                <option value="all">All‑time</option>
-                <option value="ytd">YTD</option>
-                <option value="30">Last 30 days</option>
-              </select>
-            </div>
-          </div>
-
-          <div id="nwBody">
-            <div class="nw-total" id="nwTotal">$0.00</div>
-            <div class="stat muted" id="nwSub">Net Worth = Inventory Value + Realized Profit</div>
-
-            <div class="nw-grid">
-              <div class="nw-card">
-                <div class="nw-label">Inventory Value</div>
-                <div class="nw-value" id="nwInvValue">$0.00</div>
-              </div>
-              <div class="nw-card">
-                <div class="nw-label">Inventory Cost</div>
-                <div class="nw-value" id="nwInvCost">$0.00</div>
-              </div>
-              <div class="nw-card">
-                <div class="nw-label">Unrealized Gain</div>
-                <div class="nw-value" id="nwUnrealized">$0.00</div>
-              </div>
-              <div class="nw-card">
-                <div class="nw-label">Realized Profit</div>
-                <div class="nw-value" id="nwRealized">$0.00</div>
-              </div>
-            </div>
-
-            <div class="stat muted" style="margin-top:10px" id="nwAsOf"></div>
-          </div>
-        </div>
-
         <div class="panel">
         <div style="display:flex;justify-content:center;margin-bottom:14px;"><img src="./icons/icon-192.png" alt="RESELLr" style="width:54px;height:54px;border-radius:14px;border:1px solid var(--border);box-shadow:0 10px 25px rgba(0,0,0,0.35);"></div>
 
@@ -1239,6 +1104,7 @@ button:hover{
           <div class="divider"></div>
 
           <div class="stat blue" id="soldRevenueStat"></div>
+          <div class="stat muted" id="soldCostStat"></div>
           <div class="stat green" id="soldProfitStat"></div>
           <div class="stat yellow" id="soldItemsStat"></div>
           <div class="stat muted" id="soldAvgStat"></div>
@@ -1841,8 +1707,6 @@ function refreshYearFilter(data) {
 const yearSeparatorPlugin = {
   id: "yearSeparatorPlugin",
   afterDraw(chart) {
-    const yf = document.getElementById("yearFilter");
-    if (yf && (yf.value === "ALL" || yf.value === "All" || yf.value === "all")) return;
     const { ctx, chartArea, scales } = chart;
     const x = scales.x;
     if (!x || !chartArea) return;
@@ -2265,9 +2129,7 @@ function renderSold() {
   }
 
   try{ updateSoldSummaryAndCharts(); }catch(e){}
-  try{ updateNetWorth(); }catch(e){}
 }
-
 
 
 
@@ -2623,9 +2485,7 @@ function renderActive() {
 
     tbody.appendChild(tr);
   }
-  try{ updateNetWorth(); }catch(e){}
 }
-
 
 function deleteActiveById(id) {
   const arr = readActive();
@@ -2927,8 +2787,6 @@ function onScrollBmc() {
 
 /* Keep support button in sync with lock screen */
 document.addEventListener("DOMContentLoaded", () => {
-  initNetWorthUI();
-
   const lock = document.getElementById("lockScreen");
   if (!lock) return;
   const obs = new MutationObserver(() => updateBmcVisibility());
@@ -3136,128 +2994,6 @@ function updateSoldSummaryAndCharts(){
 }
 // alias for older calls
 window.otsUpdateSoldSummaryAndCharts = updateSoldSummaryAndCharts;
-
-
-/* ========= NET WORTH ========= */
-const NW_SHOW_KEY = "resellr_nw_show";
-const NW_CONS_KEY = "resellr_nw_conservative";
-
-function startOfToday() {
-  const d = new Date();
-  d.setHours(0,0,0,0);
-  return d;
-}
-function parseDateSafe(s){
-  if (!s) return null;
-  // Accept YYYY-MM-DD
-  const d = new Date(s + "T00:00:00");
-  return isNaN(d.getTime()) ? null : d;
-}
-function sumActiveValue(conservative=false){
-  const active = readActive();
-  let invCost = 0;
-  let invValue = 0;
-  active.forEach(r=>{
-    const qty = Number(r.qty ?? 1) || 1;
-    const cost = Number(r.cost)||0;
-    const list = Number(r.list)||0;
-    invCost += cost * qty;
-    invValue += (conservative ? cost : list) * qty;
-  });
-  return { invCost, invValue };
-}
-function sumRealizedProfit(range){
-  const sold = readSold();
-  const today = startOfToday();
-  let minDate = null;
-
-  if (range === "ytd") {
-    minDate = new Date(today.getFullYear(), 0, 1);
-  } else if (range === "30") {
-    minDate = new Date(today);
-    minDate.setDate(minDate.getDate() - 30);
-  }
-
-  return sold.reduce((sum, r)=>{
-    const p = Number(r.profit)||0;
-    if (!minDate) return sum + p;
-    const d = parseDateSafe(r.date);
-    if (!d) return sum + p; // if missing date, still count it
-    return (d >= minDate) ? sum + p : sum;
-  }, 0);
-}
-
-function updateNetWorth(){
-  const panel = document.getElementById("netWorthPanel");
-  if (!panel) return;
-
-  const showToggle = document.getElementById("nwShowToggle");
-  const consToggle = document.getElementById("nwConservativeToggle");
-  const rangeSel = document.getElementById("nwRange");
-
-  const show = showToggle ? !!showToggle.checked : true;
-  panel.classList.toggle("is-hidden", !show);
-
-  const conservative = consToggle ? !!consToggle.checked : false;
-  const range = rangeSel ? rangeSel.value : "all";
-
-  const { invCost, invValue } = sumActiveValue(conservative);
-  const realized = sumRealizedProfit(range);
-
-  const unrealized = invValue - invCost;
-  const netWorth = invValue + realized;
-
-  const setText = (id, val) => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = val;
-  };
-
-  setText("nwInvValue", formatDollars(invValue));
-  setText("nwInvCost", formatDollars(invCost));
-  setText("nwUnrealized", formatDollars(unrealized));
-  setText("nwRealized", formatDollars(realized));
-  setText("nwTotal", formatDollars(netWorth));
-  const asOf = document.getElementById("nwAsOf");
-  if (asOf) asOf.textContent = `As of ${new Date().toLocaleString()}`;
-
-  // color the total
-  const totalEl = document.getElementById("nwTotal");
-  if (totalEl){
-    totalEl.classList.remove("nw-pos","nw-neg");
-    if (netWorth > 0) totalEl.classList.add("nw-pos");
-    if (netWorth < 0) totalEl.classList.add("nw-neg");
-  }
-}
-
-function initNetWorthUI(){
-  const showToggle = document.getElementById("nwShowToggle");
-  const consToggle = document.getElementById("nwConservativeToggle");
-  const rangeSel = document.getElementById("nwRange");
-
-  // restore saved preferences
-  if (showToggle){
-    const saved = localStorage.getItem(NW_SHOW_KEY);
-    showToggle.checked = saved === null ? true : (saved === "1");
-    showToggle.addEventListener("change", ()=>{
-      localStorage.setItem(NW_SHOW_KEY, showToggle.checked ? "1" : "0");
-      updateNetWorth();
-    });
-  }
-  if (consToggle){
-    const saved = localStorage.getItem(NW_CONS_KEY);
-    consToggle.checked = saved === "1";
-    consToggle.addEventListener("change", ()=>{
-      localStorage.setItem(NW_CONS_KEY, consToggle.checked ? "1" : "0");
-      updateNetWorth();
-    });
-  }
-  if (rangeSel){
-    rangeSel.addEventListener("change", updateNetWorth);
-  }
-
-  updateNetWorth();
-}
-
 
 /* ========= BOOT ========= */
 window.onload = () => {
