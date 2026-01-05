@@ -712,6 +712,97 @@ button:hover{
   transform-origin: center;
 }
 
+
+/* === Net Worth (Dashboard) === */
+#netWorthPanel .nw-total{
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  margin-top: 10px;
+  margin-bottom: 2px;
+}
+#netWorthPanel .nw-grid{
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+}
+#netWorthPanel .nw-card{
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  border-radius: 14px;
+  padding: 12px 12px;
+}
+#netWorthPanel .nw-label{
+  font-size: 12px;
+  opacity: 0.75;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+#netWorthPanel .nw-value{
+  margin-top: 6px;
+  font-size: 18px;
+  font-weight: 750;
+}
+#netWorthPanel.is-hidden #nwBody{ display:none; }
+.nw-pos{ color: var(--green) !important; }
+.nw-neg{ color: var(--red) !important; }
+
+
+/* Smaller Net Worth toggles */
+#netWorthPanel .pill{
+  padding: 6px 10px !important;
+  font-size: 12px !important;
+  gap: 6px !important;
+}
+#netWorthPanel .pill input[type="checkbox"]{
+  transform: scale(0.78);
+  transform-origin: left center;
+}
+#netWorthPanel select{
+  height: 30px;
+  font-size: 12px;
+  padding: 4px 8px;
+}
+
+
+/* ===== Net Worth toggle polish (safe CSS-only) ===== */
+#netWorthPanel .networth-toggles{ gap:10px !important; }
+#netWorthPanel .networth-toggles .pill{
+  padding: 6px 10px !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(56,189,248,0.16) !important;
+  background: rgba(2,6,23,0.18) !important;
+  box-shadow: none !important;
+}
+#netWorthPanel .networth-toggles .pill span{
+  font-size: 12px !important;
+  opacity: .9;
+}
+#netWorthPanel .networth-toggles input[type="checkbox"]{
+  transform: scale(.75);
+  transform-origin: left center;
+  margin-right: 6px !important;
+}
+#netWorthPanel .networth-toggles select{
+  height: 32px !important;
+  font-size: 12px !important;
+  padding: 4px 10px !important;
+  border-radius: 14px !important;
+}
+
+
+/* ===== Disable Buy Me a Coffee (safe) ===== */
+.bmc-float, #bmc, #buymeacoffee, .buymeacoffee, [data-bmc], a[href*="buymeacoffee.com"]{
+  display:none !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+
+
+/* Dashboard panel spacing polish */
+#trendingPanel { margin-top: 2px; }
+
 </style>
 </head>
 
@@ -920,8 +1011,25 @@ button:hover{
     <!-- DASHBOARD -->
     <section id="secDashboard" class="section active">
       <div class="grid">
-        <div class="panel">
-        <div style="display:flex;justify-content:center;margin-bottom:14px;"><img src="./icons/icon-192.png" alt="RESELLr" style="width:54px;height:54px;border-radius:14px;border:1px solid var(--border);box-shadow:0 10px 25px rgba(0,0,0,0.35);">
+        
+        <div class="panel" id="netWorthPanel">
+          <div class="row" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+            <h3 style="margin:0">Net Worth</h3>
+            <div class="row" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+              <label class="pill" style="display:flex;gap:8px;align-items:center;margin:0">
+                <input type="checkbox" id="nwShowToggle" />
+                <span>Show</span>
+              </label>
+              <label class="pill" style="display:flex;gap:8px;align-items:center;margin:0">
+                <input type="checkbox" id="nwConservativeToggle" />
+                <span>Conservative</span>
+              </label>
+              <select id="nwRange" class="pill" style="margin:0">
+                <option value="all">All‑time</option>
+                <option value="ytd">YTD</option>
+                <option value="30">Last 30 days</option>
+              </select>
+            
 
         <div class="panel" id="trendingPanel">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;">
@@ -929,21 +1037,49 @@ button:hover{
             <button class="btn tiny" id="trendRefreshBtn" type="button" title="Refresh list">Refresh</button>
           </div>
           <div class="muted" style="font-size:12px;line-height:1.5;margin-bottom:10px;">
-            Best-effort “hot list” from public pages. If auto-refresh is blocked, use the quick links below.
+            Uses public “hot lists.” If auto-refresh is blocked, the quick links below always work.
           </div>
           <ol class="list" id="trendList" style="margin:0;padding-left:18px;">
-            <li class="muted">Click Refresh to load the latest list…</li>
+            <li class="muted">Tap <b>Refresh</b> to load a Top 10 list…</li>
           </ol>
           <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;">
             <a class="btn tiny" href="https://www.keycollectorcomics.com/category/trending-20-108%2C2386/issues/" target="_blank" rel="noopener">Key Collector: Trending 20</a>
-            <a class="btn tiny" href="https://comicbookinvest.com/?p=183433" target="_blank" rel="noopener">CBSI: Hot 10</a>
+            <a class="btn tiny" href="https://comicbookinvest.com/" target="_blank" rel="noopener">CBSI</a>
             <a class="btn tiny" href="https://www.keycollectorcomics.com/new-comics-this-week/" target="_blank" rel="noopener">New Comics This Week</a>
-          </div>
-          <div class="muted" style="font-size:11px;line-height:1.45;margin-top:10px;">
-            “Trending” is for inspiration—always verify sold comps and condition before buying.
           </div>
         </div>
 </div>
+          </div>
+
+          <div id="nwBody">
+            <div class="nw-total" id="nwTotal">$0.00</div>
+            <div class="stat muted" id="nwSub">Net Worth = Inventory Value + Realized Profit</div>
+
+            <div class="nw-grid">
+              <div class="nw-card">
+                <div class="nw-label">Inventory Value</div>
+                <div class="nw-value" id="nwInvValue">$0.00</div>
+              </div>
+              <div class="nw-card">
+                <div class="nw-label">Inventory Cost</div>
+                <div class="nw-value" id="nwInvCost">$0.00</div>
+              </div>
+              <div class="nw-card">
+                <div class="nw-label">Unrealized Gain</div>
+                <div class="nw-value" id="nwUnrealized">$0.00</div>
+              </div>
+              <div class="nw-card">
+                <div class="nw-label">Realized Profit</div>
+                <div class="nw-value" id="nwRealized">$0.00</div>
+              </div>
+            </div>
+
+            <div class="stat muted" style="margin-top:10px" id="nwAsOf"></div>
+          </div>
+        </div>
+
+        <div class="panel">
+        <div style="display:flex;justify-content:center;margin-bottom:14px;"><img src="./icons/icon-192.png" alt="RESELLr" style="width:54px;height:54px;border-radius:14px;border:1px solid var(--border);box-shadow:0 10px 25px rgba(0,0,0,0.35);"></div>
 
           <h3>Current Balance</h3>
 
@@ -1734,6 +1870,8 @@ function refreshYearFilter(data) {
 const yearSeparatorPlugin = {
   id: "yearSeparatorPlugin",
   afterDraw(chart) {
+    const yf = document.getElementById("yearFilter");
+    if (yf && (yf.value === "ALL" || yf.value === "All" || yf.value === "all")) return;
     const { ctx, chartArea, scales } = chart;
     const x = scales.x;
     if (!x || !chartArea) return;
@@ -2156,7 +2294,9 @@ function renderSold() {
   }
 
   try{ updateSoldSummaryAndCharts(); }catch(e){}
+  try{ updateNetWorth(); }catch(e){}
 }
+
 
 
 
@@ -2512,7 +2652,9 @@ function renderActive() {
 
     tbody.appendChild(tr);
   }
+  try{ updateNetWorth(); }catch(e){}
 }
+
 
 function deleteActiveById(id) {
   const arr = readActive();
@@ -2814,6 +2956,8 @@ function onScrollBmc() {
 
 /* Keep support button in sync with lock screen */
 document.addEventListener("DOMContentLoaded", () => {
+  initNetWorthUI();
+
   const lock = document.getElementById("lockScreen");
   if (!lock) return;
   const obs = new MutationObserver(() => updateBmcVisibility());
@@ -3023,39 +3167,158 @@ function updateSoldSummaryAndCharts(){
 window.otsUpdateSoldSummaryAndCharts = updateSoldSummaryAndCharts;
 
 
-/* ========= TRENDING COMICS (best-effort) =========
-   Many sites block cross-origin fetch from static pages (CORS). We try anyway; if it fails,
-   the quick links still work. */
+/* ========= NET WORTH ========= */
+const NW_SHOW_KEY = "resellr_nw_show";
+const NW_CONS_KEY = "resellr_nw_conservative";
+
+function startOfToday() {
+  const d = new Date();
+  d.setHours(0,0,0,0);
+  return d;
+}
+function parseDateSafe(s){
+  if (!s) return null;
+  // Accept YYYY-MM-DD
+  const d = new Date(s + "T00:00:00");
+  return isNaN(d.getTime()) ? null : d;
+}
+function sumActiveValue(conservative=false){
+  const active = readActive();
+  let invCost = 0;
+  let invValue = 0;
+  active.forEach(r=>{
+    const qty = Number(r.qty ?? 1) || 1;
+    const cost = Number(r.cost)||0;
+    const list = Number(r.list)||0;
+    invCost += cost * qty;
+    invValue += (conservative ? cost : list) * qty;
+  });
+  return { invCost, invValue };
+}
+function sumRealizedProfit(range){
+  const sold = readSold();
+  const today = startOfToday();
+  let minDate = null;
+
+  if (range === "ytd") {
+    minDate = new Date(today.getFullYear(), 0, 1);
+  } else if (range === "30") {
+    minDate = new Date(today);
+    minDate.setDate(minDate.getDate() - 30);
+  }
+
+  return sold.reduce((sum, r)=>{
+    const p = Number(r.profit)||0;
+    if (!minDate) return sum + p;
+    const d = parseDateSafe(r.date);
+    if (!d) return sum + p; // if missing date, still count it
+    return (d >= minDate) ? sum + p : sum;
+  }, 0);
+}
+
+function updateNetWorth(){
+  const panel = document.getElementById("netWorthPanel");
+  if (!panel) return;
+
+  const showToggle = document.getElementById("nwShowToggle");
+  const consToggle = document.getElementById("nwConservativeToggle");
+  const rangeSel = document.getElementById("nwRange");
+
+  const show = showToggle ? !!showToggle.checked : true;
+  panel.classList.toggle("is-hidden", !show);
+
+  const conservative = consToggle ? !!consToggle.checked : false;
+  const range = rangeSel ? rangeSel.value : "all";
+
+  const { invCost, invValue } = sumActiveValue(conservative);
+  const realized = sumRealizedProfit(range);
+
+  const unrealized = invValue - invCost;
+  const netWorth = invValue + realized;
+
+  const setText = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  };
+
+  setText("nwInvValue", formatDollars(invValue));
+  setText("nwInvCost", formatDollars(invCost));
+  setText("nwUnrealized", formatDollars(unrealized));
+  setText("nwRealized", formatDollars(realized));
+  setText("nwTotal", formatDollars(netWorth));
+  const asOf = document.getElementById("nwAsOf");
+  if (asOf) asOf.textContent = `As of ${new Date().toLocaleString()}`;
+
+  // color the total
+  const totalEl = document.getElementById("nwTotal");
+  if (totalEl){
+    totalEl.classList.remove("nw-pos","nw-neg");
+    if (netWorth > 0) totalEl.classList.add("nw-pos");
+    if (netWorth < 0) totalEl.classList.add("nw-neg");
+  }
+}
+
+function initNetWorthUI(){
+  const showToggle = document.getElementById("nwShowToggle");
+  const consToggle = document.getElementById("nwConservativeToggle");
+  const rangeSel = document.getElementById("nwRange");
+
+  // restore saved preferences
+  if (showToggle){
+    const saved = localStorage.getItem(NW_SHOW_KEY);
+    showToggle.checked = saved === null ? true : (saved === "1");
+    showToggle.addEventListener("change", ()=>{
+      localStorage.setItem(NW_SHOW_KEY, showToggle.checked ? "1" : "0");
+      updateNetWorth();
+    });
+  }
+  if (consToggle){
+    const saved = localStorage.getItem(NW_CONS_KEY);
+    consToggle.checked = saved === "1";
+    consToggle.addEventListener("change", ()=>{
+      localStorage.setItem(NW_CONS_KEY, consToggle.checked ? "1" : "0");
+      updateNetWorth();
+    });
+  }
+  if (rangeSel){
+    rangeSel.addEventListener("change", updateNetWorth);
+  }
+
+  updateNetWorth();
+}
+
+
+
+/* ========= TRENDING COMICS (safe fetch) =========
+   We fetch via a text proxy to avoid CORS blocks from static sites.
+   If it fails, links still work. */
 async function loadTrendingComics(){
   const list = document.getElementById("trendList");
   if(!list) return;
   list.innerHTML = '<li class="muted">Loading…</li>';
   try{
-    const url = "https://www.keycollectorcomics.com/category/trending-20-108%2C2386/issues/";
-    const res = await fetch(url);
+    const proxyUrl = "https://r.jina.ai/http://r.jina.ai/https://www.keycollectorcomics.com/category/trending-20-108%2C2386/issues/";
+    const res = await fetch(proxyUrl, { cache: "no-store" });
     if(!res.ok) throw new Error("Fetch failed");
-    const htmlText = await res.text();
-    const doc = new DOMParser().parseFromString(htmlText, "text/html");
+    const text = await res.text();
 
+    const lines = text.split("\\n").map(s=>s.trim()).filter(Boolean);
     const titles = [];
-    const nodes = doc.querySelectorAll("h2, h3, a");
-    for(const el of nodes){
-      const t = (el.textContent || "").replace(/\s+/g," ").trim();
-      if(!t) continue;
-      if(t.length < 6 || t.length > 90) continue;
-      if(/Trending 20|Key Facts|Buy it on eBay|View Details|View Series|Randomizer|Keys This Week/i.test(t)) continue;
-      if(t.includes("#") && !titles.includes(t)) titles.push(t);
+    for(const line of lines){
+      const t = line.replace(/^[\\-\\*\\d\\.\\)\\:]+/,"").trim();
+      if(t.length < 8 || t.length > 90) continue;
+      if(!t.includes("#")) continue;
+      if(/Trending 20|Key Facts|View Details|Buy it on/i.test(t)) continue;
+      const cleaned = t.replace(/\\s+/g," ");
+      if(!titles.includes(cleaned)) titles.push(cleaned);
       if(titles.length >= 10) break;
     }
 
     if(!titles.length) throw new Error("No titles parsed");
     list.innerHTML = titles.map(t=>`<li>${escapeHtml(t)}</li>`).join("");
   }catch(e){
-    list.innerHTML = '<li class="muted">Auto-refresh may be blocked by the source site (CORS). Use the quick links below.</li>';
+    list.innerHTML = '<li class="muted">Auto-refresh unavailable right now. Use the quick links below.</li>';
   }
-}
-function escapeHtml(str){
-  return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
 }
 
 
