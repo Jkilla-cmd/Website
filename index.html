@@ -706,6 +706,93 @@ button:hover{
   transform-origin: center;
 }
 
+
+/* === Net Worth (Dashboard) === */
+#netWorthPanel .nw-total{
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  margin-top: 10px;
+  margin-bottom: 2px;
+}
+#netWorthPanel .nw-grid{
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+}
+#netWorthPanel .nw-card{
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  border-radius: 14px;
+  padding: 12px 12px;
+}
+#netWorthPanel .nw-label{
+  font-size: 12px;
+  opacity: 0.75;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+#netWorthPanel .nw-value{
+  margin-top: 6px;
+  font-size: 18px;
+  font-weight: 750;
+}
+#netWorthPanel.is-hidden #nwBody{ display:none; }
+.nw-pos{ color: var(--green) !important; }
+.nw-neg{ color: var(--red) !important; }
+
+
+/* Smaller Net Worth toggles */
+#netWorthPanel .pill{
+  padding: 6px 10px !important;
+  font-size: 12px !important;
+  gap: 6px !important;
+}
+#netWorthPanel .pill input[type="checkbox"]{
+  transform: scale(0.78);
+  transform-origin: left center;
+}
+#netWorthPanel select{
+  height: 30px;
+  font-size: 12px;
+  padding: 4px 8px;
+}
+
+
+/* ===== Net Worth toggle polish (safe CSS-only) ===== */
+#netWorthPanel .networth-toggles{ gap:10px !important; }
+#netWorthPanel .networth-toggles .pill{
+  padding: 6px 10px !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(56,189,248,0.16) !important;
+  background: rgba(2,6,23,0.18) !important;
+  box-shadow: none !important;
+}
+#netWorthPanel .networth-toggles .pill span{
+  font-size: 12px !important;
+  opacity: .9;
+}
+#netWorthPanel .networth-toggles input[type="checkbox"]{
+  transform: scale(.75);
+  transform-origin: left center;
+  margin-right: 6px !important;
+}
+#netWorthPanel .networth-toggles select{
+  height: 32px !important;
+  font-size: 12px !important;
+  padding: 4px 10px !important;
+  border-radius: 14px !important;
+}
+
+
+/* ===== Disable Buy Me a Coffee (safe) ===== */
+.bmc-float, #bmc, #buymeacoffee, .buymeacoffee, [data-bmc], a[href*="buymeacoffee.com"]{
+  display:none !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+
 </style>
 </head>
 
@@ -914,6 +1001,54 @@ button:hover{
     <!-- DASHBOARD -->
     <section id="secDashboard" class="section active">
       <div class="grid">
+        
+        <div class="panel" id="netWorthPanel">
+          <div class="row" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+            <h3 style="margin:0">Net Worth</h3>
+            <div class="row" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+              <label class="pill" style="display:flex;gap:8px;align-items:center;margin:0">
+                <input type="checkbox" id="nwShowToggle" />
+                <span>Show</span>
+              </label>
+              <label class="pill" style="display:flex;gap:8px;align-items:center;margin:0">
+                <input type="checkbox" id="nwConservativeToggle" />
+                <span>Conservative</span>
+              </label>
+              <select id="nwRange" class="pill" style="margin:0">
+                <option value="all">All‑time</option>
+                <option value="ytd">YTD</option>
+                <option value="30">Last 30 days</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="nwBody">
+            <div class="nw-total" id="nwTotal">$0.00</div>
+            <div class="stat muted" id="nwSub">Net Worth = Inventory Value + Realized Profit</div>
+
+            <div class="nw-grid">
+              <div class="nw-card">
+                <div class="nw-label">Inventory Value</div>
+                <div class="nw-value" id="nwInvValue">$0.00</div>
+              </div>
+              <div class="nw-card">
+                <div class="nw-label">Inventory Cost</div>
+                <div class="nw-value" id="nwInvCost">$0.00</div>
+              </div>
+              <div class="nw-card">
+                <div class="nw-label">Unrealized Gain</div>
+                <div class="nw-value" id="nwUnrealized">$0.00</div>
+              </div>
+              <div class="nw-card">
+                <div class="nw-label">Realized Profit</div>
+                <div class="nw-value" id="nwRealized">$0.00</div>
+              </div>
+            </div>
+
+            <div class="stat muted" style="margin-top:10px" id="nwAsOf"></div>
+          </div>
+        </div>
+
         <div class="panel">
         <div style="display:flex;justify-content:center;margin-bottom:14px;"><img src="./icons/icon-192.png" alt="RESELLr" style="width:54px;height:54px;border-radius:14px;border:1px solid var(--border);box-shadow:0 10px 25px rgba(0,0,0,0.35);"></div>
 
@@ -1104,7 +1239,6 @@ button:hover{
           <div class="divider"></div>
 
           <div class="stat blue" id="soldRevenueStat"></div>
-          <div class="stat muted" id="soldCostStat"></div>
           <div class="stat green" id="soldProfitStat"></div>
           <div class="stat yellow" id="soldItemsStat"></div>
           <div class="stat muted" id="soldAvgStat"></div>
@@ -1707,6 +1841,8 @@ function refreshYearFilter(data) {
 const yearSeparatorPlugin = {
   id: "yearSeparatorPlugin",
   afterDraw(chart) {
+    const yf = document.getElementById("yearFilter");
+    if (yf && (yf.value === "ALL" || yf.value === "All" || yf.value === "all")) return;
     const { ctx, chartArea, scales } = chart;
     const x = scales.x;
     if (!x || !chartArea) return;
@@ -2129,7 +2265,9 @@ function renderSold() {
   }
 
   try{ updateSoldSummaryAndCharts(); }catch(e){}
+  try{ updateNetWorth(); }catch(e){}
 }
+
 
 
 
@@ -2485,7 +2623,9 @@ function renderActive() {
 
     tbody.appendChild(tr);
   }
+  try{ updateNetWorth(); }catch(e){}
 }
+
 
 function deleteActiveById(id) {
   const arr = readActive();
@@ -2531,493 +2671,4 @@ function openEditModal(type, id) {
       <label>Date</label><input type="date" id="eDate" value="${obj.date || ""}">
       <label>Item</label><input type="text" id="eItem" value="${safe(obj.item)}">
       ${typeSelect}
-      <label>Platform</label><input type="text" id="ePlatform" value="${safe(obj.platform)}">
-      <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;">
-        <div><label>Sale ($)</label><input type="number" id="eSale" step="0.01" value="${obj.sale ?? 0}"></div>
-        <div><label>Cost ($)</label><input type="number" id="eCost" step="0.01" value="${obj.cost ?? 0}"></div>
-        <div><label>Fees ($)</label><input type="number" id="eFees" step="0.01" value="${obj.fees ?? 0}"></div>
-        <div><label>Shipping ($)</label><input type="number" id="eShip" step="0.01" value="${obj.ship ?? 0}"></div>
-      </div>
-      <div class="stat muted">Profit auto-recalculates on save.</div>
-    `;
-  } else {
-    title.textContent = "Edit Inventory Item";
-    body.innerHTML = `
-      <label>Acquired Date</label><input type="date" id="eDate" value="${obj.date || ""}">
-      <label>Item</label><input type="text" id="eItem" value="${safe(obj.item)}">
-      ${typeSelect}
-      <label>Platform / Source</label><input type="text" id="ePlatform" value="${safe(obj.platform)}">
-      <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;">
-        <div><label>Cost ($)</label><input type="number" id="eCost" step="0.01" value="${obj.cost ?? 0}"></div>
-        <div><label>List ($)</label><input type="number" id="eList" step="0.01" value="${obj.list ?? 0}"></div>
-        <div><label>Qty</label><input type="number" id="eQty" value="${obj.qty ?? 1}"></div>
-      </div>
-      <label>Notes</label><input type="text" id="eNotes" value="${safe(obj.notes)}">
-    `;
-  }
-
-  modal.style.display = "flex";
-}
-
-function closeEditModal() {
-  const modal = document.getElementById("editModal");
-  if (modal) modal.style.display = "none";
-  editContext = null;
-}
-
-function saveEditModal() {
-  if (!editContext) return;
-
-  const d = document.getElementById("eDate")?.value || "";
-  const item = (document.getElementById("eItem")?.value || "").trim();
-  const platform = (document.getElementById("ePlatform")?.value || "").trim();
-  const t = (document.getElementById("eType")?.value || "").trim();
-
-  if (!d || !item) return;
-
-  if (editContext.type === "sold") {
-    const sale = Number(document.getElementById("eSale")?.value) || 0;
-    const cost = Number(document.getElementById("eCost")?.value) || 0;
-    const fees = Number(document.getElementById("eFees")?.value) || 0;
-    const ship = Number(document.getElementById("eShip")?.value) || 0;
-    const profit = sale - cost - fees - ship;
-
-    const arr = readSold();
-    const idx = arr.findIndex(x => x && x._id === editContext.id);
-    if (idx === -1) return;
-    arr[idx] = { ...arr[idx], date:d, item, type:t, platform, sale, cost, fees, ship, profit };
-    writeSold(arr);
-    renderSold();
-    rebuildMonthlyIncomeFromSold();
-  } else {
-    const cost = Number(document.getElementById("eCost")?.value) || 0;
-    const list = Number(document.getElementById("eList")?.value) || 0;
-    const qty = parseInt(document.getElementById("eQty")?.value || "1", 10) || 1;
-    const notes = (document.getElementById("eNotes")?.value || "").trim();
-
-    const arr = readActive();
-    const idx = arr.findIndex(x => x && x._id === editContext.id);
-    if (idx === -1) return;
-    arr[idx] = { ...arr[idx], date:d, item, type:t, platform, cost, list, qty, notes };
-    writeActive(arr);
-    renderActive();
-  }
-
-  closeEditModal();
-}
-
-/* ========= Mark Sold (move Inventory -> Sold) ========= */
-let markSoldActiveId = null;
-
-function openMarkSoldModal(activeId) {
-  const inv = readActive().find(x => x && x._id === activeId);
-  if (!inv) return;
-  markSoldActiveId = activeId;
-
-  const modal = document.getElementById("markSoldModal");
-  if (!modal) return;
-
-  const today = new Date();
-  const y = today.getFullYear();
-  const m = String(today.getMonth()+1).padStart(2,"0");
-  const d = String(today.getDate()).padStart(2,"0");
-  document.getElementById("msDate").value = `${y}-${m}-${d}`;
-  document.getElementById("msSale").value = inv.list || "";
-  document.getElementById("msPlatform").value = inv.platform || "";
-  document.getElementById("msFees").value = "";
-  document.getElementById("msShip").value = "";
-  document.getElementById("msItem").value = inv.item || "";
-  const msTypeEl = document.getElementById("msType");
-  if (msTypeEl) msTypeEl.value = inv.type || "";
-  document.getElementById("msSyncIncome").checked = true;
-
-  modal.style.display = "flex";
-}
-
-function closeMarkSoldModal() {
-  const modal = document.getElementById("markSoldModal");
-  if (modal) modal.style.display = "none";
-  markSoldActiveId = null;
-}
-
-function confirmMarkSold() {
-  if (!markSoldActiveId) return;
-
-  const soldDate = document.getElementById("msDate").value;
-  const item = (document.getElementById("msItem").value || "").trim();
-  const type = (document.getElementById("msType")?.value || "").trim();
-  const platform = (document.getElementById("msPlatform").value || "").trim() || "Unknown";
-  const sale = Number(document.getElementById("msSale").value) || 0;
-  const fees = Number(document.getElementById("msFees").value) || 0;
-  const ship = Number(document.getElementById("msShip").value) || 0;
-
-  if (!soldDate || !item || !sale) return;
-
-  const invArr = readActive();
-  const invIdx = invArr.findIndex(x => x && x._id === markSoldActiveId);
-  if (invIdx === -1) return;
-  const inv = invArr[invIdx];
-
-  const cost = Number(inv.cost) || 0;
-  const profit = sale - cost - fees - ship;
-
-  // Add to sold
-  const soldArr = readSold();
-  soldArr.push({ _id: genId(), date: soldDate, item, type, platform, sale, cost, fees, ship, profit });
-  writeSold(soldArr);
-
-  // Remove from active
-  const removed = invArr.splice(invIdx, 1)[0];
-  writeActive(invArr);
-
-  renderActive();
-  renderSold();
-
-  if (document.getElementById("msSyncIncome")?.checked) rebuildMonthlyIncomeFromSold();
-
-  closeMarkSoldModal();
-}
-
-/* ========= Export ========= */
-function downloadTextFile(filename, text, mime="text/plain") {
-  const blob = new Blob([text], { type: mime });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-}
-function toCSVRow(values) {
-  return values.map(v => {
-    const s = (v === null || v === undefined) ? "" : String(v);
-    if (/[",\n\r]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
-    return s;
-  }).join(",");
-}
-function exportSoldCSV() {
-  const sold = readSold();
-  const header = ["date","item","type","platform","sale","cost","fees","shipping","profit"];
-  const lines = [toCSVRow(header)];
-  sold.slice().sort((a,b)=>String(a.date).localeCompare(String(b.date))).forEach(r => {
-    lines.push(toCSVRow([
-      r.date || "",
-      r.item || "",
-      r.type || "",
-      r.platform || "",
-      Number(r.sale || 0),
-      Number(r.cost || 0),
-      Number(r.fees || 0),
-      Number(r.ship || 0),
-      Number(r.profit || 0)
-    ]));
-  });
-  downloadTextFile("sold_export.csv", lines.join("\n"), "text/csv");
-}
-function exportIncomeCSV() {
-  const income = JSON.parse(localStorage.getItem("monthlyIncome")) || [];
-  const header = ["month","income"];
-  const lines = [toCSVRow(header)];
-  income.forEach(r => lines.push(toCSVRow([r.label || "", Number(r.income || 0)])));
-  downloadTextFile("income_export.csv", lines.join("\n"), "text/csv");
-}
-
-
-/* ========= Theme ========= */
-const THEME_KEY = "ots_theme";
-
-function applyTheme(theme) {
-  let t = "hackercyan";
-  if (theme === "cyberred") t = "cyberred";
-  if (theme === "monochrome") t = "monochrome";
-
-  document.documentElement.setAttribute("data-theme", t);
-  localStorage.setItem(THEME_KEY, t);
-
-  const sel = document.getElementById("themeSelect");
-  if (sel) sel.value = t;
-}
-
-function setTheme(theme) {
-  applyTheme(theme);
-}
-
-
-/* ========= Support Button Behavior ========= */
-let _lastScrollY = 0;
-let _scrollTick = false;
-
-function setBmcVisible(visible) {
-  const el = document.querySelector(".bmc-float");
-  if (!el) return;
-  el.style.display = visible ? "block" : "none";
-  if (!visible) el.classList.add("is-hidden");
-  if (visible) el.classList.remove("is-hidden");
-}
-
-function updateBmcVisibility() {
-  const isLocked = !!document.getElementById("lockScreen") && document.getElementById("lockScreen").classList.contains("show");
-  const activeSection = document.querySelector(".section.active")?.id || "secDashboard";
-  const shouldShow = (!isLocked) && (activeSection === "secDashboard");
-  setBmcVisible(shouldShow);
-}
-
-function onScrollBmc() {
-  if (_scrollTick) return;
-  _scrollTick = true;
-
-  requestAnimationFrame(() => {
-    const el = document.querySelector(".bmc-float");
-    if (!el || el.style.display === "none") { _scrollTick = false; return; }
-
-    const y = window.scrollY || document.documentElement.scrollTop || 0;
-    const delta = y - _lastScrollY;
-
-    // Hide when scrolling down a bit, show when scrolling up
-    if (delta > 10) el.classList.add("is-hidden");
-    if (delta < -10) el.classList.remove("is-hidden");
-
-    _lastScrollY = y;
-    _scrollTick = false;
-  });
-}
-
-
-/* Keep support button in sync with lock screen */
-document.addEventListener("DOMContentLoaded", () => {
-  const lock = document.getElementById("lockScreen");
-  if (!lock) return;
-  const obs = new MutationObserver(() => updateBmcVisibility());
-  obs.observe(lock, { attributes: true, attributeFilter: ["class"] });
-});
-
-
-/* ========= Active Inventory Search ========= */
-let activeSearch = "";
-function setActiveSearch(val){
-  activeSearch = (val || "").trim().toLowerCase();
-  renderActive();
-}
-function matchesActiveSearch(obj){
-  if (!activeSearch) return true;
-  const hay = [obj.item, obj.notes, obj.platform, obj.type].join(" ").toLowerCase();
-  return hay.includes(activeSearch);
-}
-
-
-/* ========= Search Helpers ========= */
-let activeSearchTerm = "";
-let soldSearchTerm = "";
-
-function setActiveSearch(val){
-  activeSearchTerm = (val || "").trim().toLowerCase();
-  renderActive();
-}
-function matchesActiveSearch(obj){
-  if (!activeSearchTerm) return true;
-  const hay = [obj.item, obj.notes, obj.platform, obj.type].join(" ").toLowerCase();
-  return hay.includes(activeSearchTerm);
-}
-
-function setSoldSearch(val){
-  soldSearchTerm = (val || "").trim().toLowerCase();
-  renderSold();
-}
-function matchesSoldSearch(obj){
-  if (!soldSearchTerm) return true;
-  const hay = [obj.item, obj.platform, obj.type].join(" ").toLowerCase();
-  return hay.includes(soldSearchTerm);
-}
-
-
-
-
-/* ========= Sold Summary + Charts (safe) ========= */
-window.otsUpdateSoldSummaryAndCharts = function(){
-  try{
-    const all = (typeof readSold === "function") ? readSold() : [];
-    const year = document.getElementById("soldYearFilter")?.value || "ALL";
-    const month = document.getElementById("soldMonthFilter")?.value || "ALL";
-    const platform = document.getElementById("soldPlatformFilter")?.value || "ALL";
-    const type = document.getElementById("soldTypeFilter")?.value || "ALL";
-
-    const filtered = all.filter(r => {
-      const yr = (typeof extractYear==="function") ? extractYear(r.date) : "";
-      const mk = (typeof monthKey==="function") ? monthKey(r.date) : "";
-      const okY = (year==="ALL") || (yr===year);
-      const okM = (month==="ALL") || (mk===month);
-      const okP = (platform==="ALL") || (String(r.platform||"")===platform);
-      const okT = (type==="ALL") || (String(r.type||"")===type);
-      const okS = (typeof matchesSoldSearch==="function") ? matchesSoldSearch(r) : true;
-      return okY && okM && okP && okT && okS;
-    });
-
-    const revenue = filtered.reduce((s,x)=>s + (Number(x.sale)||0), 0);
-    const profit  = filtered.reduce((s,x)=>s + (Number(x.profit)||0), 0);
-    const items   = filtered.length;
-    const avg     = items ? profit/items : 0;
-
-    const revEl = document.getElementById("soldRevenueStat");
-    const proEl = document.getElementById("soldProfitStat");
-    const itEl  = document.getElementById("soldItemsStat");
-    const avgEl = document.getElementById("soldAvgStat");
-
-    if (revEl) revEl.textContent = `REVENUE: ${formatDollars(revenue)}`;
-    if (proEl){
-      proEl.textContent = `PROFIT: ${formatDollars(profit)}`;
-      proEl.classList.remove("profit-pos","profit-neg","profit-zero");
-      if (profit > 0) proEl.classList.add("profit-pos");
-      else if (profit < 0) proEl.classList.add("profit-neg");
-      else proEl.classList.add("profit-zero");
-    }
-    if (itEl) itEl.textContent = `ITEMS SOLD: ${items}`;
-    if (avgEl) avgEl.textContent = `AVG PROFIT/ITEM: ${formatDollars(avg)}`;
-
-    // Charts (monthly)
-    const buckets = {};
-    for (const r of filtered){
-      const k = (typeof monthKey==="function") ? monthKey(r.date) : "";
-      if (!k) continue;
-      if (!buckets[k]) buckets[k] = {profit:0, items:0};
-      buckets[k].profit += Number(r.profit)||0;
-      buckets[k].items += 1;
-    }
-    const labels = Object.keys(buckets).sort();
-    const profitSeries = labels.map(k => +buckets[k].profit.toFixed(2));
-    const itemsSeries  = labels.map(k => buckets[k].items);
-
-    if (typeof Chart !== "undefined"){
-      const c1 = document.getElementById("soldProfitChart");
-      const c2 = document.getElementById("soldItemsChart");
-
-      if (c1){
-        if (window._otsSoldProfitChart) window._otsSoldProfitChart.destroy();
-        window._otsSoldProfitChart = new Chart(c1, {
-          type: "bar",
-          data: { labels, datasets: [{ label: "Profit", data: profitSeries }] },
-          options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}} }
-        });
-      }
-      if (c2){
-        if (window._otsSoldItemsChart) window._otsSoldItemsChart.destroy();
-        window._otsSoldItemsChart = new Chart(c2, {
-          type: "bar",
-          data: { labels, datasets: [{ label: "Items Sold", data: itemsSeries }] },
-          options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true, ticks:{precision:0}}} }
-        });
-      }
-    }
-  }catch(e){}
-};
-
-
-/* ========= Sold Summary + Charts ========= */
-let otsSoldProfitChart = null;
-let otsSoldItemsChart = null;
-
-function getFilteredSoldForSummary(){
-  const all = readSold();
-  const year = document.getElementById("soldYearFilter")?.value || "ALL";
-  const month = document.getElementById("soldMonthFilter")?.value || "ALL";
-  const platform = document.getElementById("soldPlatformFilter")?.value || "ALL";
-  const type = document.getElementById("soldTypeFilter")?.value || "ALL";
-  return all.filter(r => {
-    const yr = extractYear(r.date);
-    const mk = monthKey(r.date);
-    const okY = (year==="ALL") || (yr===year);
-    const okM = (month==="ALL") || (mk===month);
-    const okP = (platform==="ALL") || (String(r.platform||"")===platform);
-    const okT = (type==="ALL") || (String(r.type||"")===type);
-    return okY && okM && okP && okT && (typeof matchesSoldSearch==="function" ? matchesSoldSearch(r) : true);
-  });
-}
-
-function updateSoldSummaryAndCharts(){
-  const data = getFilteredSoldForSummary();
-
-  const revenue = data.reduce((s,x)=> s + (Number(x.sale)||0), 0);
-  const profit  = data.reduce((s,x)=> s + (Number(x.profit)||0), 0);
-  const items   = data.length;
-  const avg     = items ? profit/items : 0;
-
-  const revEl = document.getElementById("soldRevenueStat");
-  const proEl = document.getElementById("soldProfitStat");
-  const itEl  = document.getElementById("soldItemsStat");
-  const avgEl = document.getElementById("soldAvgStat");
-
-  if (revEl) revEl.textContent = `REVENUE: ${formatDollars(revenue)}`;
-  if (proEl){
-    proEl.textContent = `PROFIT: ${formatDollars(profit)}`;
-    proEl.classList.remove("profit-pos","profit-neg","profit-zero");
-    if (profit > 0) proEl.classList.add("profit-pos");
-    else if (profit < 0) proEl.classList.add("profit-neg");
-    else proEl.classList.add("profit-zero");
-  }
-  if (itEl) itEl.textContent = `ITEMS SOLD: ${items}`;
-  if (avgEl) avgEl.textContent = `AVG PROFIT/ITEM: ${formatDollars(avg)}`;
-
-  // Monthly buckets
-  const buckets = {};
-  for (const r of data){
-    const mk = monthKey(r.date);
-    if (!mk) continue;
-    if (!buckets[mk]) buckets[mk] = {profit:0, items:0};
-    buckets[mk].profit += Number(r.profit)||0;
-    buckets[mk].items += 1;
-  }
-  const labels = Object.keys(buckets).sort();
-  const profitSeries = labels.map(k => +buckets[k].profit.toFixed(2));
-  const itemsSeries = labels.map(k => buckets[k].items);
-
-  const canvasP = document.getElementById("soldProfitChart");
-  const canvasI = document.getElementById("soldItemsChart");
-  if (typeof Chart === "undefined") return;
-
-  if (canvasP){
-    if (otsSoldProfitChart) otsSoldProfitChart.destroy();
-    otsSoldProfitChart = new Chart(canvasP, {
-      type: "bar",
-      data: { labels, datasets: [{ label: "Profit", data: profitSeries }] },
-      options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ y:{ beginAtZero:true } } }
-    });
-  }
-  if (canvasI){
-    if (otsSoldItemsChart) otsSoldItemsChart.destroy();
-    otsSoldItemsChart = new Chart(canvasI, {
-      type: "bar",
-      data: { labels, datasets: [{ label: "Items Sold", data: itemsSeries }] },
-      options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ y:{ beginAtZero:true, ticks:{ precision:0 } } } }
-    });
-  }
-}
-// alias for older calls
-window.otsUpdateSoldSummaryAndCharts = updateSoldSummaryAndCharts;
-
-/* ========= BOOT ========= */
-window.onload = () => {
-  initLock();
-
-  earningsBalance.value = localStorage.getItem("earningsBalance") || "";
-  inventoryAllowance.value = localStorage.getItem("inventoryAllowance") || "";
-
-  updateBalanceStats();
-  renderActive();
-  renderSold();
-  loadIncomeChart();
-  showSection('secDashboard');
-};
-
-</script>
-
-
-<!-- Buy Me a Coffee -->
-<div class="bmc-float">
-  <a href="https://buymeacoffee.com/jac0bb" target="_blank" rel="noopener">
-    <span><img src="./icons/bmc-logo.png" alt=""></span>
-  </a>
-</div>
-
-</body>
-</html>
+      <label>Platfo
