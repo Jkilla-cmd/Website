@@ -803,6 +803,38 @@ button:hover{
 /* Dashboard panel spacing polish */
 #trendingPanel { margin-top: 2px; }
 
+
+/* ===== Trending Comics cards ===== */
+.trendGrid{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+@media (min-width: 900px){
+  .trendGrid{ grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+.trendCard{
+  border:1px solid rgba(56,189,248,0.14);
+  background: rgba(2,6,23,0.16);
+  border-radius: 14px;
+  overflow:hidden;
+}
+.trendCard img{
+  width:100%;
+  aspect-ratio: 2/3;
+  object-fit: cover;
+  display:block;
+  background: rgba(0,0,0,0.25);
+}
+.trendCard .tBody{ padding: 10px 10px 12px; }
+.trendCard .tTitle{
+  font-size: 12px;
+  line-height: 1.35;
+  margin: 0;
+}
+.trendCard a{ color: inherit; text-decoration:none; display:block; }
+.trendCard a:hover .tTitle{ text-decoration: underline; }
+
 </style>
 </head>
 
@@ -1031,7 +1063,28 @@ button:hover{
               </select>
             
 
-        <div class="panel" id="trendingPanel">
+        
+
+        <div class="panel">
+        <div style="display:flex;justify-content:center;margin-bottom:14px;"><img src="./icons/icon-192.png" alt="RESELLr" style="width:54px;height:54px;border-radius:14px;border:1px solid var(--border);box-shadow:0 10px 25px rgba(0,0,0,0.35);"></div>
+
+          <h3>Current Balance</h3>
+
+          <label>Earnings ($)</label>
+          <input type="number" id="earningsBalance" />
+
+          <label>Inventory Allowance ($)</label>
+          <input type="number" id="inventoryAllowance" />
+
+          <button onclick="saveBalances()">Save</button>
+
+          <div class="divider"></div>
+
+          <div class="stat green" id="earningsStat"></div>
+          <div class="stat blue" id="inventoryStat"></div>
+        </div>
+
+<div class="panel" id="trendingPanel">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;">
             <h3 style="margin:0;">Trending Comics</h3>
             <button class="btn tiny" id="trendRefreshBtn" type="button" title="Refresh list">Refresh</button>
@@ -1039,9 +1092,7 @@ button:hover{
           <div class="muted" style="font-size:12px;line-height:1.5;margin-bottom:10px;">
             Uses public “hot lists.” If auto-refresh is blocked, the quick links below always work.
           </div>
-          <ol class="list" id="trendList" style="margin:0;padding-left:18px;">
-            <li class="muted">Tap <b>Refresh</b> to load a Top 10 list…</li>
-          </ol>
+          <div id="trendList" class="trendGrid"><div class="muted">Tap <b>Refresh</b> to load a Top 10 list…</div></div>
           <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;">
             <a class="btn tiny" href="https://www.keycollectorcomics.com/category/trending-20-108%2C2386/issues/" target="_blank" rel="noopener">Key Collector: Trending 20</a>
             <a class="btn tiny" href="https://comicbookinvest.com/" target="_blank" rel="noopener">CBSI</a>
@@ -1076,25 +1127,6 @@ button:hover{
 
             <div class="stat muted" style="margin-top:10px" id="nwAsOf"></div>
           </div>
-        </div>
-
-        <div class="panel">
-        <div style="display:flex;justify-content:center;margin-bottom:14px;"><img src="./icons/icon-192.png" alt="RESELLr" style="width:54px;height:54px;border-radius:14px;border:1px solid var(--border);box-shadow:0 10px 25px rgba(0,0,0,0.35);"></div>
-
-          <h3>Current Balance</h3>
-
-          <label>Earnings ($)</label>
-          <input type="number" id="earningsBalance" />
-
-          <label>Inventory Allowance ($)</label>
-          <input type="number" id="inventoryAllowance" />
-
-          <button onclick="saveBalances()">Save</button>
-
-          <div class="divider"></div>
-
-          <div class="stat green" id="earningsStat"></div>
-          <div class="stat blue" id="inventoryStat"></div>
         </div>
 
         <div class="panel">
@@ -3319,6 +3351,62 @@ async function loadTrendingComics(){
   }catch(e){
     list.innerHTML = '<li class="muted">Auto-refresh unavailable right now. Use the quick links below.</li>';
   }
+}
+
+
+
+/* ========= TRENDING COMICS (cards + covers) =========
+   Fetch via text proxy to avoid CORS. Covers are normal <img> loads (OK cross-origin).
+   Parsing is heuristic; if it fails, quick links still work. */
+async function loadTrendingComics(){
+  const wrap = document.getElementById("trendList");
+  if(!wrap) return;
+  wrap.innerHTML = '<div class="muted">Loading…</div>';
+  try{
+    const proxyUrl = "https://r.jina.ai/http://r.jina.ai/https://www.keycollectorcomics.com/category/trending-20-108%2C2386/issues/";
+    const res = await fetch(proxyUrl, { cache: "no-store" });
+    if(!res.ok) throw new Error("Fetch failed");
+    const text = await res.text();
+
+    const issueUrlRe = /https:\/\/www\.keycollectorcomics\.com\/issue\/[^\s\)"]+/g;
+    const imgUrlRe = /https?:\/\/[^\s\)"]+\.(?:jpg|jpeg|png|webp)/gi;
+    const issueUrls = Array.from(new Set(text.match(issueUrlRe) || [])).slice(0, 20);
+    const imgUrls = (text.match(imgUrlRe) || []).slice(0, 60);
+
+    const lines = text.split("\n").map(s=>s.trim()).filter(Boolean);
+    const titles = [];
+    for(const line of lines){
+      const t = line.replace(/\s+/g," ").trim();
+      if(t.length < 8 || t.length > 90) continue;
+      if(!t.includes("#")) continue;
+      if(/Trending 20|Key Facts|View Details|Buy it on|Randomizer|Sign in|Login/i.test(t)) continue;
+      if(!titles.includes(t)) titles.push(t);
+      if(titles.length >= 12) break;
+    }
+
+    const cards = [];
+    const n = Math.min(10, Math.max(titles.length, issueUrls.length, 6));
+    for(let i=0; i<n; i++){
+      const title = titles[i] || `Trending Issue ${i+1}`;
+      const url = issueUrls[i] || "https://www.keycollectorcomics.com/category/trending-20-108%2C2386/issues/";
+      const img = imgUrls[i] || "";
+      cards.push({ title, url, img });
+    }
+
+    wrap.innerHTML = cards.map(c=>`
+      <div class="trendCard">
+        <a href="${c.url}" target="_blank" rel="noopener">
+          ${c.img ? `<img src="${c.img}" alt="${escapeHtml(c.title)} cover">` : `<div style="aspect-ratio:2/3;background:rgba(0,0,0,0.25);"></div>`}
+          <div class="tBody"><p class="tTitle">${escapeHtml(c.title)}</p></div>
+        </a>
+      </div>
+    `).join("");
+  }catch(e){
+    wrap.innerHTML = '<div class="muted">Auto-refresh unavailable right now. Use the quick links below.</div>';
+  }
+}
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
 }
 
 
