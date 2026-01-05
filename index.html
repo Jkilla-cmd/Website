@@ -14,13 +14,7 @@
 <meta name="apple-mobile-web-app-title" content="RESELLr">
 <link rel="apple-touch-icon" href="./icons/icon-192.png">
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js">
-document.addEventListener("DOMContentLoaded", ()=>{
-  const b = document.getElementById("trendRefreshBtn");
-  if(b) b.addEventListener("click", loadTrendingComics);
-});
-
-</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 
@@ -800,40 +794,54 @@ button:hover{
 }
 
 
-/* Dashboard panel spacing polish */
-#trendingPanel { margin-top: 2px; }
-
-
-/* ===== Trending Comics cards ===== */
-.trendGrid{
-  display:grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-}
-@media (min-width: 900px){
-  .trendGrid{ grid-template-columns: repeat(4, minmax(0, 1fr)); }
-}
-.trendCard{
+/* ===== RSS ticker ===== */
+.rssTicker{
   border:1px solid rgba(56,189,248,0.14);
   background: rgba(2,6,23,0.16);
   border-radius: 14px;
-  overflow:hidden;
+  padding: 10px;
+  overflow: hidden;
+  max-height: 180px;
 }
-.trendCard img{
-  width:100%;
-  aspect-ratio: 2/3;
-  object-fit: cover;
-  display:block;
-  background: rgba(0,0,0,0.25);
+.rssTicker ul{
+  margin:0;
+  padding:0;
+  list-style:none;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
 }
-.trendCard .tBody{ padding: 10px 10px 12px; }
-.trendCard .tTitle{
-  font-size: 12px;
-  line-height: 1.35;
-  margin: 0;
+.rssItem{
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
 }
-.trendCard a{ color: inherit; text-decoration:none; display:block; }
-.trendCard a:hover .tTitle{ text-decoration: underline; }
+.rssItem a{
+  text-decoration:none;
+}
+.rssItem a:hover{
+  text-decoration:underline;
+}
+.rssDate{
+  font-size:11px;
+  opacity:0.65;
+  min-width: 78px;
+  flex: 0 0 auto;
+}
+.rssTitle{
+  font-size:12px;
+  line-height:1.35;
+}
+/* soft auto-scroll on larger lists */
+@media (prefers-reduced-motion: no-preference){
+  .rssTicker.is-scrolling ul{
+    animation: rssScroll 18s linear infinite;
+  }
+  @keyframes rssScroll{
+    0%{ transform: translateY(0); }
+    100%{ transform: translateY(-40%); }
+  }
+}
 
 </style>
 </head>
@@ -1061,45 +1069,7 @@ button:hover{
                 <option value="ytd">YTD</option>
                 <option value="30">Last 30 days</option>
               </select>
-            
-
-        
-
-        <div class="panel">
-        <div style="display:flex;justify-content:center;margin-bottom:14px;"><img src="./icons/icon-192.png" alt="RESELLr" style="width:54px;height:54px;border-radius:14px;border:1px solid var(--border);box-shadow:0 10px 25px rgba(0,0,0,0.35);"></div>
-
-          <h3>Current Balance</h3>
-
-          <label>Earnings ($)</label>
-          <input type="number" id="earningsBalance" />
-
-          <label>Inventory Allowance ($)</label>
-          <input type="number" id="inventoryAllowance" />
-
-          <button onclick="saveBalances()">Save</button>
-
-          <div class="divider"></div>
-
-          <div class="stat green" id="earningsStat"></div>
-          <div class="stat blue" id="inventoryStat"></div>
-        </div>
-
-<div class="panel" id="trendingPanel">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;">
-            <h3 style="margin:0;">Trending Comics</h3>
-            <button class="btn tiny" id="trendRefreshBtn" type="button" title="Refresh list">Refresh</button>
-          </div>
-          <div class="muted" style="font-size:12px;line-height:1.5;margin-bottom:10px;">
-            Uses public “hot lists.” If auto-refresh is blocked, the quick links below always work.
-          </div>
-          <div id="trendList" class="trendGrid"><div class="muted">Tap <b>Refresh</b> to load a Top 10 list…</div></div>
-          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;">
-            <a class="btn tiny" href="https://www.keycollectorcomics.com/category/trending-20-108%2C2386/issues/" target="_blank" rel="noopener">Key Collector: Trending 20</a>
-            <a class="btn tiny" href="https://comicbookinvest.com/" target="_blank" rel="noopener">CBSI</a>
-            <a class="btn tiny" href="https://www.keycollectorcomics.com/new-comics-this-week/" target="_blank" rel="noopener">New Comics This Week</a>
-          </div>
-        </div>
-</div>
+            </div>
           </div>
 
           <div id="nwBody">
@@ -1128,6 +1098,52 @@ button:hover{
             <div class="stat muted" style="margin-top:10px" id="nwAsOf"></div>
           </div>
         </div>
+
+        <div class="panel">
+        <div style="display:flex;justify-content:center;margin-bottom:14px;"><img src="./icons/icon-192.png" alt="RESELLr" style="width:54px;height:54px;border-radius:14px;border:1px solid var(--border);box-shadow:0 10px 25px rgba(0,0,0,0.35);"></div>
+
+          <h3>Current Balance</h3>
+
+          <label>Earnings ($)</label>
+          <input type="number" id="earningsBalance" />
+
+          <label>Inventory Allowance ($)</label>
+          <input type="number" id="inventoryAllowance" />
+
+          <button onclick="saveBalances()">Save</button>
+
+          <div class="divider"></div>
+
+          <div class="stat green" id="earningsStat"></div>
+          <div class="stat blue" id="inventoryStat"></div>
+        </div>
+
+
+        <div class="panel" id="rssPanel">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;">
+            <h3 style="margin:0;">Comic News Feed</h3>
+            <button class="btn tiny" id="rssRefreshBtn" type="button" title="Refresh feed">Refresh</button>
+          </div>
+
+          <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px;">
+            <select class="pill" id="rssPreset" style="min-width:210px;">
+              <option value="">Choose a feed…</option>
+              <option value="https://www.cbr.com/feed/">CBR (all)</option>
+              <option value="https://bleedingcool.com/comics/feed/">Bleeding Cool (comics)</option>
+              <option value="https://www.newsarama.com/rss/">Newsarama</option>
+            </select>
+            <input class="pill" id="rssCustom" placeholder="Or paste an RSS URL…" style="flex:1;min-width:220px;" />
+          </div>
+
+          <div class="rssTicker" id="rssTicker">
+            <div class="muted">Pick a feed and tap <b>Refresh</b>…</div>
+          </div>
+
+          <div class="muted" style="font-size:11px;line-height:1.45;margin-top:10px;">
+            Tip: Some publishers change RSS URLs. If a preset stops working, paste a different RSS feed link above.
+          </div>
+        </div>
+
 
         <div class="panel">
           <h3>Income Graph</h3>
@@ -3321,93 +3337,91 @@ function initNetWorthUI(){
 
 
 
-/* ========= TRENDING COMICS (safe fetch) =========
-   We fetch via a text proxy to avoid CORS blocks from static sites.
-   If it fails, links still work. */
-async function loadTrendingComics(){
-  const list = document.getElementById("trendList");
-  if(!list) return;
-  list.innerHTML = '<li class="muted">Loading…</li>';
+/* ========= RSS FEED (comic news) ========= */
+async function loadComicRSS(){
+  const ticker = document.getElementById("rssTicker");
+  const preset = document.getElementById("rssPreset");
+  const custom = document.getElementById("rssCustom");
+  if(!ticker) return;
+
+  const url = (custom && custom.value.trim()) || (preset && preset.value) || "";
+  if(!url){
+    ticker.innerHTML = '<div class="muted">Pick a feed and tap <b>Refresh</b>…</div>';
+    return;
+  }
+
+  ticker.innerHTML = '<div class="muted">Loading…</div>';
   try{
-    const proxyUrl = "https://r.jina.ai/http://r.jina.ai/https://www.keycollectorcomics.com/category/trending-20-108%2C2386/issues/";
+    // CORS-safe text proxy
+    const proxyUrl = "https://r.jina.ai/http://r.jina.ai/" + url.replace(/^https?:\/\//,"https://");
     const res = await fetch(proxyUrl, { cache: "no-store" });
     if(!res.ok) throw new Error("Fetch failed");
     const text = await res.text();
 
-    const lines = text.split("\\n").map(s=>s.trim()).filter(Boolean);
-    const titles = [];
-    for(const line of lines){
-      const t = line.replace(/^[\\-\\*\\d\\.\\)\\:]+/,"").trim();
-      if(t.length < 8 || t.length > 90) continue;
-      if(!t.includes("#")) continue;
-      if(/Trending 20|Key Facts|View Details|Buy it on/i.test(t)) continue;
-      const cleaned = t.replace(/\\s+/g," ");
-      if(!titles.includes(cleaned)) titles.push(cleaned);
-      if(titles.length >= 10) break;
+    // Proxy returns the raw page content. For RSS this should include XML.
+    // Extract the first "<rss" or "<feed" onward, as some proxies prepend headers.
+    const rssStart = text.search(/<rss[\s>]|<feed[\s>]/i);
+    const xmlText = rssStart >= 0 ? text.slice(rssStart) : text;
+
+    const doc = new DOMParser().parseFromString(xmlText, "text/xml");
+    const items = Array.from(doc.querySelectorAll("item")).slice(0, 12);
+
+    // Atom fallback
+    const entries = items.length ? [] : Array.from(doc.querySelectorAll("entry")).slice(0, 12);
+
+    const rows = [];
+    if(items.length){
+      for(const it of items){
+        const title = (it.querySelector("title")?.textContent || "").trim();
+        const link = (it.querySelector("link")?.textContent || "").trim();
+        const pub = (it.querySelector("pubDate")?.textContent || "").trim();
+        if(!title || !link) continue;
+        rows.push({title, link, pub});
+      }
+    }else{
+      for(const en of entries){
+        const title = (en.querySelector("title")?.textContent || "").trim();
+        const linkEl = en.querySelector("link");
+        const link = (linkEl?.getAttribute("href") || linkEl?.textContent || "").trim();
+        const pub = (en.querySelector("updated")?.textContent || en.querySelector("published")?.textContent || "").trim();
+        if(!title || !link) continue;
+        rows.push({title, link, pub});
+      }
     }
 
-    if(!titles.length) throw new Error("No titles parsed");
-    list.innerHTML = titles.map(t=>`<li>${escapeHtml(t)}</li>`).join("");
+    if(!rows.length) throw new Error("No items parsed");
+
+    const fmtDate = (s)=>{
+      if(!s) return "";
+      const d = new Date(s);
+      if(isNaN(d.getTime())) return "";
+      return d.toLocaleDateString(undefined, { month:"short", day:"numeric" });
+    };
+
+    ticker.classList.toggle("is-scrolling", rows.length >= 8);
+
+    ticker.innerHTML = `<ul>${rows.map(r=>`
+      <li class="rssItem">
+        <div class="rssDate">${fmtDate(r.pub) || ""}</div>
+        <div class="rssTitle"><a href="${r.link}" target="_blank" rel="noopener">${escapeHtml(r.title)}</a></div>
+      </li>
+    `).join("")}</ul>`;
+
   }catch(e){
-    list.innerHTML = '<li class="muted">Auto-refresh unavailable right now. Use the quick links below.</li>';
+    ticker.classList.remove("is-scrolling");
+    ticker.innerHTML = '<div class="muted">Feed could not be loaded. Try a different RSS URL.</div>';
   }
 }
 
-
-
-/* ========= TRENDING COMICS (cards + covers) =========
-   Fetch via text proxy to avoid CORS. Covers are normal <img> loads (OK cross-origin).
-   Parsing is heuristic; if it fails, quick links still work. */
-async function loadTrendingComics(){
-  const wrap = document.getElementById("trendList");
-  if(!wrap) return;
-  wrap.innerHTML = '<div class="muted">Loading…</div>';
-  try{
-    const proxyUrl = "https://r.jina.ai/http://r.jina.ai/https://www.keycollectorcomics.com/category/trending-20-108%2C2386/issues/";
-    const res = await fetch(proxyUrl, { cache: "no-store" });
-    if(!res.ok) throw new Error("Fetch failed");
-    const text = await res.text();
-
-    const issueUrlRe = /https:\/\/www\.keycollectorcomics\.com\/issue\/[^\s\)"]+/g;
-    const imgUrlRe = /https?:\/\/[^\s\)"]+\.(?:jpg|jpeg|png|webp)/gi;
-    const issueUrls = Array.from(new Set(text.match(issueUrlRe) || [])).slice(0, 20);
-    const imgUrls = (text.match(imgUrlRe) || []).slice(0, 60);
-
-    const lines = text.split("\n").map(s=>s.trim()).filter(Boolean);
-    const titles = [];
-    for(const line of lines){
-      const t = line.replace(/\s+/g," ").trim();
-      if(t.length < 8 || t.length > 90) continue;
-      if(!t.includes("#")) continue;
-      if(/Trending 20|Key Facts|View Details|Buy it on|Randomizer|Sign in|Login/i.test(t)) continue;
-      if(!titles.includes(t)) titles.push(t);
-      if(titles.length >= 12) break;
-    }
-
-    const cards = [];
-    const n = Math.min(10, Math.max(titles.length, issueUrls.length, 6));
-    for(let i=0; i<n; i++){
-      const title = titles[i] || `Trending Issue ${i+1}`;
-      const url = issueUrls[i] || "https://www.keycollectorcomics.com/category/trending-20-108%2C2386/issues/";
-      const img = imgUrls[i] || "";
-      cards.push({ title, url, img });
-    }
-
-    wrap.innerHTML = cards.map(c=>`
-      <div class="trendCard">
-        <a href="${c.url}" target="_blank" rel="noopener">
-          ${c.img ? `<img src="${c.img}" alt="${escapeHtml(c.title)} cover">` : `<div style="aspect-ratio:2/3;background:rgba(0,0,0,0.25);"></div>`}
-          <div class="tBody"><p class="tTitle">${escapeHtml(c.title)}</p></div>
-        </a>
-      </div>
-    `).join("");
-  }catch(e){
-    wrap.innerHTML = '<div class="muted">Auto-refresh unavailable right now. Use the quick links below.</div>';
-  }
-}
-function escapeHtml(str){
-  return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
-}
+document.addEventListener("DOMContentLoaded", ()=>{
+  const btn = document.getElementById("rssRefreshBtn");
+  const preset = document.getElementById("rssPreset");
+  if(btn) btn.addEventListener("click", loadComicRSS);
+  if(preset) preset.addEventListener("change", ()=>{
+    const custom = document.getElementById("rssCustom");
+    if(custom) custom.value = "";
+  });
+});
 
 
 /* ========= BOOT ========= */
