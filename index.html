@@ -14,7 +14,16 @@
 <meta name="apple-mobile-web-app-title" content="RESELLr">
 <link rel="apple-touch-icon" href="./icons/icon-192.png">
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js">
+/* === Toggle backup wiring (safe) === */
+document.addEventListener('change', (e) => {
+  const id = e && e.target ? e.target.id : '';
+  if(id === 'togNet' || id === 'togGross' || id === 'togMargin'){
+    try{ loadIncomeChart(); }catch(err){}
+  }
+});
+
+</script>
 
 <style>
 
@@ -1126,13 +1135,13 @@ button:hover{
             </div>
             <div class="pill" style="display:flex;align-items:center;gap:10px;">
               <label style="display:flex;align-items:center;gap:6px;font-size:12px;">
-                <input type="checkbox" id="togNet" checked> Net Profit
+                <input type="checkbox" id="togNet" checked onchange="try{loadIncomeChart();}catch(e){}"> Net Profit
               </label>
               <label style="display:flex;align-items:center;gap:6px;font-size:12px;">
-                <input type="checkbox" id="togGross"> Gross Profit
+                <input type="checkbox" id="togGross" onchange="try{loadIncomeChart();}catch(e){}"> Gross Profit
               </label>
               <label style="display:flex;align-items:center;gap:6px;font-size:12px;">
-                <input type="checkbox" id="togMargin"> Margin %
+                <input type="checkbox" id="togMargin" onchange="try{loadIncomeChart();}catch(e){}"> Margin %
               </label>
             </div>
           </div>
@@ -1154,13 +1163,7 @@ button:hover{
           <button class="danger" onclick="resetMonthlyIncome()">Reset Month Data</button>
           <div class="stat muted" id="monthCountStat"></div>
         </div>
-
-        <div class="panel profit-full">
-          <h3>Net Profit Graph</h3>
-          <div class="chart-wrap">
-            <canvas id="profitChart"></canvas>
-          </div>
-        </div>
+</div>
 
       </div>
     </section>
