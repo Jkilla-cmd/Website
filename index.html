@@ -95,48 +95,112 @@ function addProfitOverlay(incomeChartInstance){
 }
 
 
-/* ========= GROSS PROFIT GRAPH ========= */
-let grossProfitChart;
-function renderGrossProfitGraph(){
-  const ctx = document.getElementById("grossProfitChart");
+/* ========= ANALYTICS OVERLAY GRAPH ========= */
+let analyticsChart;
+
+function renderAnalyticsChart(){
+  const ctx = document.getElementById("analyticsChart");
   if(!ctx) return;
 
-  const soldItems =
-    (window.state && Array.isArray(window.state.sold) ? window.state.sold : []) || [];
+  const sold = (window.state && Array.isArray(window.state.sold)) ? window.state.sold : [];
 
   const byMonth = {};
-  soldItems.forEach(it=>{
+  sold.forEach(it=>{
     const d = new Date(it.date || it.soldDate || it.sold || "");
     if(isNaN(d)) return;
     const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-    const sale = parseFloat(it.sale||0);
-    const cost = parseFloat(it.cost||0);
-    const gross = sale - cost;
-    byMonth[key] = (byMonth[key]||0) + gross;
+
+    const sale = +it.sale||0;
+    const cost = +it.cost||0;
+    const fees = +it.fees||0;
+    const ship = +it.ship||0;
+
+    if(!byMonth[key]) byMonth[key] = { income:0, gross:0, net:0 };
+
+    byMonth[key].income += sale;
+    byMonth[key].gross += (sale - cost);
+    byMonth[key].net += (sale - cost - fees - ship);
   });
 
   const labels = Object.keys(byMonth).sort();
-  const data = labels.map(k=>byMonth[k]);
+  const income = labels.map(m=>byMonth[m].income);
+  const gross = labels.map(m=>byMonth[m].gross);
+  const net = labels.map(m=>byMonth[m].net);
+  const margin = labels.map((m,i)=> income[i] ? (net[i]/income[i])*100 : 0);
+  const goal = labels.map(()=>3000);
 
-  if(grossProfitChart) grossProfitChart.destroy();
-  grossProfitChart = new Chart(ctx,{
+  // Best / worst months
+  if(labels.length){
+    const maxNet = Math.max(...net);
+    const minNet = Math.min(...net);
+    const best = labels[net.indexOf(maxNet)];
+    const worst = labels[net.indexOf(minNet)];
+    const el = document.getElementById("bestWorstStat");
+    if(el){
+      el.innerHTML = `🟢 Best Month: <b>${best}</b> ($${maxNet.toFixed(2)}) &nbsp; | &nbsp; 🔴 Worst Month: <b>${worst}</b> ($${minNet.toFixed(2)})`;
+    }
+  }
+
+  if(analyticsChart) analyticsChart.destroy();
+  analyticsChart = new Chart(ctx,{
     type:'line',
     data:{
       labels,
-      datasets:[{
-        label:'Gross Profit',
-        data,
-        borderColor:'rgba(56,189,248,0.9)',
-        backgroundColor:'rgba(56,189,248,0.25)',
-        tension:0.3,
-        fill:true
-      }]
+      datasets:[
+        {
+          label:'Income',
+          data: income,
+          borderColor:'#38bdf8',
+          backgroundColor:'rgba(56,189,248,0.15)',
+          tension:.3,
+          fill:true
+        },
+        {
+          label:'Gross Profit',
+          data: gross,
+          borderColor:'#fbbf24',
+          backgroundColor:'rgba(251,191,36,0.15)',
+          tension:.3,
+          fill:true
+        },
+        {
+          label:'Net Profit',
+          data: net,
+          borderColor:'#22c55e',
+          backgroundColor:'rgba(34,197,94,0.15)',
+          tension:.3,
+          fill:true
+        },
+        {
+          label:'Profit Margin %',
+          data: margin,
+          borderColor:'#ffffff',
+          borderDash:[6,6],
+          tension:.3,
+          yAxisID:'y1'
+        },
+        {
+          label:'$100/day Goal',
+          data: goal,
+          borderColor:'#ef4444',
+          borderDash:[4,4],
+          pointRadius:0
+        }
+      ]
     },
     options:{
       responsive:true,
       maintainAspectRatio:false,
+      interaction:{ mode:'index', intersect:false },
       scales:{
-        y:{ ticks:{ callback:v=>'$'+v } }
+        y:{
+          ticks:{ callback:v=>'$'+v }
+        },
+        y1:{
+          position:'right',
+          ticks:{ callback:v=>v+'%' },
+          grid:{ drawOnChartArea:false }
+        }
       }
     }
   });
@@ -390,7 +454,6 @@ tr:hover td { background: rgba(56,189,248,0.04); }
   gap: 16px;
   max-width: 1600px;
   margin: 0 auto;
-  padding: 0 8px;
 }
 .app.sidebar-closed { grid-template-columns: 1fr; }
 .app.sidebar-closed .sidebar { display: none; }
@@ -1230,31 +1293,27 @@ button:hover{
           </div>
         </div>
 
+        
         <div class="panel income-full">
-          <h3>Income Graph</h3>
+          <h3>Revenue & Profit Analytics</h3>
 
-          <label>Year Filter</label>
-          <select id="yearFilter" onchange="loadIncomeChart()">
-            <option value="ALL">ALL</option>
-          </select>
+          <div class="stat muted" id="bestWorstStat">—</div>
 
-          <div class="chart-wrap">
-            <canvas id="incomeChart"></canvas>
+          <div class="chart-wrap" style="height:420px;">
+            <canvas id="analyticsChart"></canvas>
           </div>
 
           <div class="divider"></div>
 
-          <button onclick="rebuildMonthlyIncomeFromSold()">Sync Income From Sold</button>
-          <div style="height:10px"></div>
-          <button class="danger" onclick="resetMonthlyIncome()">Reset Month Data</button>
-          <div class="stat muted" id="monthCountStat"></div>
+          <div class="stat muted">
+            • Cyan: Income<br>
+            • Green: Net Profit<br>
+            • Yellow: Gross Profit<br>
+            • Dashed: Profit Margin %<br>
+            • Red line: $100/day target ($3,000/mo)
+          </div>
         </div>
 
-        <div class="panel profit-full">
-          <h3>Net Profit Graph</h3>
-          <div class="chart-wrap">
-            <canvas id="profitChart"></canvas>
-          </div>
         </div>
 
       </div>
@@ -1763,7 +1822,12 @@ function showSection(sectionId) {
   document.body.scrollTop = 0;
 
   // Refresh budget panel when returning to Dashboard
-  if (sectionId === 'secDashboard') { try { updateBudgetPanel(); } catch (e) {} }
+  if (sectionId === 'secDashboard') {
+  try {
+    renderAnalyticsChart();
+    updateBudgetPanel();
+  } catch(e){}
+} catch (e) {} }
 
   setTimeout(() => {
     if (incomeChartObj) incomeChartObj.resize();
@@ -3521,7 +3585,6 @@ window.onload = () => {
   loadIncomeChart();
   initBudgetPanel();
   renderProfitGraph();
-  renderGrossProfitGraph();
 showSection('secDashboard');
 };
 
@@ -3606,48 +3669,112 @@ function addProfitOverlay(incomeChartInstance){
 }
 
 
-/* ========= GROSS PROFIT GRAPH ========= */
-let grossProfitChart;
-function renderGrossProfitGraph(){
-  const ctx = document.getElementById("grossProfitChart");
+/* ========= ANALYTICS OVERLAY GRAPH ========= */
+let analyticsChart;
+
+function renderAnalyticsChart(){
+  const ctx = document.getElementById("analyticsChart");
   if(!ctx) return;
 
-  const soldItems =
-    (window.state && Array.isArray(window.state.sold) ? window.state.sold : []) || [];
+  const sold = (window.state && Array.isArray(window.state.sold)) ? window.state.sold : [];
 
   const byMonth = {};
-  soldItems.forEach(it=>{
+  sold.forEach(it=>{
     const d = new Date(it.date || it.soldDate || it.sold || "");
     if(isNaN(d)) return;
     const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-    const sale = parseFloat(it.sale||0);
-    const cost = parseFloat(it.cost||0);
-    const gross = sale - cost;
-    byMonth[key] = (byMonth[key]||0) + gross;
+
+    const sale = +it.sale||0;
+    const cost = +it.cost||0;
+    const fees = +it.fees||0;
+    const ship = +it.ship||0;
+
+    if(!byMonth[key]) byMonth[key] = { income:0, gross:0, net:0 };
+
+    byMonth[key].income += sale;
+    byMonth[key].gross += (sale - cost);
+    byMonth[key].net += (sale - cost - fees - ship);
   });
 
   const labels = Object.keys(byMonth).sort();
-  const data = labels.map(k=>byMonth[k]);
+  const income = labels.map(m=>byMonth[m].income);
+  const gross = labels.map(m=>byMonth[m].gross);
+  const net = labels.map(m=>byMonth[m].net);
+  const margin = labels.map((m,i)=> income[i] ? (net[i]/income[i])*100 : 0);
+  const goal = labels.map(()=>3000);
 
-  if(grossProfitChart) grossProfitChart.destroy();
-  grossProfitChart = new Chart(ctx,{
+  // Best / worst months
+  if(labels.length){
+    const maxNet = Math.max(...net);
+    const minNet = Math.min(...net);
+    const best = labels[net.indexOf(maxNet)];
+    const worst = labels[net.indexOf(minNet)];
+    const el = document.getElementById("bestWorstStat");
+    if(el){
+      el.innerHTML = `🟢 Best Month: <b>${best}</b> ($${maxNet.toFixed(2)}) &nbsp; | &nbsp; 🔴 Worst Month: <b>${worst}</b> ($${minNet.toFixed(2)})`;
+    }
+  }
+
+  if(analyticsChart) analyticsChart.destroy();
+  analyticsChart = new Chart(ctx,{
     type:'line',
     data:{
       labels,
-      datasets:[{
-        label:'Gross Profit',
-        data,
-        borderColor:'rgba(56,189,248,0.9)',
-        backgroundColor:'rgba(56,189,248,0.25)',
-        tension:0.3,
-        fill:true
-      }]
+      datasets:[
+        {
+          label:'Income',
+          data: income,
+          borderColor:'#38bdf8',
+          backgroundColor:'rgba(56,189,248,0.15)',
+          tension:.3,
+          fill:true
+        },
+        {
+          label:'Gross Profit',
+          data: gross,
+          borderColor:'#fbbf24',
+          backgroundColor:'rgba(251,191,36,0.15)',
+          tension:.3,
+          fill:true
+        },
+        {
+          label:'Net Profit',
+          data: net,
+          borderColor:'#22c55e',
+          backgroundColor:'rgba(34,197,94,0.15)',
+          tension:.3,
+          fill:true
+        },
+        {
+          label:'Profit Margin %',
+          data: margin,
+          borderColor:'#ffffff',
+          borderDash:[6,6],
+          tension:.3,
+          yAxisID:'y1'
+        },
+        {
+          label:'$100/day Goal',
+          data: goal,
+          borderColor:'#ef4444',
+          borderDash:[4,4],
+          pointRadius:0
+        }
+      ]
     },
     options:{
       responsive:true,
       maintainAspectRatio:false,
+      interaction:{ mode:'index', intersect:false },
       scales:{
-        y:{ ticks:{ callback:v=>'$'+v } }
+        y:{
+          ticks:{ callback:v=>'$'+v }
+        },
+        y1:{
+          position:'right',
+          ticks:{ callback:v=>v+'%' },
+          grid:{ drawOnChartArea:false }
+        }
       }
     }
   });
