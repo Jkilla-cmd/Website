@@ -177,7 +177,7 @@ button.small { width: auto; padding: 8px 10px; border-radius: 10px; }
 }
 .lockBox {
   width: 100%;
-  max-width: 1600px;
+  max-width: 520px;
   background: var(--panel);
   border: 1px solid var(--border);
   padding: 16px;
@@ -790,6 +790,15 @@ button:hover{
 /* === Dashboard full-width panels (centered max-width) === */
 #secDashboard .full-span{ grid-column: 1 / -1; }
 @media (max-width: 900px){ #secDashboard .full-span{ grid-column: auto; } }
+
+
+/* === Login sizing fix === */
+.lockBox{
+  max-width: 520px !important;
+}
+@media (max-width: 520px){
+  .lockBox{ max-width: 92vw !important; }
+}
 
 </style>
 </head>
