@@ -1991,12 +1991,42 @@ function loadIncomeChart() {
   function labelToKey(lbl){
     if(!lbl) return null;
     const s = String(lbl).trim();
+
+    // YYYY-MM
     let m = s.match(/^(\d{4})-(\d{2})$/);
     if(m) return s;
+
+    // YYYY-MM-DD -> YYYY-MM
     m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
     if(m) return `${m[1]}-${m[2]}`;
+
+    // "Jan 2026" / "January 2026"
+    m = s.match(/^([A-Za-z]{3,9})\s+(\d{4})$/);
+    if(m){
+      const mon = m[1].toLowerCase();
+      const year = m[2];
+      const map = {
+        jan:1, january:1,
+        feb:2, february:2,
+        mar:3, march:3,
+        apr:4, april:4,
+        may:5,
+        jun:6, june:6,
+        jul:7, july:7,
+        aug:8, august:8,
+        sep:9, sept:9, september:9,
+        oct:10, october:10,
+        nov:11, november:11,
+        dec:12, december:12
+      };
+      const mm = map[mon];
+      if(mm) return `${year}-${String(mm).padStart(2,'0')}`;
+    }
+
+    // Fallback Date parse
     const dd = new Date(s);
     if(!isNaN(dd)) return `${dd.getFullYear()}-${String(dd.getMonth()+1).padStart(2,'0')}`;
+
     return null;
   }
 
