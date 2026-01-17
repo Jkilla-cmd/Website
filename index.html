@@ -1971,7 +1971,8 @@ function loadIncomeChart() {
   const labels = data.map(d => d.label);
   const income = data.map(d => Number(d.income || 0));
 
-  const sold = (window.state && Array.isArray(window.state.sold)) ? window.state.sold : [];
+  // Sold rows live in localStorage via SOLD_KEY; use the app's readSold() helper (not window.state)
+  const sold = (typeof readSold === "function") ? readSold() : [];
   const map = {};
   for(const it of sold){
     const ds = it.date || it.soldDate || it.sold || "";
