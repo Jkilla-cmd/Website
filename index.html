@@ -765,6 +765,23 @@ button:hover{
   }
 }
 
+
+/* === Full-width Income Graph === */
+#secDashboard .income-full{
+  grid-column: 1 / -1;
+}
+#secDashboard .income-full .chart-wrap{
+  height: 360px;
+}
+@media (max-width: 900px){
+  #secDashboard .income-full{
+    grid-column: auto;
+  }
+  #secDashboard .income-full .chart-wrap{
+    height: 280px;
+  }
+}
+
 </style>
 </head>
 
@@ -1080,7 +1097,7 @@ button:hover{
           </div>
         </div>
 
-        <div class="panel">
+        <div class="panel income-full">
           <h3>Income Graph</h3>
 
           <label>Year Filter</label>
