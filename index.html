@@ -794,44 +794,7 @@ button:hover{
 }
 
 
-/* ===== RSS ticker ===== */
-.rssTicker{
-  border:1px solid rgba(56,189,248,0.14);
-  background: rgba(2,6,23,0.16);
-  border-radius: 14px;
-  padding: 10px;
-  overflow: hidden;
-  max-height: 180px;
-}
-.rssTicker ul{
-  margin:0;
-  padding:0;
-  list-style:none;
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-}
-.rssItem{
-  display:flex;
-  gap:10px;
-  align-items:flex-start;
-}
-.rssItem a{
-  text-decoration:none;
-}
-.rssItem a:hover{
-  text-decoration:underline;
-}
-.rssDate{
-  font-size:11px;
-  opacity:0.65;
-  min-width: 78px;
-  flex: 0 0 auto;
-}
-.rssTitle{
-  font-size:12px;
-  line-height:1.35;
-}
+
 /* soft auto-scroll on larger lists */
 @media (prefers-reduced-motion: no-preference){
   .rssTicker.is-scrolling ul{
@@ -841,6 +804,21 @@ button:hover{
     0%{ transform: translateY(0); }
     100%{ transform: translateY(-40%); }
   }
+}
+
+
+/* ===== Budget progress bar ===== */
+.progressBar{
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(148,163,184,0.14);
+  border: 1px solid rgba(56,189,248,0.12);
+  overflow: hidden;
+}
+.progressFill{
+  height: 100%;
+  border-radius: 999px;
+  background: rgba(56,189,248,0.55);
 }
 
 </style>
@@ -1117,15 +1095,7 @@ button:hover{
           <div class="stat green" id="earningsStat"></div>
           <div class="stat blue" id="inventoryStat"></div>
         </div>
-
-
-        <div class="panel" id="rssPanel">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;">
-            <h3 style="margin:0;">Comic News Feed</h3>
-            <button class="btn tiny" id="rssRefreshBtn" type="button" title="Refresh feed">Refresh</button>
-          </div>
-
-          <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px;">
+<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px;">
             <select class="pill" id="rssPreset" style="min-width:210px;">
               <option value="">Choose a feed…</option>
               <option value="https://www.cbr.com/feed/">CBR (all)</option>
@@ -1143,6 +1113,51 @@ button:hover{
             Tip: Some publishers change RSS URLs. If a preset stops working, paste a different RSS feed link above.
           </div>
         </div>
+
+
+        <div class="panel" id="budgetPanel">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;">
+            <h3 style="margin:0;">Next Month Inventory Budget</h3>
+            <span class="pill muted" id="budgetMonthPill" style="height:30px;display:flex;align-items:center;">—</span>
+          </div>
+
+          <div class="grid2" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+            <div class="stat blue" id="mtdSalesStat">MTD SALES: $0</div>
+            <div class="stat muted" id="mtdProfitStat">MTD PROFIT: $0</div>
+            <div class="stat yellow" id="projSalesStat">PROJ SALES: $0</div>
+            <div class="stat green" id="nextBudgetStat">NEXT BUDGET: $0</div>
+          </div>
+
+          <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px;">
+            <div class="pill" style="display:flex;align-items:center;gap:10px;">
+              <span class="muted" style="font-size:12px;">Reinvest %</span>
+              <input id="reinvestPct" type="range" min="0" max="100" value="50" style="width:140px;">
+              <span id="reinvestPctLabel" style="font-size:12px;">50%</span>
+            </div>
+
+            <div class="pill" style="display:flex;align-items:center;gap:10px;">
+              <span class="muted" style="font-size:12px;">Mode</span>
+              <select id="budgetMode" class="pill" style="height:32px;padding:4px 10px;">
+                <option value="projected">Projected</option>
+                <option value="mtd">If month ended today</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="muted" style="font-size:12px;line-height:1.45;margin-bottom:8px;">
+            This estimates how much you can spend for <b>next month</b> based on what you’ve sold <b>so far this month</b>.
+            It auto-rolls forward each month.
+          </div>
+
+          <div style="margin-top:10px;">
+            <div class="muted" style="font-size:12px;margin-bottom:6px;">Month progress</div>
+            <div class="progressBar">
+              <div class="progressFill" id="monthProgressFill" style="width:0%"></div>
+            </div>
+            <div class="muted" style="font-size:11px;margin-top:6px;" id="monthProgressLabel">—</div>
+          </div>
+        </div>
+
 
 
         <div class="panel">
@@ -3006,7 +3021,8 @@ function onScrollBmc() {
 document.addEventListener("DOMContentLoaded", () => {
   initNetWorthUI();
 
-  const lock = document.getElementById("lockScreen");
+    initBudgetPanel();
+const lock = document.getElementById("lockScreen");
   if (!lock) return;
   const obs = new MutationObserver(() => updateBmcVisibility());
   obs.observe(lock, { attributes: true, attributeFilter: ["class"] });
@@ -3337,91 +3353,99 @@ function initNetWorthUI(){
 
 
 
-/* ========= RSS FEED (comic news) ========= */
-async function loadComicRSS(){
-  const ticker = document.getElementById("rssTicker");
-  const preset = document.getElementById("rssPreset");
-  const custom = document.getElementById("rssCustom");
-  if(!ticker) return;
-
-  const url = (custom && custom.value.trim()) || (preset && preset.value) || "";
-  if(!url){
-    ticker.innerHTML = '<div class="muted">Pick a feed and tap <b>Refresh</b>…</div>';
-    return;
-  }
-
-  ticker.innerHTML = '<div class="muted">Loading…</div>';
-  try{
-    // CORS-safe text proxy
-    const proxyUrl = "https://r.jina.ai/http://r.jina.ai/" + url.replace(/^https?:\/\//,"https://");
-    const res = await fetch(proxyUrl, { cache: "no-store" });
-    if(!res.ok) throw new Error("Fetch failed");
-    const text = await res.text();
-
-    // Proxy returns the raw page content. For RSS this should include XML.
-    // Extract the first "<rss" or "<feed" onward, as some proxies prepend headers.
-    const rssStart = text.search(/<rss[\s>]|<feed[\s>]/i);
-    const xmlText = rssStart >= 0 ? text.slice(rssStart) : text;
-
-    const doc = new DOMParser().parseFromString(xmlText, "text/xml");
-    const items = Array.from(doc.querySelectorAll("item")).slice(0, 12);
-
-    // Atom fallback
-    const entries = items.length ? [] : Array.from(doc.querySelectorAll("entry")).slice(0, 12);
-
-    const rows = [];
-    if(items.length){
-      for(const it of items){
-        const title = (it.querySelector("title")?.textContent || "").trim();
-        const link = (it.querySelector("link")?.textContent || "").trim();
-        const pub = (it.querySelector("pubDate")?.textContent || "").trim();
-        if(!title || !link) continue;
-        rows.push({title, link, pub});
-      }
-    }else{
-      for(const en of entries){
-        const title = (en.querySelector("title")?.textContent || "").trim();
-        const linkEl = en.querySelector("link");
-        const link = (linkEl?.getAttribute("href") || linkEl?.textContent || "").trim();
-        const pub = (en.querySelector("updated")?.textContent || en.querySelector("published")?.textContent || "").trim();
-        if(!title || !link) continue;
-        rows.push({title, link, pub});
-      }
-    }
-
-    if(!rows.length) throw new Error("No items parsed");
-
-    const fmtDate = (s)=>{
-      if(!s) return "";
-      const d = new Date(s);
-      if(isNaN(d.getTime())) return "";
-      return d.toLocaleDateString(undefined, { month:"short", day:"numeric" });
-    };
-
-    ticker.classList.toggle("is-scrolling", rows.length >= 8);
-
-    ticker.innerHTML = `<ul>${rows.map(r=>`
-      <li class="rssItem">
-        <div class="rssDate">${fmtDate(r.pub) || ""}</div>
-        <div class="rssTitle"><a href="${r.link}" target="_blank" rel="noopener">${escapeHtml(r.title)}</a></div>
-      </li>
-    `).join("")}</ul>`;
-
-  }catch(e){
-    ticker.classList.remove("is-scrolling");
-    ticker.innerHTML = '<div class="muted">Feed could not be loaded. Try a different RSS URL.</div>';
-  }
-}
-
-document.addEventListener("DOMContentLoaded", ()=>{
-  const btn = document.getElementById("rssRefreshBtn");
-  const preset = document.getElementById("rssPreset");
-  if(btn) btn.addEventListener("click", loadComicRSS);
-  if(preset) preset.addEventListener("change", ()=>{
-    const custom = document.getElementById("rssCustom");
-    if(custom) custom.value = "";
-  });
 });
+
+
+
+/* ========= NEXT MONTH INVENTORY BUDGET ========= */
+function getNextMonthLabel(d=new Date()){
+  const nm = new Date(d.getFullYear(), d.getMonth()+1, 1);
+  return nm.toLocaleString(undefined,{month:"long", year:"numeric"});
+}
+function sumSoldForMonth(soldItems, year, monthIndex){
+  // monthIndex: 0-11
+  let sales=0, profit=0;
+  for(const it of (soldItems||[])){
+    // Try common date fields
+    const ds = it.date || it.soldDate || it.sold_date || it.sold || it.datetime || "";
+    const dt = ds ? new Date(ds) : null;
+    if(!dt || isNaN(dt.getTime())) continue;
+    if(dt.getFullYear() !== year || dt.getMonth() !== monthIndex) continue;
+
+    const sale = parseFloat(it.sale ?? it.price ?? it.soldPrice ?? it.sold_price ?? 0) || 0;
+    const cost = parseFloat(it.cost ?? 0) || 0;
+    const fees = parseFloat(it.fees ?? 0) || 0;
+    const ship = parseFloat(it.ship ?? it.shipping ?? it.shipping_cost ?? 0) || 0;
+
+    sales += sale;
+    profit += (sale - cost - fees - ship);
+  }
+  return {sales, profit};
+}
+function updateBudgetPanel(){
+  const panel = document.getElementById("budgetPanel");
+  if(!panel) return;
+
+  const soldItems = (window.state && window.state.sold) ? window.state.sold : (window.soldItems || []);
+
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = now.getMonth();
+
+  const {sales:mtdSales, profit:mtdProfit} = sumSoldForMonth(soldItems, y, m);
+
+  const day = now.getDate();
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+  const pace = day > 0 ? (mtdSales / day) : 0;
+  const projSales = pace * daysInMonth;
+
+  // Reinvest percent
+  const pctEl = document.getElementById("reinvestPct");
+  const pctLabel = document.getElementById("reinvestPctLabel");
+  const modeEl = document.getElementById("budgetMode");
+  const pct = pctEl ? (parseInt(pctEl.value,10) || 0) : 0;
+  if(pctLabel) pctLabel.textContent = `${pct}%`;
+
+  // persist
+  try{ localStorage.setItem("resellr_reinvest_pct", String(pct)); }catch(e){}
+  const mode = modeEl ? modeEl.value : "projected";
+
+  const baseSales = (mode === "mtd") ? mtdSales : projSales;
+  const nextBudget = baseSales * (pct/100);
+
+  // UI
+  const monthPill = document.getElementById("budgetMonthPill");
+  if(monthPill) monthPill.textContent = `For ${getNextMonthLabel(now)}`;
+
+  const mtdSalesStat = document.getElementById("mtdSalesStat");
+  const mtdProfitStat = document.getElementById("mtdProfitStat");
+  const projSalesStat = document.getElementById("projSalesStat");
+  const nextBudgetStat = document.getElementById("nextBudgetStat");
+
+  if(mtdSalesStat) mtdSalesStat.textContent = `MTD SALES: ${formatDollars(mtdSales)}`;
+  if(mtdProfitStat) mtdProfitStat.textContent = `MTD PROFIT: ${formatDollars(mtdProfit)}`;
+  if(projSalesStat) projSalesStat.textContent = `PROJ SALES: ${formatDollars(projSales)}`;
+  if(nextBudgetStat) nextBudgetStat.textContent = `NEXT BUDGET: ${formatDollars(nextBudget)}`;
+
+  // Month progress
+  const fill = document.getElementById("monthProgressFill");
+  const lbl = document.getElementById("monthProgressLabel");
+  const pctMonth = Math.max(0, Math.min(100, (day/daysInMonth)*100));
+  if(fill) fill.style.width = `${pctMonth.toFixed(0)}%`;
+  if(lbl) lbl.textContent = `${day} / ${daysInMonth} days (${pctMonth.toFixed(0)}%) • Mode: ${mode === "mtd" ? "If month ended today" : "Projected at current pace"}`;
+}
+function initBudgetPanel(){
+  const pctEl = document.getElementById("reinvestPct");
+  const modeEl = document.getElementById("budgetMode");
+  // load persisted pct
+  try{
+    const saved = localStorage.getItem("resellr_reinvest_pct");
+    if(saved && pctEl) pctEl.value = saved;
+  }catch(e){}
+  if(pctEl) pctEl.addEventListener("input", updateBudgetPanel);
+  if(modeEl) modeEl.addEventListener("change", updateBudgetPanel);
+  updateBudgetPanel();
+}
 
 
 /* ========= BOOT ========= */
