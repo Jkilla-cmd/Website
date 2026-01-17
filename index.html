@@ -14,7 +14,87 @@
 <meta name="apple-mobile-web-app-title" content="RESELLr">
 <link rel="apple-touch-icon" href="./icons/icon-192.png">
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js">
+/* ========= PROFIT GRAPH ========= */
+let profitChart;
+function renderProfitGraph(){
+  const ctx = document.getElementById("profitChart");
+  if(!ctx) return;
+
+  const soldItems =
+    (window.state && Array.isArray(window.state.sold) ? window.state.sold : []) || [];
+
+  const byMonth = {};
+  soldItems.forEach(it=>{
+    const d = new Date(it.date || it.soldDate || it.sold || "");
+    if(isNaN(d)) return;
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    const sale = parseFloat(it.sale||0);
+    const cost = parseFloat(it.cost||0);
+    const fees = parseFloat(it.fees||0);
+    const ship = parseFloat(it.ship||0);
+    const profit = sale - cost - fees - ship;
+    byMonth[key] = (byMonth[key]||0) + profit;
+  });
+
+  const labels = Object.keys(byMonth).sort();
+  const data = labels.map(k=>byMonth[k]);
+
+  if(profitChart) profitChart.destroy();
+  profitChart = new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels,
+      datasets:[{
+        backgroundColor: data.map(v => v >= 0 ? 'rgba(34,197,94,0.7)' : 'rgba(239,68,68,0.7)'),
+        label:'Net Profit',
+        data,
+        borderWidth:0
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      scales:{
+        y:{ ticks:{ callback:v=>'$'+v } }
+      }
+    }
+  });
+}
+
+
+/* === Overlay Profit Line on Income Graph === */
+function addProfitOverlay(incomeChartInstance){
+  if(!incomeChartInstance) return;
+  const soldItems = (window.state && window.state.sold) ? window.state.sold : [];
+  const byMonth = {};
+  soldItems.forEach(it=>{
+    const d = new Date(it.date || it.soldDate || it.sold || "");
+    if(isNaN(d)) return;
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    const sale = parseFloat(it.sale||0);
+    const cost = parseFloat(it.cost||0);
+    const fees = parseFloat(it.fees||0);
+    const ship = parseFloat(it.ship||0);
+    byMonth[key] = (byMonth[key]||0) + (sale-cost-fees-ship);
+  });
+
+  const labels = incomeChartInstance.data.labels;
+  const profitData = labels.map(l => byMonth[l] || 0);
+
+  incomeChartInstance.data.datasets.push({
+    type:'line',
+    label:'Net Profit',
+    data: profitData,
+    borderColor:'rgba(34,197,94,0.9)',
+    backgroundColor:'rgba(34,197,94,0.2)',
+    tension:0.3,
+    yAxisID:'y'
+  });
+  incomeChartInstance.update();
+}
+
+</script>
 
 <style>
 
@@ -766,19 +846,23 @@ button:hover{
 }
 
 
-/* === Full-width Income Graph === */
-#secDashboard .income-full{
+/* === Full-width Dashboard Graphs === */
+#secDashboard .income-full,
+#secDashboard .profit-full{
   grid-column: 1 / -1;
 }
-#secDashboard .income-full .chart-wrap{
+#secDashboard .income-full .chart-wrap,
+#secDashboard .profit-full .chart-wrap{
   height: 360px;
 }
 @media (max-width: 900px){
-  #secDashboard .income-full{
+  #secDashboard .income-full,
+  #secDashboard .profit-full{
     grid-column: auto;
   }
-  #secDashboard .income-full .chart-wrap{
-    height: 280px;
+  #secDashboard .income-full .chart-wrap,
+  #secDashboard .profit-full .chart-wrap{
+    height: 260px;
   }
 }
 
@@ -1116,6 +1200,14 @@ button:hover{
           <button class="danger" onclick="resetMonthlyIncome()">Reset Month Data</button>
           <div class="stat muted" id="monthCountStat"></div>
         </div>
+
+        <div class="panel profit-full">
+          <h3>Net Profit Graph</h3>
+          <div class="chart-wrap">
+            <canvas id="profitChart"></canvas>
+          </div>
+        </div>
+
       </div>
     </section>
 
@@ -3379,8 +3471,89 @@ window.onload = () => {
   renderSold();
   loadIncomeChart();
   initBudgetPanel();
-  showSection('secDashboard');
+  renderProfitGraph();
+showSection('secDashboard');
 };
+
+
+/* ========= PROFIT GRAPH ========= */
+let profitChart;
+function renderProfitGraph(){
+  const ctx = document.getElementById("profitChart");
+  if(!ctx) return;
+
+  const soldItems =
+    (window.state && Array.isArray(window.state.sold) ? window.state.sold : []) || [];
+
+  const byMonth = {};
+  soldItems.forEach(it=>{
+    const d = new Date(it.date || it.soldDate || it.sold || "");
+    if(isNaN(d)) return;
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    const sale = parseFloat(it.sale||0);
+    const cost = parseFloat(it.cost||0);
+    const fees = parseFloat(it.fees||0);
+    const ship = parseFloat(it.ship||0);
+    const profit = sale - cost - fees - ship;
+    byMonth[key] = (byMonth[key]||0) + profit;
+  });
+
+  const labels = Object.keys(byMonth).sort();
+  const data = labels.map(k=>byMonth[k]);
+
+  if(profitChart) profitChart.destroy();
+  profitChart = new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels,
+      datasets:[{
+        backgroundColor: data.map(v => v >= 0 ? 'rgba(34,197,94,0.7)' : 'rgba(239,68,68,0.7)'),
+        label:'Net Profit',
+        data,
+        borderWidth:0
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      scales:{
+        y:{ ticks:{ callback:v=>'$'+v } }
+      }
+    }
+  });
+}
+
+
+/* === Overlay Profit Line on Income Graph === */
+function addProfitOverlay(incomeChartInstance){
+  if(!incomeChartInstance) return;
+  const soldItems = (window.state && window.state.sold) ? window.state.sold : [];
+  const byMonth = {};
+  soldItems.forEach(it=>{
+    const d = new Date(it.date || it.soldDate || it.sold || "");
+    if(isNaN(d)) return;
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    const sale = parseFloat(it.sale||0);
+    const cost = parseFloat(it.cost||0);
+    const fees = parseFloat(it.fees||0);
+    const ship = parseFloat(it.ship||0);
+    byMonth[key] = (byMonth[key]||0) + (sale-cost-fees-ship);
+  });
+
+  const labels = incomeChartInstance.data.labels;
+  const profitData = labels.map(l => byMonth[l] || 0);
+
+  incomeChartInstance.data.datasets.push({
+    type:'line',
+    label:'Net Profit',
+    data: profitData,
+    borderColor:'rgba(34,197,94,0.9)',
+    backgroundColor:'rgba(34,197,94,0.2)',
+    tension:0.3,
+    yAxisID:'y'
+  });
+  incomeChartInstance.update();
+}
 
 </script>
 
