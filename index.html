@@ -94,6 +94,54 @@ function addProfitOverlay(incomeChartInstance){
   incomeChartInstance.update();
 }
 
+
+/* ========= GROSS PROFIT GRAPH ========= */
+let grossProfitChart;
+function renderGrossProfitGraph(){
+  const ctx = document.getElementById("grossProfitChart");
+  if(!ctx) return;
+
+  const soldItems =
+    (window.state && Array.isArray(window.state.sold) ? window.state.sold : []) || [];
+
+  const byMonth = {};
+  soldItems.forEach(it=>{
+    const d = new Date(it.date || it.soldDate || it.sold || "");
+    if(isNaN(d)) return;
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    const sale = parseFloat(it.sale||0);
+    const cost = parseFloat(it.cost||0);
+    const gross = sale - cost;
+    byMonth[key] = (byMonth[key]||0) + gross;
+  });
+
+  const labels = Object.keys(byMonth).sort();
+  const data = labels.map(k=>byMonth[k]);
+
+  if(grossProfitChart) grossProfitChart.destroy();
+  grossProfitChart = new Chart(ctx,{
+    type:'line',
+    data:{
+      labels,
+      datasets:[{
+        label:'Gross Profit',
+        data,
+        borderColor:'rgba(56,189,248,0.9)',
+        backgroundColor:'rgba(56,189,248,0.25)',
+        tension:0.3,
+        fill:true
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      scales:{
+        y:{ ticks:{ callback:v=>'$'+v } }
+      }
+    }
+  });
+}
+
 </script>
 
 <style>
@@ -340,8 +388,9 @@ tr:hover td { background: rgba(56,189,248,0.04); }
   display: grid;
   grid-template-columns: 260px 1fr;
   gap: 16px;
-  max-width: 1280px;
+  max-width: 1600px;
   margin: 0 auto;
+  padding: 0 8px;
 }
 .app.sidebar-closed { grid-template-columns: 1fr; }
 .app.sidebar-closed .sidebar { display: none; }
@@ -3472,6 +3521,7 @@ window.onload = () => {
   loadIncomeChart();
   initBudgetPanel();
   renderProfitGraph();
+  renderGrossProfitGraph();
 showSection('secDashboard');
 };
 
@@ -3553,6 +3603,54 @@ function addProfitOverlay(incomeChartInstance){
     yAxisID:'y'
   });
   incomeChartInstance.update();
+}
+
+
+/* ========= GROSS PROFIT GRAPH ========= */
+let grossProfitChart;
+function renderGrossProfitGraph(){
+  const ctx = document.getElementById("grossProfitChart");
+  if(!ctx) return;
+
+  const soldItems =
+    (window.state && Array.isArray(window.state.sold) ? window.state.sold : []) || [];
+
+  const byMonth = {};
+  soldItems.forEach(it=>{
+    const d = new Date(it.date || it.soldDate || it.sold || "");
+    if(isNaN(d)) return;
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    const sale = parseFloat(it.sale||0);
+    const cost = parseFloat(it.cost||0);
+    const gross = sale - cost;
+    byMonth[key] = (byMonth[key]||0) + gross;
+  });
+
+  const labels = Object.keys(byMonth).sort();
+  const data = labels.map(k=>byMonth[k]);
+
+  if(grossProfitChart) grossProfitChart.destroy();
+  grossProfitChart = new Chart(ctx,{
+    type:'line',
+    data:{
+      labels,
+      datasets:[{
+        label:'Gross Profit',
+        data,
+        borderColor:'rgba(56,189,248,0.9)',
+        backgroundColor:'rgba(56,189,248,0.25)',
+        tension:0.3,
+        fill:true
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      scales:{
+        y:{ ticks:{ callback:v=>'$'+v } }
+      }
+    }
+  });
 }
 
 </script>
