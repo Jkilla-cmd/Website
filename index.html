@@ -794,6 +794,7 @@ button:hover{
 }
 
 
+
 /* soft auto-scroll on larger lists */
 @media (prefers-reduced-motion: no-preference){
   .rssTicker.is-scrolling ul{
@@ -803,21 +804,6 @@ button:hover{
     0%{ transform: translateY(0); }
     100%{ transform: translateY(-40%); }
   }
-}
-
-
-/* ===== Budget progress bar ===== */
-.progressBar{
-  height: 10px;
-  border-radius: 999px;
-  background: rgba(148,163,184,0.14);
-  border: 1px solid rgba(56,189,248,0.12);
-  overflow: hidden;
-}
-.progressFill{
-  height: 100%;
-  border-radius: 999px;
-  background: rgba(56,189,248,0.55);
 }
 
 </style>
@@ -1094,25 +1080,6 @@ button:hover{
           <div class="stat green" id="earningsStat"></div>
           <div class="stat blue" id="inventoryStat"></div>
         </div>
-<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px;">
-            <select class="pill" id="rssPreset" style="min-width:210px;">
-              <option value="">Choose a feed…</option>
-              <option value="https://www.cbr.com/feed/">CBR (all)</option>
-              <option value="https://bleedingcool.com/comics/feed/">Bleeding Cool (comics)</option>
-              <option value="https://www.newsarama.com/rss/">Newsarama</option>
-            </select>
-            <input class="pill" id="rssCustom" placeholder="Or paste an RSS URL…" style="flex:1;min-width:220px;" />
-          </div>
-
-          <div class="rssTicker" id="rssTicker">
-            <div class="muted">Pick a feed and tap <b>Refresh</b>…</div>
-          </div>
-
-          <div class="muted" style="font-size:11px;line-height:1.45;margin-top:10px;">
-            Tip: Some publishers change RSS URLs. If a preset stops working, paste a different RSS feed link above.
-          </div>
-        </div>
-
 
         <div class="panel" id="budgetPanel">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;">
@@ -1144,19 +1111,34 @@ button:hover{
           </div>
 
           <div class="muted" style="font-size:12px;line-height:1.45;margin-bottom:8px;">
-            Estimates what you can spend for <b>next month</b> using what you’ve sold <b>so far this month</b>.
-            It auto-rolls forward each month.
+            Estimates what you can spend for <b>next month</b> using what you’ve sold <b>so far this month</b>. It auto-rolls forward each month.
           </div>
 
           <div style="margin-top:10px;">
             <div class="muted" style="font-size:12px;margin-bottom:6px;">Month progress</div>
-            <div class="progressBar">
-              <div class="progressFill" id="monthProgressFill" style="width:0%"></div>
-            </div>
+            <div class="progressBar"><div class="progressFill" id="monthProgressFill" style="width:0%"></div></div>
             <div class="muted" style="font-size:11px;margin-top:6px;" id="monthProgressLabel">—</div>
           </div>
         </div>
 
+          <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px;">
+            <select class="pill" id="rssPreset" style="min-width:210px;">
+              <option value="">…</option>
+              <option value="https://www.cbr.com/feed/">CBR (all)</option>
+              <option value="https://bleedingcool.com/comics/feed/">Bleeding Cool (comics)</option>
+              <option value="https://www.newsarama.com/rss/">Newsarama</option>
+            </select>
+            <input class="pill" id="rssCustom" placeholder="…" style="flex:1;min-width:220px;" />
+          </div>
+
+          <div class="rssTicker" id="rssTicker">
+            <div class="muted"> <b>Refresh</b>…</div>
+          </div>
+
+          <div class="muted" style="font-size:11px;line-height:1.45;margin-top:10px;">
+            Tip: Some publishers change RSS URLs. If a preset stops working, paste a different RSS feed link above.
+          </div>
+        </div>
 
 
         <div class="panel">
@@ -2011,6 +1993,7 @@ let soldProfitChartObj, soldItemsChartObj;
 
 function readSold() { return JSON.parse(localStorage.getItem(SOLD_KEY)) || []; }
 function writeSold(arr) { localStorage.setItem(SOLD_KEY, JSON.stringify(arr)); }
+try{ updateBudgetPanel(); }catch(e){}
 
 /* Build monthlyIncome from sold rows (sale totals by month) */
 function rebuildMonthlyIncomeFromSold() {
@@ -2039,6 +2022,8 @@ function rebuildMonthlyIncomeFromSold() {
   localStorage.setItem("monthlyIncome", JSON.stringify(monthly));
   loadIncomeChart();
 }
+try{ updateBudgetPanel(); }catch(e){}
+
 
 function parseCSV(text) {
   const rows = [];
@@ -3017,91 +3002,433 @@ function onScrollBmc() {
 
 
 /* Keep support button in sync with lock screen */
+document.addEventListener("DOMContentLoaded", () => {
+  initNetWorthUI();
+
+  const lock = document.getElementById("lockScreen");
+  if (!lock) return;
+  const obs = new MutationObserver(() => updateBmcVisibility());
+  obs.observe(lock, { attributes: true, attributeFilter: ["class"] });
+});
+
+
+/* ========= Active Inventory Search ========= */
+let activeSearch = "";
+function setActiveSearch(val){
+  activeSearch = (val || "").trim().toLowerCase();
+  renderActive();
+}
+function matchesActiveSearch(obj){
+  if (!activeSearch) return true;
+  const hay = [obj.item, obj.notes, obj.platform, obj.type].join(" ").toLowerCase();
+  return hay.includes(activeSearch);
+}
+
+
+/* ========= Search Helpers ========= */
+let activeSearchTerm = "";
+let soldSearchTerm = "";
+
+function setActiveSearch(val){
+  activeSearchTerm = (val || "").trim().toLowerCase();
+  renderActive();
+}
+function matchesActiveSearch(obj){
+  if (!activeSearchTerm) return true;
+  const hay = [obj.item, obj.notes, obj.platform, obj.type].join(" ").toLowerCase();
+  return hay.includes(activeSearchTerm);
+}
+
+function setSoldSearch(val){
+  soldSearchTerm = (val || "").trim().toLowerCase();
+  renderSold();
+}
+function matchesSoldSearch(obj){
+  if (!soldSearchTerm) return true;
+  const hay = [obj.item, obj.platform, obj.type].join(" ").toLowerCase();
+  return hay.includes(soldSearchTerm);
+}
+
+
+
+
+/* ========= Sold Summary + Charts (safe) ========= */
+window.otsUpdateSoldSummaryAndCharts = function(){
+  try{
+    const all = (typeof readSold === "function") ? readSold() : [];
+    const year = document.getElementById("soldYearFilter")?.value || "ALL";
+    const month = document.getElementById("soldMonthFilter")?.value || "ALL";
+    const platform = document.getElementById("soldPlatformFilter")?.value || "ALL";
+    const type = document.getElementById("soldTypeFilter")?.value || "ALL";
+
+    const filtered = all.filter(r => {
+      const yr = (typeof extractYear==="function") ? extractYear(r.date) : "";
+      const mk = (typeof monthKey==="function") ? monthKey(r.date) : "";
+      const okY = (year==="ALL") || (yr===year);
+      const okM = (month==="ALL") || (mk===month);
+      const okP = (platform==="ALL") || (String(r.platform||"")===platform);
+      const okT = (type==="ALL") || (String(r.type||"")===type);
+      const okS = (typeof matchesSoldSearch==="function") ? matchesSoldSearch(r) : true;
+      return okY && okM && okP && okT && okS;
+    });
+
+    const revenue = filtered.reduce((s,x)=>s + (Number(x.sale)||0), 0);
+    const profit  = filtered.reduce((s,x)=>s + (Number(x.profit)||0), 0);
+    const items   = filtered.length;
+    const avg     = items ? profit/items : 0;
+
+    const revEl = document.getElementById("soldRevenueStat");
+    const proEl = document.getElementById("soldProfitStat");
+    const itEl  = document.getElementById("soldItemsStat");
+    const avgEl = document.getElementById("soldAvgStat");
+
+    if (revEl) revEl.textContent = `REVENUE: ${formatDollars(revenue)}`;
+    if (proEl){
+      proEl.textContent = `PROFIT: ${formatDollars(profit)}`;
+      proEl.classList.remove("profit-pos","profit-neg","profit-zero");
+      if (profit > 0) proEl.classList.add("profit-pos");
+      else if (profit < 0) proEl.classList.add("profit-neg");
+      else proEl.classList.add("profit-zero");
+    }
+    if (itEl) itEl.textContent = `ITEMS SOLD: ${items}`;
+    if (avgEl) avgEl.textContent = `AVG PROFIT/ITEM: ${formatDollars(avg)}`;
+
+    // Charts (monthly)
+    const buckets = {};
+    for (const r of filtered){
+      const k = (typeof monthKey==="function") ? monthKey(r.date) : "";
+      if (!k) continue;
+      if (!buckets[k]) buckets[k] = {profit:0, items:0};
+      buckets[k].profit += Number(r.profit)||0;
+      buckets[k].items += 1;
+    }
+    const labels = Object.keys(buckets).sort();
+    const profitSeries = labels.map(k => +buckets[k].profit.toFixed(2));
+    const itemsSeries  = labels.map(k => buckets[k].items);
+
+    if (typeof Chart !== "undefined"){
+      const c1 = document.getElementById("soldProfitChart");
+      const c2 = document.getElementById("soldItemsChart");
+
+      if (c1){
+        if (window._otsSoldProfitChart) window._otsSoldProfitChart.destroy();
+        window._otsSoldProfitChart = new Chart(c1, {
+          type: "bar",
+          data: { labels, datasets: [{ label: "Profit", data: profitSeries }] },
+          options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}} }
+        });
+      }
+      if (c2){
+        if (window._otsSoldItemsChart) window._otsSoldItemsChart.destroy();
+        window._otsSoldItemsChart = new Chart(c2, {
+          type: "bar",
+          data: { labels, datasets: [{ label: "Items Sold", data: itemsSeries }] },
+          options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true, ticks:{precision:0}}} }
+        });
+      }
+    }
+  }catch(e){}
+};
+
+
+/* ========= Sold Summary + Charts ========= */
+let otsSoldProfitChart = null;
+let otsSoldItemsChart = null;
+
+function getFilteredSoldForSummary(){
+  const all = readSold();
+  const year = document.getElementById("soldYearFilter")?.value || "ALL";
+  const month = document.getElementById("soldMonthFilter")?.value || "ALL";
+  const platform = document.getElementById("soldPlatformFilter")?.value || "ALL";
+  const type = document.getElementById("soldTypeFilter")?.value || "ALL";
+  return all.filter(r => {
+    const yr = extractYear(r.date);
+    const mk = monthKey(r.date);
+    const okY = (year==="ALL") || (yr===year);
+    const okM = (month==="ALL") || (mk===month);
+    const okP = (platform==="ALL") || (String(r.platform||"")===platform);
+    const okT = (type==="ALL") || (String(r.type||"")===type);
+    return okY && okM && okP && okT && (typeof matchesSoldSearch==="function" ? matchesSoldSearch(r) : true);
+  });
+}
+
+function updateSoldSummaryAndCharts(){
+  const data = getFilteredSoldForSummary();
+
+  const revenue = data.reduce((s,x)=> s + (Number(x.sale)||0), 0);
+  const profit  = data.reduce((s,x)=> s + (Number(x.profit)||0), 0);
+  const items   = data.length;
+  const avg     = items ? profit/items : 0;
+
+  const revEl = document.getElementById("soldRevenueStat");
+  const proEl = document.getElementById("soldProfitStat");
+  const itEl  = document.getElementById("soldItemsStat");
+  const avgEl = document.getElementById("soldAvgStat");
+
+  if (revEl) revEl.textContent = `REVENUE: ${formatDollars(revenue)}`;
+  if (proEl){
+    proEl.textContent = `PROFIT: ${formatDollars(profit)}`;
+    proEl.classList.remove("profit-pos","profit-neg","profit-zero");
+    if (profit > 0) proEl.classList.add("profit-pos");
+    else if (profit < 0) proEl.classList.add("profit-neg");
+    else proEl.classList.add("profit-zero");
+  }
+  if (itEl) itEl.textContent = `ITEMS SOLD: ${items}`;
+  if (avgEl) avgEl.textContent = `AVG PROFIT/ITEM: ${formatDollars(avg)}`;
+
+  // Monthly buckets
+  const buckets = {};
+  for (const r of data){
+    const mk = monthKey(r.date);
+    if (!mk) continue;
+    if (!buckets[mk]) buckets[mk] = {profit:0, items:0};
+    buckets[mk].profit += Number(r.profit)||0;
+    buckets[mk].items += 1;
+  }
+  const labels = Object.keys(buckets).sort();
+  const profitSeries = labels.map(k => +buckets[k].profit.toFixed(2));
+  const itemsSeries = labels.map(k => buckets[k].items);
+
+  const canvasP = document.getElementById("soldProfitChart");
+  const canvasI = document.getElementById("soldItemsChart");
+  if (typeof Chart === "undefined") return;
+
+  if (canvasP){
+    if (otsSoldProfitChart) otsSoldProfitChart.destroy();
+    otsSoldProfitChart = new Chart(canvasP, {
+      type: "bar",
+      data: { labels, datasets: [{ label: "Profit", data: profitSeries }] },
+      options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ y:{ beginAtZero:true } } }
+    });
+  }
+  if (canvasI){
+    if (otsSoldItemsChart) otsSoldItemsChart.destroy();
+    otsSoldItemsChart = new Chart(canvasI, {
+      type: "bar",
+      data: { labels, datasets: [{ label: "Items Sold", data: itemsSeries }] },
+      options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ y:{ beginAtZero:true, ticks:{ precision:0 } } } }
+    });
+  }
+}
+// alias for older calls
+window.otsUpdateSoldSummaryAndCharts = updateSoldSummaryAndCharts;
+
+
+/* ========= NET WORTH ========= */
+const NW_SHOW_KEY = "resellr_nw_show";
+const NW_CONS_KEY = "resellr_nw_conservative";
+
+function startOfToday() {
+  const d = new Date();
+  d.setHours(0,0,0,0);
+  return d;
+}
+function parseDateSafe(s){
+  if (!s) return null;
+  // Accept YYYY-MM-DD
+  const d = new Date(s + "T00:00:00");
+  return isNaN(d.getTime()) ? null : d;
+}
+function sumActiveValue(conservative=false){
+  const active = readActive();
+  let invCost = 0;
+  let invValue = 0;
+  active.forEach(r=>{
+    const qty = Number(r.qty ?? 1) || 1;
+    const cost = Number(r.cost)||0;
+    const list = Number(r.list)||0;
+    invCost += cost * qty;
+    invValue += (conservative ? cost : list) * qty;
+  });
+  return { invCost, invValue };
+}
+function sumRealizedProfit(range){
+  const sold = readSold();
+  const today = startOfToday();
+  let minDate = null;
+
+  if (range === "ytd") {
+    minDate = new Date(today.getFullYear(), 0, 1);
+  } else if (range === "30") {
+    minDate = new Date(today);
+    minDate.setDate(minDate.getDate() - 30);
+  }
+
+  return sold.reduce((sum, r)=>{
+    const p = Number(r.profit)||0;
+    if (!minDate) return sum + p;
+    const d = parseDateSafe(r.date);
+    if (!d) return sum + p; // if missing date, still count it
+    return (d >= minDate) ? sum + p : sum;
+  }, 0);
+}
+
+function updateNetWorth(){
+  const panel = document.getElementById("netWorthPanel");
+  if (!panel) return;
+
+  const showToggle = document.getElementById("nwShowToggle");
+  const consToggle = document.getElementById("nwConservativeToggle");
+  const rangeSel = document.getElementById("nwRange");
+
+  const show = showToggle ? !!showToggle.checked : true;
+  panel.classList.toggle("is-hidden", !show);
+
+  const conservative = consToggle ? !!consToggle.checked : false;
+  const range = rangeSel ? rangeSel.value : "all";
+
+  const { invCost, invValue } = sumActiveValue(conservative);
+  const realized = sumRealizedProfit(range);
+
+  const unrealized = invValue - invCost;
+  const netWorth = invValue + realized;
+
+  const setText = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  };
+
+  setText("nwInvValue", formatDollars(invValue));
+  setText("nwInvCost", formatDollars(invCost));
+  setText("nwUnrealized", formatDollars(unrealized));
+  setText("nwRealized", formatDollars(realized));
+  setText("nwTotal", formatDollars(netWorth));
+  const asOf = document.getElementById("nwAsOf");
+  if (asOf) asOf.textContent = `As of ${new Date().toLocaleString()}`;
+
+  // color the total
+  const totalEl = document.getElementById("nwTotal");
+  if (totalEl){
+    totalEl.classList.remove("nw-pos","nw-neg");
+    if (netWorth > 0) totalEl.classList.add("nw-pos");
+    if (netWorth < 0) totalEl.classList.add("nw-neg");
+  }
+}
+
+function initNetWorthUI(){
+  const showToggle = document.getElementById("nwShowToggle");
+  const consToggle = document.getElementById("nwConservativeToggle");
+  const rangeSel = document.getElementById("nwRange");
+
+  // restore saved preferences
+  if (showToggle){
+    const saved = localStorage.getItem(NW_SHOW_KEY);
+    showToggle.checked = saved === null ? true : (saved === "1");
+    showToggle.addEventListener("change", ()=>{
+      localStorage.setItem(NW_SHOW_KEY, showToggle.checked ? "1" : "0");
+      updateNetWorth();
+    });
+  }
+  if (consToggle){
+    const saved = localStorage.getItem(NW_CONS_KEY);
+    consToggle.checked = saved === "1";
+    consToggle.addEventListener("change", ()=>{
+      localStorage.setItem(NW_CONS_KEY, consToggle.checked ? "1" : "0");
+      updateNetWorth();
+    });
+  }
+  if (rangeSel){
+    rangeSel.addEventListener("change", updateNetWorth);
+  }
+
+  updateNetWorth();
+}
+
+
+
 
 
 
 /* ========= NEXT MONTH INVENTORY BUDGET ========= */
-function getNextMonthLabel(d=new Date()){
+function _getNextMonthLabel(d){
   const nm = new Date(d.getFullYear(), d.getMonth()+1, 1);
-  return nm.toLocaleString(undefined,{month:"long", year:"numeric"});
+  return nm.toLocaleString(undefined,{month:'long', year:'numeric'});
 }
-function sumSoldForMonth(soldItems, year, monthIndex){
+function _parseDateSafe(ds){
+  if(!ds) return null;
+  if(ds instanceof Date) return isNaN(ds.getTime())?null:ds;
+  const s = String(ds).trim();
+  let d = new Date(s);
+  if(!isNaN(d.getTime())) return d;
+  let m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(m){ d=new Date(+m[3], +m[1]-1, +m[2]); if(!isNaN(d.getTime())) return d; }
+  m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if(m){ d=new Date(+m[1], +m[2]-1, +m[3]); if(!isNaN(d.getTime())) return d; }
+  return null;
+}
+function _sumSoldForMonth(rows, y, m){
   let sales=0, profit=0;
-  for(const it of (soldItems||[])){
-    const ds = it.date || it.soldDate || it.sold_date || it.sold || it.datetime || "";
-    const dt = ds ? new Date(ds) : null;
-    if(!dt || isNaN(dt.getTime())) continue;
-    if(dt.getFullYear() !== year || dt.getMonth() !== monthIndex) continue;
-
-    const sale = parseFloat(it.sale ?? it.price ?? it.soldPrice ?? it.sold_price ?? 0) || 0;
-    const cost = parseFloat(it.cost ?? 0) || 0;
-    const fees = parseFloat(it.fees ?? 0) || 0;
-    const ship = parseFloat(it.ship ?? it.shipping ?? it.shipping_cost ?? 0) || 0;
-
+  (rows||[]).forEach(r=>{
+    const dt=_parseDateSafe(r.date||r.soldDate||r.sold_date||r.saleDate||'');
+    if(!dt) return;
+    if(dt.getFullYear()!=y || dt.getMonth()!=m) return;
+    const sale=Number(r.sale||r.price||0)||0;
+    const cost=Number(r.cost||0)||0;
+    const fees=Number(r.fees||0)||0;
+    const ship=Number(r.shipping||r.ship||0)||0;
     sales += sale;
     profit += (sale - cost - fees - ship);
-  }
+  });
   return {sales, profit};
 }
 function updateBudgetPanel(){
-  const panel = document.getElementById("budgetPanel");
+  const panel=document.getElementById('budgetPanel');
   if(!panel) return;
+  const sold = (typeof readSold==='function') ? readSold() : (JSON.parse(localStorage.getItem('soldInventory')||'[]')||[]);
 
-  const soldItems =
-    (window.state && Array.isArray(window.state.sold) ? window.state.sold : null) ||
-    (Array.isArray(window.soldItems) ? window.soldItems : null) ||
-    [];
+  const now=new Date();
+  const y=now.getFullYear();
+  const m=now.getMonth();
+  const day=now.getDate();
+  const daysInMonth=new Date(y, m+1, 0).getDate();
 
-  const now = new Date();
-  const y = now.getFullYear();
-  const m = now.getMonth();
-
-  const {sales:mtdSales, profit:mtdProfit} = sumSoldForMonth(soldItems, y, m);
-
-  const day = now.getDate();
-  const daysInMonth = new Date(y, m+1, 0).getDate();
-  const pace = day > 0 ? (mtdSales / day) : 0;
+  const sums=_sumSoldForMonth(sold, y, m);
+  const mtdSales=sums.sales;
+  const mtdProfit=sums.profit;
+  const pace = day>0 ? (mtdSales/day) : 0;
   const projSales = pace * daysInMonth;
 
-  const pctEl = document.getElementById("reinvestPct");
-  const pctLabel = document.getElementById("reinvestPctLabel");
-  const modeEl = document.getElementById("budgetMode");
-  const pct = pctEl ? (parseInt(pctEl.value,10) || 0) : 0;
-  if(pctLabel) pctLabel.textContent = `${pct}%`;
-  try{ localStorage.setItem("resellr_reinvest_pct", String(pct)); }catch(e){}
+  const pctEl=document.getElementById('reinvestPct');
+  const pctLabel=document.getElementById('reinvestPctLabel');
+  const modeEl=document.getElementById('budgetMode');
+  let pct=50;
+  if(pctEl) pct = parseInt(pctEl.value||'50',10)||50;
+  if(pctLabel) pctLabel.textContent = pct+'%';
+  try{ localStorage.setItem('resellr_reinvest_pct', String(pct)); }catch(e){}
 
-  const mode = modeEl ? modeEl.value : "projected";
-  const baseSales = (mode === "mtd") ? mtdSales : projSales;
+  const mode = modeEl ? modeEl.value : 'projected';
+  const baseSales = (mode==='mtd') ? mtdSales : projSales;
   const nextBudget = baseSales * (pct/100);
 
-  const monthPill = document.getElementById("budgetMonthPill");
-  if(monthPill) monthPill.textContent = `For ${getNextMonthLabel(now)}`;
+  const monthPill=document.getElementById('budgetMonthPill');
+  if(monthPill) monthPill.textContent = 'For ' + _getNextMonthLabel(now);
 
-  const mtdSalesStat = document.getElementById("mtdSalesStat");
-  const mtdProfitStat = document.getElementById("mtdProfitStat");
-  const projSalesStat = document.getElementById("projSalesStat");
-  const nextBudgetStat = document.getElementById("nextBudgetStat");
+  const setText=(id, txt)=>{ const el=document.getElementById(id); if(el) el.textContent=txt; };
+  if(typeof formatDollars==='function'){
+    setText('mtdSalesStat', 'MTD SALES: ' + formatDollars(mtdSales));
+    setText('mtdProfitStat','MTD PROFIT: ' + formatDollars(mtdProfit));
+    setText('projSalesStat','PROJ SALES: ' + formatDollars(projSales));
+    setText('nextBudgetStat','NEXT BUDGET: ' + formatDollars(nextBudget));
+  }else{
+    const fd=(v)=>'$'+(Math.round((v||0)*100)/100).toLocaleString();
+    setText('mtdSalesStat', 'MTD SALES: ' + fd(mtdSales));
+    setText('mtdProfitStat','MTD PROFIT: ' + fd(mtdProfit));
+    setText('projSalesStat','PROJ SALES: ' + fd(projSales));
+    setText('nextBudgetStat','NEXT BUDGET: ' + fd(nextBudget));
+  }
 
-  if(mtdSalesStat) mtdSalesStat.textContent = `MTD SALES: ${formatDollars(mtdSales)}`;
-  if(mtdProfitStat) mtdProfitStat.textContent = `MTD PROFIT: ${formatDollars(mtdProfit)}`;
-  if(projSalesStat) projSalesStat.textContent = `PROJ SALES: ${formatDollars(projSales)}`;
-  if(nextBudgetStat) nextBudgetStat.textContent = `NEXT BUDGET: ${formatDollars(nextBudget)}`;
-
-  const fill = document.getElementById("monthProgressFill");
-  const lbl = document.getElementById("monthProgressLabel");
-  const pctMonth = Math.max(0, Math.min(100, (day/daysInMonth)*100));
-  if(fill) fill.style.width = `${pctMonth.toFixed(0)}%`;
-  if(lbl) lbl.textContent = `${day} / ${daysInMonth} days (${pctMonth.toFixed(0)}%) • Mode: ${mode === "mtd" ? "If month ended today" : "Projected at current pace"}`;
+  const fill=document.getElementById('monthProgressFill');
+  const lbl=document.getElementById('monthProgressLabel');
+  const pctMonth=Math.max(0, Math.min(100, (day/daysInMonth)*100));
+  if(fill) fill.style.width = pctMonth.toFixed(0)+'%';
+  if(lbl) lbl.textContent = day+' / '+daysInMonth+' days ('+pctMonth.toFixed(0)+'%) • Mode: ' + (mode==='mtd'?'If month ended today':'Projected at current pace');
 }
 function initBudgetPanel(){
-  const pctEl = document.getElementById("reinvestPct");
-  const modeEl = document.getElementById("budgetMode");
-  try{
-    const saved = localStorage.getItem("resellr_reinvest_pct");
-    if(saved && pctEl) pctEl.value = saved;
-  }catch(e){}
-  if(pctEl) pctEl.addEventListener("input", updateBudgetPanel);
-  if(modeEl) modeEl.addEventListener("change", updateBudgetPanel);
+  const pctEl=document.getElementById('reinvestPct');
+  const modeEl=document.getElementById('budgetMode');
+  try{ const saved=localStorage.getItem('resellr_reinvest_pct'); if(saved && pctEl) pctEl.value=saved; }catch(e){}
+  if(pctEl) pctEl.addEventListener('input', updateBudgetPanel);
+  if(modeEl) modeEl.addEventListener('change', updateBudgetPanel);
   updateBudgetPanel();
 }
 
