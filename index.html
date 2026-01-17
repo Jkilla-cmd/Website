@@ -797,10 +797,7 @@ button:hover{
 
 /* soft auto-scroll on larger lists */
 @media (prefers-reduced-motion: no-preference){
-  .rssTicker.is-scrolling ul{
-    animation: rssScroll 18s linear infinite;
   }
-  @keyframes rssScroll{
     0%{ transform: translateY(0); }
     100%{ transform: translateY(-40%); }
   }
@@ -1122,21 +1119,16 @@ button:hover{
         </div>
 
           <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px;">
-            <select class="pill" id="rssPreset" style="min-width:210px;">
               <option value="">…</option>
               <option value="https://www.cbr.com/feed/">CBR (all)</option>
               <option value="https://bleedingcool.com/comics/feed/">Bleeding Cool (comics)</option>
-              <option value="https://www.newsarama.com/rss/">Newsarama</option>
             </select>
-            <input class="pill" id="rssCustom" placeholder="…" style="flex:1;min-width:220px;" />
           </div>
 
-          <div class="rssTicker" id="rssTicker">
             <div class="muted"> <b>Refresh</b>…</div>
           </div>
 
           <div class="muted" style="font-size:11px;line-height:1.45;margin-top:10px;">
-            Tip: Some publishers change RSS URLs. If a preset stops working, paste a different RSS feed link above.
           </div>
         </div>
 
@@ -2163,6 +2155,7 @@ function importSoldCSV() {
       }
 
       writeSold(existing);
+      try{ updateBudgetPanel(); }catch(e){}
       msg.textContent = `Imported ${added} rows ✅`;
       msg.style.color = "var(--green)";
 
