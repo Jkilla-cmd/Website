@@ -14,199 +14,7 @@
 <meta name="apple-mobile-web-app-title" content="RESELLr">
 <link rel="apple-touch-icon" href="./icons/icon-192.png">
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js">
-/* ========= ANALYTICS OVERLAY (STABLE) ========= */
-let analyticsChartObj = null;
-
-function _num(v){ const n = parseFloat(v); return isNaN(n) ? 0 : n; }
-
-function _toMonthKey(label){
-  if(!label) return null;
-  const s = String(label).trim();
-
-  // Accept YYYY-MM
-  const m1 = s.match(/^(\d{4})-(\d{2})$/);
-  if(m1) return s;
-
-  // Accept YYYY-MM-DD
-  const m2 = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if(m2) return `${m2[1]}-${m2[2]}`;
-
-  // Try Date parse (e.g., "Jan 2026", "January 2026")
-  const d = new Date(s);
-  if(!isNaN(d)){
-    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-  }
-  return null;
-}
-
-function _soldAgg(year){
-  const sold = (window.state && Array.isArray(window.state.sold)) ? window.state.sold : [];
-  const map = {}; // YYYY-MM -> {income,gross,net}
-  for(const it of sold){
-    const key = _toMonthKey(it.date || it.soldDate || it.sold || "");
-    if(!key) continue;
-    if(year !== "ALL" && !key.startsWith(year + "-")) continue;
-
-    const sale = _num(it.sale ?? it.price ?? it.soldPrice ?? it.sold_price);
-    const cost = _num(it.cost);
-    const fees = _num(it.fees);
-    const ship = _num(it.ship ?? it.shipping ?? it.shipping_cost);
-
-    if(!map[key]) map[key] = { income:0, gross:0, net:0 };
-    map[key].income += sale;
-    map[key].gross += (sale - cost);
-    map[key].net   += (sale - cost - fees - ship);
-  }
-  return map;
-}
-
-function renderAnalyticsChart(){
-  const canvas = document.getElementById("analyticsChart");
-  if(!canvas) return;
-
-  const year = document.getElementById("yearFilter")?.value || "ALL";
-  const rawIncome = JSON.parse(localStorage.getItem("monthlyIncome")) || [];
-  const incomeData = (year === "ALL") ? rawIncome : rawIncome.filter(d => extractYear(d.label) === year);
-
-  // Income labels (what you entered / stored)
-  const labels = incomeData.map(d => d.label);
-  const income = incomeData.map(d => _num(d.income));
-
-  // Profit maps from sold (keyed by YYYY-MM)
-  const soldMap = _soldAgg(year);
-
-  // Align sold profits to income labels (best-effort mapping)
-  const gross = labels.map(lbl => {
-    const key = _toMonthKey(lbl);
-    return key && soldMap[key] ? soldMap[key].gross : 0;
-  });
-  const net = labels.map(lbl => {
-    const key = _toMonthKey(lbl);
-    return key && soldMap[key] ? soldMap[key].net : 0;
-  });
-  const margin = labels.map((_,i) => income[i] ? (net[i] / income[i]) * 100 : 0);
-  const goal = labels.map(() => 300);
-
-  // Callouts (best/worst) based on net profit
-  const stat = document.getElementById("bestWorstStat");
-  if(stat && labels.length){
-    let bestI = 0, worstI = 0;
-    for(let i=1;i<net.length;i++){
-      if(net[i] > net[bestI]) bestI = i;
-      if(net[i] < net[worstI]) worstI = i;
-    }
-    stat.innerHTML = `🟢 Best Month: <b>${labels[bestI] || "—"}</b> (${formatDollars(net[bestI]||0)}) &nbsp; | &nbsp; 🔴 Worst Month: <b>${labels[worstI] || "—"}</b> (${formatDollars(net[worstI]||0)})`;
-  } else if(stat){
-    stat.textContent = "—";
-  }
-
-  const showIncome = document.getElementById("togIncome")?.checked ?? true;
-  const showNet = document.getElementById("togNet")?.checked ?? true;
-  const showGross = document.getElementById("togGross")?.checked ?? false;
-  const showMargin = document.getElementById("togMargin")?.checked ?? false;
-
-  const datasets = [];
-  if(showIncome){
-    datasets.push({
-      label: "Income",
-      data: income,
-      borderColor: "#38bdf8",
-      backgroundColor: "rgba(56,189,248,0.12)",
-      tension: 0.3,
-      fill: true
-    });
-  }
-  if(showGross){
-    datasets.push({
-      label: "Gross Profit",
-      data: gross,
-      borderColor: "#fbbf24",
-      backgroundColor: "rgba(251,191,36,0.10)",
-      tension: 0.3,
-      fill: true
-    });
-  }
-  if(showNet){
-    datasets.push({
-      label: "Net Profit",
-      data: net,
-      borderColor: "#22c55e",
-      backgroundColor: "rgba(34,197,94,0.10)",
-      tension: 0.3,
-      fill: true
-    });
-  }
-
-  // Goal line on $ axis
-  datasets.push({
-    label: "Goal ($300/mo)",
-    data: goal,
-    borderColor: "#ef4444",
-    borderDash: [6,6],
-    pointRadius: 0,
-    tension: 0
-  });
-
-  if(showMargin){
-    datasets.push({
-      label: "Profit Margin %",
-      data: margin,
-      borderColor: "#e5e7eb",
-      borderDash: [4,4],
-      pointRadius: 2,
-      tension: 0.3,
-      yAxisID: "y1"
-    });
-  }
-
-  if(analyticsChartObj) analyticsChartObj.destroy();
-  analyticsChartObj = new Chart(canvas, {
-    type: "line",
-    data: { labels, datasets },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: "index", intersect: false },
-      plugins: {
-        legend: { labels: { color: "#9ca3af" } },
-        tooltip: {
-          callbacks: {
-            label: (ctx) => {
-              const name = ctx.dataset.label || "";
-              if(name.includes("%")) return ` ${name}: ${ctx.parsed.y.toFixed(1)}%`;
-              return ` ${name}: ${formatDollars(ctx.parsed.y)}`;
-            }
-          }
-        }
-      },
-      scales: {
-        x: { ticks: { color: "#6b7280" }, grid: { color: "rgba(31,41,55,0.55)" } },
-        y: {
-          beginAtZero: true,
-          ticks: { color: "#6b7280", callback: (v) => formatDollars(v) },
-          grid: { color: "rgba(31,41,55,0.55)" }
-        },
-        y1: {
-          position: "right",
-          beginAtZero: true,
-          display: showMargin,
-          ticks: { color: "#6b7280", callback: (v) => `${v}%` },
-          grid: { drawOnChartArea: false }
-        }
-      }
-    }
-  });
-}
-
-function initAnalyticsUI(){
-  ["togIncome","togNet","togGross","togMargin"].forEach(id=>{
-    const el = document.getElementById(id);
-    if(el) el.addEventListener("change", renderAnalyticsChart);
-  });
-}
-
-</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 
@@ -979,8 +787,9 @@ button:hover{
 }
 
 
-/* === Analytics tweaks === */
-#secDashboard .panel.income-full canvas { width: 100% !important; }
+/* === Dashboard full-width panels (centered max-width) === */
+#secDashboard .full-span{ grid-column: 1 / -1; }
+@media (max-width: 900px){ #secDashboard .full-span{ grid-column: auto; } }
 
 </style>
 </head>
@@ -1297,56 +1106,51 @@ button:hover{
           </div>
         </div>
 
-        
-      <div class="panel income-full">
-        <h3>Revenue & Profit</h3>
+        <div class="panel income-full">
+          <h3>Income Graph</h3>
 
-        <div class="stat muted" id="bestWorstStat">—</div>
-
-        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:10px 0 6px;">
-          <div class="pill" style="display:flex;align-items:center;gap:8px;">
-            <label class="muted" style="font-size:12px;">Year</label>
-            <select id="yearFilter" onchange="loadIncomeChart()">
-              <option value="ALL">ALL</option>
-            </select>
+          <div class="stat muted" id="bestWorstStat" style="margin-top:6px;">—</div>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:10px 0 8px;">
+            <div class="pill" style="display:flex;align-items:center;gap:8px;">
+              <label class="muted" style="font-size:12px;">Goal</label>
+              <span class="muted" style="font-size:12px;">$300/mo</span>
+            </div>
+            <div class="pill" style="display:flex;align-items:center;gap:10px;">
+              <label style="display:flex;align-items:center;gap:6px;font-size:12px;">
+                <input type="checkbox" id="togNet" checked> Net Profit
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:12px;">
+                <input type="checkbox" id="togGross"> Gross Profit
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:12px;">
+                <input type="checkbox" id="togMargin"> Margin %
+              </label>
+            </div>
           </div>
 
-          <div class="pill" style="display:flex;align-items:center;gap:10px;">
-            <label style="display:flex;align-items:center;gap:6px;font-size:12px;">
-              <input type="checkbox" id="togIncome" checked> Income
-            </label>
-            <label style="display:flex;align-items:center;gap:6px;font-size:12px;">
-              <input type="checkbox" id="togNet" checked> Net Profit
-            </label>
-            <label style="display:flex;align-items:center;gap:6px;font-size:12px;">
-              <input type="checkbox" id="togGross"> Gross Profit
-            </label>
-            <label style="display:flex;align-items:center;gap:6px;font-size:12px;">
-              <input type="checkbox" id="togMargin"> Margin %
-            </label>
+
+          <label>Year Filter</label>
+          <select id="yearFilter" onchange="loadIncomeChart()">
+            <option value="ALL">ALL</option>
+          </select>
+
+          <div class="chart-wrap">
+            <canvas id="incomeChart"></canvas>
           </div>
 
-          <div class="pill muted" style="font-size:12px;">
-            Goal: $300/mo
+          <div class="divider"></div>
+
+          <button onclick="rebuildMonthlyIncomeFromSold()">Sync Income From Sold</button>
+          <div style="height:10px"></div>
+          <button class="danger" onclick="resetMonthlyIncome()">Reset Month Data</button>
+          <div class="stat muted" id="monthCountStat"></div>
+        </div>
+
+        <div class="panel profit-full">
+          <h3>Net Profit Graph</h3>
+          <div class="chart-wrap">
+            <canvas id="profitChart"></canvas>
           </div>
-        </div>
-
-        <div class="chart-wrap" style="height:420px;">
-          <canvas id="analyticsChart"></canvas>
-        </div>
-
-        <div class="divider"></div>
-
-        <button onclick="rebuildMonthlyIncomeFromSold()">Sync Income From Sold</button>
-        <div style="height:8px"></div>
-        <button class="secondary" onclick="resetMonthlyIncome()">Reset Month Data</button>
-
-        <div class="muted" style="font-size:12px;line-height:1.5;margin-top:10px;">
-          Income = total sales. Gross Profit = sales − cost. Net Profit = sales − cost − fees − shipping.
-          Margin % = (net profit ÷ income) × 100. Goal line = $300/month.
-        </div>
-      </div>
-
         </div>
 
       </div>
@@ -2091,6 +1895,13 @@ function addMonthlyIncome() {
   monthLabel.value = "";
   monthIncome.value = "";
   loadIncomeChart();
+
+  // Analytics toggles (safe)
+  ["togNet","togGross","togMargin"].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.addEventListener("change", () => { try{ loadIncomeChart(); }catch(e){} });
+  });
+
 }
 function resetMonthlyIncome() { localStorage.removeItem("monthlyIncome"); loadIncomeChart(); }
 
@@ -2142,35 +1953,146 @@ const yearSeparatorPlugin = {
 
 function loadIncomeChart() {
   const raw = JSON.parse(localStorage.getItem("monthlyIncome")) || [];
-  monthCountStat.textContent = `MONTHS STORED: ${raw.length}
-  try{ renderAnalyticsChart(); }catch(e){}
-`;
+  monthCountStat.textContent = `MONTHS STORED: ${raw.length}`;
   refreshYearFilter(raw);
 
   const selectedYear = document.getElementById("yearFilter")?.value || "ALL";
   const data = selectedYear === "ALL" ? raw : raw.filter(d => extractYear(d.label) === selectedYear);
 
+  const labels = data.map(d => d.label);
+  const income = data.map(d => Number(d.income || 0));
+
+  const sold = (window.state && Array.isArray(window.state.sold)) ? window.state.sold : [];
+  const map = {};
+  for(const it of sold){
+    const ds = it.date || it.soldDate || it.sold || "";
+    const d = new Date(ds);
+    if(isNaN(d)) continue;
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    const sale = Number(it.sale || 0);
+    const cost = Number(it.cost || 0);
+    const fees = Number(it.fees || 0);
+    const ship = Number(it.ship || it.shipping || 0);
+    if(!map[key]) map[key] = { gross:0, net:0 };
+    map[key].gross += (sale - cost);
+    map[key].net += (sale - cost - fees - ship);
+  }
+
+  function labelToKey(lbl){
+    if(!lbl) return null;
+    const s = String(lbl).trim();
+    let m = s.match(/^(\d{4})-(\d{2})$/);
+    if(m) return s;
+    m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if(m) return `${m[1]}-${m[2]}`;
+    const dd = new Date(s);
+    if(!isNaN(dd)) return `${dd.getFullYear()}-${String(dd.getMonth()+1).padStart(2,'0')}`;
+    return null;
+  }
+
+  const gross = labels.map(l => {
+    const k = labelToKey(l);
+    return k && map[k] ? map[k].gross : 0;
+  });
+  const net = labels.map(l => {
+    const k = labelToKey(l);
+    return k && map[k] ? map[k].net : 0;
+  });
+  const margin = labels.map((_,i)=> income[i] ? (net[i] / income[i]) * 100 : 0);
+  const goal = labels.map(()=>300);
+
+  const stat = document.getElementById("bestWorstStat");
+  if(stat && labels.length){
+    let best = 0, worst = 0;
+    for(let i=1;i<net.length;i++){
+      if(net[i] > net[best]) best = i;
+      if(net[i] < net[worst]) worst = i;
+    }
+    stat.innerHTML = `🟢 Best Month: <b>${labels[best] || "—"}</b> (${formatDollars(net[best]||0)}) &nbsp; | &nbsp; 🔴 Worst Month: <b>${labels[worst] || "—"}</b> (${formatDollars(net[worst]||0)})`;
+  } else if(stat){
+    stat.textContent = "—";
+  }
+
+  const showNet = document.getElementById("togNet")?.checked ?? true;
+  const showGross = document.getElementById("togGross")?.checked ?? false;
+  const showMargin = document.getElementById("togMargin")?.checked ?? false;
+
   if (incomeChartObj) incomeChartObj.destroy();
+
+  const datasets = [{
+    label: "Income",
+    data: income,
+    borderColor: "#38bdf8",
+    borderWidth: 2,
+    tension: 0.35,
+    pointRadius: 3,
+    pointHoverRadius: 5
+  }];
+
+  if(showGross){
+    datasets.push({
+      label: "Gross Profit",
+      data: gross,
+      borderColor: "#fbbf24",
+      borderWidth: 2,
+      tension: 0.35,
+      pointRadius: 2,
+      pointHoverRadius: 4
+    });
+  }
+  if(showNet){
+    datasets.push({
+      label: "Net Profit",
+      data: net,
+      borderColor: "#22c55e",
+      borderWidth: 2,
+      tension: 0.35,
+      pointRadius: 2,
+      pointHoverRadius: 4
+    });
+  }
+
+  datasets.push({
+    label: "Goal ($300/mo)",
+    data: goal,
+    borderColor: "#ef4444",
+    borderDash: [6,6],
+    borderWidth: 2,
+    pointRadius: 0,
+    tension: 0
+  });
+
+  if(showMargin){
+    datasets.push({
+      label: "Profit Margin %",
+      data: margin,
+      borderColor: "#e5e7eb",
+      borderDash: [4,4],
+      borderWidth: 2,
+      pointRadius: 2,
+      tension: 0.35,
+      yAxisID: "y1"
+    });
+  }
 
   incomeChartObj = new Chart(incomeChart, {
     type: "line",
-    data: {
-      labels: data.map(d => d.label),
-      datasets: [{
-        data: data.map(d => d.income),
-        borderColor: "#38bdf8",
-        borderWidth: 2,
-        tension: 0.35,
-        pointRadius: 3,
-        pointHoverRadius: 5
-      }]
-    },
+    data: { labels, datasets },
     plugins: [yearSeparatorPlugin],
     options: {
       maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
       plugins: {
-        legend: { display: false },
-        tooltip: { callbacks: { label: (ctx) => ` ${formatDollars(ctx.parsed.y)}` } }
+        legend: { display: true, labels: { color: "#9ca3af" } },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const name = ctx.dataset.label || "";
+              if(name.includes("%")) return ` ${name}: ${ctx.parsed.y.toFixed(1)}%`;
+              return ` ${name}: ${formatDollars(ctx.parsed.y)}`;
+            }
+          }
+        }
       },
       scales: {
         x: { ticks: { color: "#6b7280" }, grid: { color: "rgba(31,41,55,0.55)" } },
@@ -2178,6 +2100,13 @@ function loadIncomeChart() {
           beginAtZero: true,
           ticks: { color: "#6b7280", callback: (value) => formatDollars(value) },
           grid: { color: "rgba(31,41,55,0.55)" }
+        },
+        y1: {
+          position: "right",
+          display: showMargin,
+          beginAtZero: true,
+          ticks: { color: "#6b7280", callback: (v) => `${v}%` },
+          grid: { drawOnChartArea: false }
         }
       }
     }
@@ -3614,8 +3543,7 @@ window.onload = () => {
   renderSold();
   loadIncomeChart();
   initBudgetPanel();
-  initAnalyticsUI();
-renderProfitGraph();
+  renderProfitGraph();
 showSection('secDashboard');
 };
 
