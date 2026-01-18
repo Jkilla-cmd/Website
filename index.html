@@ -23,6 +23,78 @@ document.addEventListener('change', (e) => {
   }
 });
 
+
+/* === Dashboard drag-to-resize (safe, isolated) === */
+(function(){
+  function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
+  function setup(){
+    const dash = document.getElementById('secDashboard');
+    if(!dash) return;
+
+    dash.querySelectorAll('.panel').forEach(panel=>{
+      const h = panel.querySelector('.resize-handle');
+      if(!h) return;
+
+      const start = (clientX, clientY) => {
+        panel.classList.add('resizing');
+        const rect = panel.getBoundingClientRect();
+        const startW = rect.width;
+        const startH = rect.height;
+        const startX = clientX;
+        const startY = clientY;
+
+        const move = (x, y) => {
+          const dx = x - startX;
+          const dy = y - startY;
+          const newW = clamp(startW + dx, 320, window.innerWidth - 40);
+          const newH = clamp(startH + dy, 220, window.innerHeight - 120);
+          panel.style.flexBasis = newW + 'px';
+          panel.style.height = newH + 'px';
+          // If chart exists inside, nudge Chart.js to resize
+          try {
+            const c = panel.querySelector('canvas');
+            if(c && window.Chart) {
+              const id = c.id;
+              // attempt known chart instances
+              if(window.incomeChartObj && id === 'incomeChart') window.incomeChartObj.resize();
+              if(window.analyticsChartObj && id === 'analyticsChart') window.analyticsChartObj.resize();
+            }
+          } catch(e){}
+        };
+
+        const onMouseMove = (e)=>{ move(e.clientX, e.clientY); };
+        const onMouseUp = ()=>{
+          panel.classList.remove('resizing');
+          window.removeEventListener('mousemove', onMouseMove);
+          window.removeEventListener('mouseup', onMouseUp);
+        };
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('mouseup', onMouseUp);
+      };
+
+      h.addEventListener('mousedown', (e)=>{
+        e.preventDefault();
+        start(e.clientX, e.clientY);
+      });
+
+      h.addEventListener('touchstart', (e)=>{
+        const t = e.touches && e.touches[0];
+        if(!t) return;
+        e.preventDefault();
+        start(t.clientX, t.clientY);
+      }, {passive:false});
+
+      h.addEventListener('touchmove', (e)=>{
+        // handled by global move via pointer; noop to prevent scroll
+        e.preventDefault();
+      }, {passive:false});
+    });
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', setup);
+  } else setup();
+})();
+
 </script>
 
 <style>
@@ -820,6 +892,46 @@ button:hover{
   }
 }
 
+
+/* === Drag-to-resize panels (Dashboard only) === */
+#secDashboard {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-start;
+}
+#secDashboard .panel {
+  position: relative;
+  flex: 1 1 380px;   /* default width */
+  min-width: 320px;
+  max-width: 100%;
+}
+#secDashboard .panel.panel-wide {
+  flex-basis: 780px; /* default "wide" panels like Income Graph */
+}
+#secDashboard .panel {
+  min-height: 220px;
+}
+#secDashboard .resize-handle {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  width: 14px;
+  height: 14px;
+  cursor: nwse-resize;
+  opacity: 0.65;
+  border-right: 2px solid rgba(148,163,184,0.55);
+  border-bottom: 2px solid rgba(148,163,184,0.55);
+  border-radius: 2px;
+}
+#secDashboard .panel.resizing {
+  user-select: none;
+}
+@media (max-width: 900px){
+  #secDashboard .panel { flex: 1 1 100%; min-width: 0; }
+  #secDashboard .resize-handle { display:none; }
+}
+
 </style>
 </head>
 
@@ -1046,7 +1158,9 @@ button:hover{
                 <option value="ytd">YTD</option>
                 <option value="30">Last 30 days</option>
               </select>
-            </div>
+            
+          <div class="resize-handle" aria-hidden="true"></div>
+        </div>
           </div>
 
           <div id="nwBody">
@@ -1077,7 +1191,9 @@ button:hover{
         </div>
 
         <div class="panel">
-        <div style="display:flex;justify-content:center;margin-bottom:14px;"><img src="./icons/icon-192.png" alt="RESELLr" style="width:54px;height:54px;border-radius:14px;border:1px solid var(--border);box-shadow:0 10px 25px rgba(0,0,0,0.35);"></div>
+        <div style="display:flex;justify-content:center;margin-bottom:14px;"><img src="./icons/icon-192.png" alt="RESELLr" style="width:54px;height:54px;border-radius:14px;border:1px solid var(--border);box-shadow:0 10px 25px rgba(0,0,0,0.35);">
+          <div class="resize-handle" aria-hidden="true"></div>
+        </div>
 
           <h3>Current Balance</h3>
 
@@ -1099,7 +1215,9 @@ button:hover{
           <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;">
             <h3 style="margin:0;">Next Month Inventory Budget</h3>
             <span class="pill muted" id="budgetMonthPill" style="height:30px;display:flex;align-items:center;">—</span>
-          </div>
+          
+          <div class="resize-handle" aria-hidden="true"></div>
+        </div>
 
           <div class="grid2" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
             <div class="stat blue" id="mtdSalesStat">MTD SALES: $0</div>
@@ -1135,10 +1253,12 @@ button:hover{
           </div>
         </div>
 
-        <div class="panel income-full">
+        <div class="panel income-full panel-wide">
           <h3>Income Graph</h3>
 
-          <div class="stat muted" id="bestWorstStat" style="margin-top:6px;">—</div>
+          <div class="stat muted" id="bestWorstStat" style="margin-top:6px;">—
+          <div class="resize-handle" aria-hidden="true"></div>
+        </div>
           <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:10px 0 8px;">
             <div class="pill" style="display:flex;align-items:center;gap:8px;">
               <label class="muted" style="font-size:12px;">Goal</label>
