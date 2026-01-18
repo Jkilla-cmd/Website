@@ -24,76 +24,144 @@ document.addEventListener('change', (e) => {
 });
 
 
-/* === Dashboard drag-to-resize (safe, isolated) === */
-(function(){
-  function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
-  function setup(){
-    const dash = document.getElementById('secDashboard');
-    if(!dash) return;
+/* === Dashboard resize + save/reset (safe) === */
+const DASH_LAYOUT_KEY = "dashboardLayoutV1";
 
-    dash.querySelectorAll('.panel').forEach(panel=>{
-      const h = panel.querySelector('.resize-handle');
-      if(!h) return;
+function _dashPanels(){
+  const dash = document.querySelector("#secDashboard .grid");
+  if(!dash) return [];
+  return Array.from(dash.querySelectorAll(".panel"));
+}
 
-      const start = (clientX, clientY) => {
-        panel.classList.add('resizing');
-        const rect = panel.getBoundingClientRect();
-        const startW = rect.width;
-        const startH = rect.height;
-        const startX = clientX;
-        const startY = clientY;
+function applyDashboardLayout(){
+  try{
+    const raw = localStorage.getItem(DASH_LAYOUT_KEY);
+    if(!raw) return;
+    const data = JSON.parse(raw);
+    _dashPanels().forEach((p, idx)=>{
+      const key = p.id || p.getAttribute("data-panel-key") || ("panel_"+idx);
+      const s = data[key];
+      if(!s) return;
+      if(s.basis) p.style.flexBasis = s.basis;
+      if(s.height) p.style.height = s.height;
+    });
+  }catch(e){}
+}
 
-        const move = (x, y) => {
-          const dx = x - startX;
-          const dy = y - startY;
-          const newW = clamp(startW + dx, 320, window.innerWidth - 40);
-          const newH = clamp(startH + dy, 220, window.innerHeight - 120);
-          panel.style.flexBasis = newW + 'px';
-          panel.style.height = newH + 'px';
-          // If chart exists inside, nudge Chart.js to resize
-          try {
-            const c = panel.querySelector('canvas');
-            if(c && window.Chart) {
-              const id = c.id;
-              // attempt known chart instances
-              if(window.incomeChartObj && id === 'incomeChart') window.incomeChartObj.resize();
-              if(window.analyticsChartObj && id === 'analyticsChart') window.analyticsChartObj.resize();
-            }
-          } catch(e){}
-        };
+function saveDashboardLayout(){
+  try{
+    const data = {};
+    _dashPanels().forEach((p, idx)=>{
+      const key = p.id || p.getAttribute("data-panel-key") || ("panel_"+idx);
+      data[key] = {
+        basis: p.style.flexBasis || "",
+        height: p.style.height || ""
+      };
+    });
+    localStorage.setItem(DASH_LAYOUT_KEY, JSON.stringify(data));
+    showToast("Layout saved");
+  }catch(e){
+    showToast("Could not save layout");
+  }
+}
 
-        const onMouseMove = (e)=>{ move(e.clientX, e.clientY); };
-        const onMouseUp = ()=>{
-          panel.classList.remove('resizing');
-          window.removeEventListener('mousemove', onMouseMove);
-          window.removeEventListener('mouseup', onMouseUp);
-        };
-        window.addEventListener('mousemove', onMouseMove);
-        window.addEventListener('mouseup', onMouseUp);
+function resetDashboardLayout(){
+  try{
+    localStorage.removeItem(DASH_LAYOUT_KEY);
+    _dashPanels().forEach(p=>{
+      p.style.flexBasis = "";
+      p.style.height = "";
+    });
+    // Re-apply defaults (income panel wide)
+    _markIncomeWide();
+    showToast("Layout reset");
+  }catch(e){
+    showToast("Could not reset layout");
+  }
+}
+
+function _markIncomeWide(){
+  // make panel containing incomeChart default wide
+  const incomeCanvas = document.getElementById("incomeChart");
+  if(!incomeCanvas) return;
+  const panel = incomeCanvas.closest(".panel");
+  if(panel) panel.classList.add("panel-wide");
+}
+
+function setupDashboardResize(){
+  const dash = document.querySelector("#secDashboard .grid");
+  if(!dash) return;
+
+  // Add keys for panels without ids
+  _dashPanels().forEach((p, idx)=>{
+    if(!p.id && !p.getAttribute("data-panel-key")){
+      p.setAttribute("data-panel-key", "panel_"+idx);
+    }
+  });
+
+  _markIncomeWide();
+
+  _dashPanels().forEach((panel)=>{
+    if(panel.querySelector(".resize-handle")) return;
+    const h = document.createElement("div");
+    h.className = "resize-handle";
+    h.setAttribute("aria-hidden","true");
+    panel.appendChild(h);
+
+    const clamp = (v,min,max)=>Math.max(min,Math.min(max,v));
+
+    const startDrag = (x,y)=>{
+      panel.classList.add("resizing");
+      const rect = panel.getBoundingClientRect();
+      const startW = rect.width;
+      const startH = rect.height;
+      const startX = x;
+      const startY = y;
+
+      const move = (mx,my)=>{
+        const dx = mx - startX;
+        const dy = my - startY;
+        const newW = clamp(startW + dx, 320, window.innerWidth - 40);
+        const newH = clamp(startH + dy, 220, window.innerHeight - 140);
+        panel.style.flexBasis = newW + "px";
+        panel.style.height = newH + "px";
+
+        // nudge Chart.js
+        try{ if(window.incomeChartObj) window.incomeChartObj.resize(); }catch(e){}
       };
 
-      h.addEventListener('mousedown', (e)=>{
-        e.preventDefault();
-        start(e.clientX, e.clientY);
-      });
+      const onMove = (e)=>move(e.clientX, e.clientY);
+      const onUp = ()=>{
+        panel.classList.remove("resizing");
+        window.removeEventListener("mousemove", onMove);
+        window.removeEventListener("mouseup", onUp);
+      };
+      window.addEventListener("mousemove", onMove);
+      window.addEventListener("mouseup", onUp);
+    };
 
-      h.addEventListener('touchstart', (e)=>{
-        const t = e.touches && e.touches[0];
-        if(!t) return;
-        e.preventDefault();
-        start(t.clientX, t.clientY);
-      }, {passive:false});
-
-      h.addEventListener('touchmove', (e)=>{
-        // handled by global move via pointer; noop to prevent scroll
-        e.preventDefault();
-      }, {passive:false});
+    h.addEventListener("mousedown", (e)=>{
+      e.preventDefault();
+      startDrag(e.clientX, e.clientY);
     });
+  });
+
+  applyDashboardLayout();
+}
+
+// Ensure resize setup runs after app initializes and dashboard exists
+document.addEventListener("DOMContentLoaded", ()=>{
+  try{ setupDashboardResize(); }catch(e){}
+});
+
+// Also run when user navigates back to Dashboard (in case of lazy DOM)
+document.addEventListener("click", (e)=>{
+  const t = e.target;
+  if(!t) return;
+  if(t.matches('[data-target="secDashboard"], #navDashboard, .nav-item[data-target="secDashboard"]')){
+    setTimeout(()=>{ try{ setupDashboardResize(); }catch(e){} }, 50);
   }
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', setup);
-  } else setup();
-})();
+});
 
 </script>
 
@@ -882,54 +950,39 @@ button:hover{
 }
 
 
-/* === Two-column span for Income Graph === */
-#secDashboard .two-span {
-  grid-column: span 2;
+/* === Dashboard: resizable panels (flex layout) === */
+#secDashboard .grid{
+  display:flex;
+  flex-wrap:wrap;
+  gap:16px;
+  align-items:flex-start;
 }
-@media (max-width: 900px) {
-  #secDashboard .two-span {
-    grid-column: auto;
-  }
-}
-
-
-/* === Drag-to-resize panels (Dashboard only) === */
-#secDashboard {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  align-items: flex-start;
-}
-#secDashboard .panel {
-  position: relative;
-  flex: 1 1 380px;   /* default width */
+#secDashboard .panel{
+  flex: 1 1 360px;
   min-width: 320px;
-  max-width: 100%;
-}
-#secDashboard .panel.panel-wide {
-  flex-basis: 780px; /* default "wide" panels like Income Graph */
-}
-#secDashboard .panel {
   min-height: 220px;
+  position: relative;
 }
-#secDashboard .resize-handle {
-  position: absolute;
-  right: 10px;
-  bottom: 10px;
-  width: 14px;
-  height: 14px;
-  cursor: nwse-resize;
-  opacity: 0.65;
-  border-right: 2px solid rgba(148,163,184,0.55);
-  border-bottom: 2px solid rgba(148,163,184,0.55);
-  border-radius: 2px;
+#secDashboard .panel.panel-wide{
+  flex-basis: 760px;
 }
-#secDashboard .panel.resizing {
-  user-select: none;
+#secDashboard .resize-handle{
+  position:absolute;
+  right:10px;
+  bottom:10px;
+  width:14px;
+  height:14px;
+  cursor:nwse-resize;
+  opacity:.65;
+  border-right:2px solid rgba(148,163,184,.55);
+  border-bottom:2px solid rgba(148,163,184,.55);
+  border-radius:2px;
 }
+#secDashboard .panel.resizing{ user-select:none; }
 @media (max-width: 900px){
-  #secDashboard .panel { flex: 1 1 100%; min-width: 0; }
-  #secDashboard .resize-handle { display:none; }
+  #secDashboard .grid{ display:block; }
+  #secDashboard .panel{ min-width:0; width:100%; }
+  #secDashboard .resize-handle{ display:none; }
 }
 
 </style>
@@ -1158,9 +1211,7 @@ button:hover{
                 <option value="ytd">YTD</option>
                 <option value="30">Last 30 days</option>
               </select>
-            
-          <div class="resize-handle" aria-hidden="true"></div>
-        </div>
+            </div>
           </div>
 
           <div id="nwBody">
@@ -1191,9 +1242,7 @@ button:hover{
         </div>
 
         <div class="panel">
-        <div style="display:flex;justify-content:center;margin-bottom:14px;"><img src="./icons/icon-192.png" alt="RESELLr" style="width:54px;height:54px;border-radius:14px;border:1px solid var(--border);box-shadow:0 10px 25px rgba(0,0,0,0.35);">
-          <div class="resize-handle" aria-hidden="true"></div>
-        </div>
+        <div style="display:flex;justify-content:center;margin-bottom:14px;"><img src="./icons/icon-192.png" alt="RESELLr" style="width:54px;height:54px;border-radius:14px;border:1px solid var(--border);box-shadow:0 10px 25px rgba(0,0,0,0.35);"></div>
 
           <h3>Current Balance</h3>
 
@@ -1215,9 +1264,7 @@ button:hover{
           <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;">
             <h3 style="margin:0;">Next Month Inventory Budget</h3>
             <span class="pill muted" id="budgetMonthPill" style="height:30px;display:flex;align-items:center;">—</span>
-          
-          <div class="resize-handle" aria-hidden="true"></div>
-        </div>
+          </div>
 
           <div class="grid2" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
             <div class="stat blue" id="mtdSalesStat">MTD SALES: $0</div>
@@ -1253,12 +1300,10 @@ button:hover{
           </div>
         </div>
 
-        <div class="panel income-full panel-wide">
+        <div class="panel income-full">
           <h3>Income Graph</h3>
 
-          <div class="stat muted" id="bestWorstStat" style="margin-top:6px;">—
-          <div class="resize-handle" aria-hidden="true"></div>
-        </div>
+          <div class="stat muted" id="bestWorstStat" style="margin-top:6px;">—</div>
           <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:10px 0 8px;">
             <div class="pill" style="display:flex;align-items:center;gap:8px;">
               <label class="muted" style="font-size:12px;">Goal</label>
@@ -1700,7 +1745,18 @@ button:hover{
           <div class="divider"></div>
           <div class="stat muted">Supports + − × ÷ and parentheses.</div>
         </div>
-      </div>
+      
+        <div class="panel">
+          <h3>Layout (Dashboard)</h3>
+          <div class="muted" style="font-size:12px;line-height:1.5">
+            Resize dashboard panels by dragging the corner handle (desktop). You can save your layout so it sticks after refresh.
+          </div>
+          <div style="height:10px"></div>
+          <button onclick="saveDashboardLayout()">Save Layout</button>
+          <div style="height:8px"></div>
+          <button class="secondary" onclick="resetDashboardLayout()">Reset Layout</button>
+        </div>
+</div>
     </section>
 
     <!-- SETTINGS -->
