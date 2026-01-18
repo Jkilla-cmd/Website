@@ -163,6 +163,23 @@ document.addEventListener("click", (e)=>{
   }
 });
 
+
+/* === Force inject resize handles if missing === */
+function forceResizeHandles(){
+  const dash = document.querySelector("#secDashboard .grid");
+  if(!dash) return;
+  dash.querySelectorAll(".panel").forEach(p=>{
+    if(!p.querySelector(".resize-handle")){
+      const h=document.createElement("div");
+      h.className="resize-handle";
+      h.setAttribute("aria-hidden","true");
+      p.appendChild(h);
+    }
+  });
+}
+document.addEventListener("DOMContentLoaded", ()=>setTimeout(forceResizeHandles,200));
+document.addEventListener("click", ()=>setTimeout(forceResizeHandles,200));
+
 </script>
 
 <style>
@@ -983,6 +1000,15 @@ button:hover{
   #secDashboard .grid{ display:block; }
   #secDashboard .panel{ min-width:0; width:100%; }
   #secDashboard .resize-handle{ display:none; }
+}
+
+
+/* === FORCE resize handles visible === */
+#secDashboard .panel::after{ display:none; }
+#secDashboard .resize-handle{
+  display:block !important;
+  opacity:1 !important;
+  z-index:10;
 }
 
 </style>
